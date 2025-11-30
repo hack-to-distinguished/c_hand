@@ -48,7 +48,9 @@ size_t ws_base64_encode(const unsigned char *in, size_t in_len, char *out, size_
 
 ssize_t ws_recv_frame(int sock, char *out, size_t max_len) {
     unsigned char hdr[2];
-    if (recv(sock, hdr, 2, 0) <= 0) return -1;
+    ssize_t r = recv(sock, hdr, 2, 0);
+    if (r == 0) return -1; // EOF error (disconnected)
+    if (r < 0) return -1; // TCP Error
 
     // int fin = hdr[0] & 0x80;
     int opcode = hdr[0] & 0x0F;
@@ -57,7 +59,7 @@ ssize_t ws_recv_frame(int sock, char *out, size_t max_len) {
 
     // Handle close frame
     if (opcode == 8) {
-        printf("Received close frame from socket %d\n", sock);
+        printf("\nReceived close frame from socket %d\n\n", sock);
         // Send close frame back
         unsigned char close_frame[2] = {0x88, 0x00}; // Close frame with no payload
         send(sock, close_frame, 2, 0);
@@ -152,7 +154,7 @@ void ws_send_frame(int sock, const char *msg) {
     }
 }
 
-void ws_send_http_response(int sock, const char *body) {
+void ws_close_websocket_http_response(int sock, const char *body) {
     char response[BUFFER_SIZE];
     char escaped[BUFFER_SIZE];
 
@@ -301,8 +303,8 @@ int main(int argc, char *argv[]) {
     struct pollfd pfds[MAX_CLIENTS + 1]; // +1 for the server socket
     pfds[0].fd = server_fd;
     pfds[0].events = POLLIN;
-    int fd_count = 1;
 
+    int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
     flat_message_store fms[MSG_STORE_SIZE];
@@ -366,7 +368,7 @@ int main(int argc, char *argv[]) {
             if (fd_count >= MAX_CLIENTS + 1) {
                 printf("Server full, rejecting connection from %s\n", client_ip);
                 const char *msg = "Server full";
-                ws_send_http_response(client_fd, msg);
+                ws_close_websocket_http_response(client_fd, msg);
                 close(client_fd);
                 continue;
             }
@@ -396,12 +398,13 @@ int main(int argc, char *argv[]) {
 
                 pfds[fd_count].fd = client_fd;
                 pfds[fd_count].events = POLLIN;
+                pfds[fd_count].revents = 0; // Ensures that new conn starts with a clean slate
                 fd_count++;
 
                 printf("WebSocket connection established with %s on socket %d\n", client_ip, client_fd);
             } else {
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
-                ws_send_http_response(client_fd, "This server only accepts WebSocket connections\n");
+                ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
                 close(client_fd);
                 continue;
             }
@@ -434,7 +437,7 @@ int main(int argc, char *argv[]) {
                 ssize_t bytes_recv = ws_recv_frame(client_sock, buffer, BUFFER_SIZE - 1);
 
                 // FIX: The handling of invalid/Closed sockets is wrong
-                if (bytes_recv <= 0) {
+                if (bytes_recv < 0) {
                     printf("Client %s on socket %d disconnected\n", clients[client_idx].ip, client_sock);
                     close(client_sock);
 
@@ -444,6 +447,11 @@ int main(int argc, char *argv[]) {
                     pfds[i] = pfds[fd_count - 1];
                     fd_count--;
                     i--;
+                    continue;
+                }
+
+                if (bytes_recv == 0) {
+                    // Control for ping/pong
                     continue;
                 }
 
