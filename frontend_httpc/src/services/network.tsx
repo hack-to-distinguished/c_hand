@@ -3,8 +3,6 @@ import { useEffect, useState, useRef } from "react";
 export function useWebSocket(serverUrl: string) {
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const socket = useRef<WebSocket | null>(null);
-  // const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
-  // const shouldReconnect = useRef(true); // Track if we should reconnect
 
   useEffect(() => {
     const ws = new WebSocket(serverUrl);
