@@ -1,15 +1,35 @@
 #include "parser.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void parse(tokenListCTX *tokenListCTX) {
-    for (size_t i = 0; i < tokenListCTX->currentSize; i++) {
-        // printf("\n%p", tokenListCTX->head[i].self);
-        // match(&tokenListCTX->head[i]);
+    // reset position of indexPosition pointer
+    tokenListCTX->indexPosition = tokenListCTX->tokenList;
+
+    if (check(0, tokenListCTX->indexPosition->self->type)) {
+        printf("\nSelect statement detected!");
+        showIndex(tokenListCTX);
+        advance(tokenListCTX);
+        showIndex(tokenListCTX);
     }
 };
 
-bool match(Token *token) {
-    // printf("\nToken Type (match call): %d", token->type);
-    return true;
+void showIndex(tokenListCTX *tokenListCTX) {
+    printf("\nIndex Position: %ld",
+           tokenListCTX->indexPosition - tokenListCTX->tokenList);
+}
+
+void advance(tokenListCTX *tokenListCTX) {
+    if ((tokenListCTX->tokenList - tokenListCTX->indexPosition + 1) <
+        tokenListCTX->currentSize) {
+        tokenListCTX->indexPosition += 1;
+    }
+};
+
+bool check(size_t tokenType, size_t tokenTypeToBeChecked) {
+    if (tokenType == tokenTypeToBeChecked) {
+        return true;
+    }
+    return false;
 };

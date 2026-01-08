@@ -18,7 +18,7 @@ void scanTokens(char *buffer) {
         currentPosOfLexeme = scanToken(currentPosOfLexeme, ctx, startOfLexeme);
     }
     printAllTokens(ctx);
-    // parse(ctx);
+    parse(ctx);
     destroyTokenList(ctx);
     return;
 }
