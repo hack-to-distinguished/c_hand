@@ -51,11 +51,13 @@ void appendToken(Token *token, tokenListCTX *ctx) {
 void printAllTokens(tokenListCTX *ctx) {
     int counter = 0;
     while ((ctx->currentSize > counter)) {
-        printf("\nToken Type: %d, Lexeme: %s (%p), Token Address: %p",
+        printf("\nToken Type: %d, Lexeme: %s (%p), Token Address (actual): %p, "
+               "Copied "
+               "Contents stored at: %p",
                ctx->tokenList[counter].self->type,
                ctx->tokenList[counter].self->lexeme,
                ctx->tokenList[counter].self->lexeme,
-               ctx->tokenList[counter].self);
+               ctx->tokenList[counter].self, &ctx->tokenList[counter]);
         counter += 1;
     }
     return;
