@@ -7,7 +7,9 @@ void parse(tokenListCTX *tokenListCTX) {
     // reset position of indexPosition pointer
     tokenListCTX->indexPosition = tokenListCTX->tokenList;
     SQLStatement *statement = parseSQLStatment(tokenListCTX);
-    free(statement);
+    if (statement) {
+        free(statement);
+    }
 };
 
 void showIndex(tokenListCTX *tokenListCTX) {
@@ -16,6 +18,7 @@ void showIndex(tokenListCTX *tokenListCTX) {
 }
 
 void advance(tokenListCTX *tokenListCTX) {
+    // tokenListCTX->indexPosition += 1;
     if ((tokenListCTX->tokenList - tokenListCTX->indexPosition + 1) <
         tokenListCTX->currentSize) {
         tokenListCTX->indexPosition += 1;
@@ -29,19 +32,62 @@ bool check(size_t tokenType, size_t tokenTypeToBeChecked) {
     return false;
 };
 
-Token *peekToken(tokenListCTX *tokenListCTX) {
-    return tokenListCTX->indexPosition;
+Token peekToken(tokenListCTX *tokenListCTX) {
+    return *tokenListCTX->indexPosition;
 };
 
-SelectStatement *parseSelectStatement() { return NULL; };
+void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
+                  tokenListCTX *tokenListCTX) {
 
-InsertStatement *parseInsertStatement() { return NULL; };
+    if (check(tokenType, tokenTypeToBeChecked)) {
+        advance(tokenListCTX);
+        return;
+    } else {
+        perror("Token did not match!");
+        printf("\nSyntax Error detected!");
+        return;
+    }
+}
 
-UpdateStatement *parseUpdateStatement() { return NULL; };
+SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX) {
+    return NULL;
+};
 
-DeleteStatement *parseDeleteStatement() { return NULL; };
+InsertStatement *parseInsertStatement(tokenListCTX *tokenListCTX) {
+    return NULL;
+};
 
-ExitStatement *parseExitStatement() { return NULL; };
+UpdateStatement *parseUpdateStatement(tokenListCTX *tokenListCTX) {
+    return NULL;
+};
+
+DeleteStatement *parseDeleteStatement(tokenListCTX *tokenListCTX) {
+    return NULL;
+};
+
+ExitStatement *parseExitStatement(tokenListCTX *tokenListCTX) {
+    // consume tokens, if all necessary tokens are consumed, then we allocate
+    // space for the exit statement and return it
+    Token token = peekToken(tokenListCTX);
+
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_EXIT,
+                 tokenListCTX);
+
+    // printf("\nindex: %p", tokenListCTX->indexPosition);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
+                 tokenListCTX);
+
+    ExitStatement *exitStatement = malloc(sizeof(ExitStatement));
+
+    if (!exitStatement) {
+        perror("Memory allocation failed for exit statement.");
+        free(exitStatement);
+        return NULL;
+    }
+
+    printf("\nExit statement parsed!");
+    return exitStatement;
+};
 
 SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
     // LOGIC:
@@ -49,7 +95,7 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
     // 2) Create space for SQLStatment struct.
     // 3) Decide which path to take.
     // 4) Return struct.
-    Token *token = peekToken(tokenListCTX);
+    Token token = peekToken(tokenListCTX);
 
     SQLStatement *statement = malloc(sizeof(SQLStatement));
     if (!statement) {
@@ -58,31 +104,31 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
         return NULL;
     }
 
-    switch (token->type) {
+    switch (token.type) {
     case TOKEN_KEYWORD_SELECT:
         printf("\nSELECT STATEMENT DETECTED");
         statement->type = SELECT_STATEMENT;
-        statement->data = parseSelectStatement();
+        statement->data = parseSelectStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_INSERT:
         printf("\nINSERT STATEMENT DETECTED");
         statement->type = INSERT_STATEMENT;
-        statement->data = parseInsertStatement();
+        statement->data = parseInsertStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_UPDATE:
         printf("\nUPDATE STATEMENT DETECTED");
         statement->type = UPDATE_STATEMENT;
-        statement->data = parseUpdateStatement();
+        statement->data = parseUpdateStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_DELETE:
         printf("\nDELETE STATEMENT DETECTED");
         statement->type = DELETE_STATEMENT;
-        statement->data = parseUpdateStatement();
+        statement->data = parseUpdateStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_EXIT:
         printf("\nEXIT STATEMENT DETECTED");
         statement->type = EXIT_STATEMENT;
-        statement->data = parseExitStatement();
+        statement->data = parseExitStatement(tokenListCTX);
         break;
     default:
         perror("Expected SELECT, INSERT, UPDATE, DELETE, or EXIT");

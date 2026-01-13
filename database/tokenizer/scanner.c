@@ -121,12 +121,6 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
 
             capitaliseString(lexeme);
 
-            if (strcmp(lexeme, "EXIT") == 0) {
-                free(lexeme);
-                destroyTokenList(ctx);
-                exit(0);
-            }
-
             bool found = false;
             for (int i = 0; i < (sizeof(keywords) / sizeof(Keyword)); i++) {
                 if (strcmp(keywords[i].keyword, lexeme) == 0) {
