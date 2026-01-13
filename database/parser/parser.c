@@ -12,6 +12,11 @@ void parse(tokenListCTX *tokenListCTX) {
     }
 };
 
+void syntaxError(const char *message) {
+    printf("%s", message);
+    return;
+};
+
 void showIndex(tokenListCTX *tokenListCTX) {
     printf("\nIndex Position: %ld",
            tokenListCTX->indexPosition - tokenListCTX->tokenList);
@@ -38,13 +43,18 @@ Token peekToken(tokenListCTX *tokenListCTX) {
 
 void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
                   tokenListCTX *tokenListCTX) {
-
     if (check(tokenType, tokenTypeToBeChecked)) {
         advance(tokenListCTX);
         return;
     } else {
-        perror("Token did not match!");
+        // perror("Token did not match!");
         printf("\nSyntax Error detected!");
+        // Build a detailed error message
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "\nExpected: %ld\nBut got: %ld",
+                 tokenTypeToBeChecked, tokenType);
+
+        syntaxError(error_msg);
         return;
     }
 }
@@ -85,7 +95,6 @@ ExitStatement *parseExitStatement(tokenListCTX *tokenListCTX) {
         return NULL;
     }
 
-    printf("\nExit statement parsed!");
     return exitStatement;
 };
 
@@ -131,7 +140,7 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
         statement->data = parseExitStatement(tokenListCTX);
         break;
     default:
-        perror("Expected SELECT, INSERT, UPDATE, DELETE, or EXIT");
+        syntaxError("\nExpected SELECT, INSERT, UPDATE, DELETE, or EXIT");
         free(statement);
         return NULL;
     }

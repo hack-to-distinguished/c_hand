@@ -12,7 +12,7 @@ tokenListCTX *initialiseTokenList(size_t size) {
         Token *tokenList;
         Token *indexPosition;
         tokenList = (Token *)malloc(size * sizeof(Token));
-        printf("\nCreated Token List at: %p", tokenList);
+        // printf("\nCreated Token List at: %p", tokenList);
         if (tokenList == NULL) {
             fprintf(stderr,
                     "\nMemory not allocated successfully for token list!");
@@ -67,14 +67,14 @@ void destroyTokenList(tokenListCTX *ctx) {
     // printf("\nDestroying token list!");
     printf("\n");
     for (size_t i = 0; i < ctx->currentSize; i++) {
-        printf("\nDestroying Token at address %p!", ctx->tokenList[i].self);
+        // printf("\nDestroying Token at address %p!", ctx->tokenList[i].self);
         if (ctx->tokenList[i].type <= 15) {
             free(ctx->tokenList[i].lexeme);
         }
         free(ctx->tokenList[i].self);
     }
-    printf("\nFreeing tokenListCTX at address %p\n", ctx);
-    printf("Freeing tokenList at address %p\n", ctx->tokenList);
+    // printf("\nFreeing tokenListCTX at address %p\n", ctx);
+    // printf("Freeing tokenList at address %p\n", ctx->tokenList);
     free(ctx->tokenList);
     free(ctx);
     printf("\n");

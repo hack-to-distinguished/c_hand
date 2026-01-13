@@ -18,8 +18,7 @@ typedef struct {
 // programming their corresponding parse function
 // NOTE: void* used as these structures have not yet been defined...
 typedef struct {
-    // going to have nothing in here for now
-    int placeholder;
+    // don't need to actually store anything for this struct
 } ExitStatement;
 
 typedef struct {

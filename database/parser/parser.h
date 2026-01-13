@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+void syntaxError(const char *message);
 bool check(size_t tokenType, size_t tokenTypeToBeChecked);
 void advance(tokenListCTX *tokenListCTX);
 void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
