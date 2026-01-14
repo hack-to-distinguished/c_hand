@@ -41,6 +41,9 @@ typedef enum {
     TOKEN_LPAREN,
     TOKEN_RPAREN,
     TOKEN_DOT,
+
+    // Other
+    TOKEN_EOF
 } TokenType;
 
 typedef struct Token {

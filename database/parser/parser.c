@@ -76,17 +76,12 @@ DeleteStatement *parseDeleteStatement(tokenListCTX *tokenListCTX) {
 };
 
 ExitStatement *parseExitStatement(tokenListCTX *tokenListCTX) {
-    // consume tokens, if all necessary tokens are consumed, then we allocate
-    // space for the exit statement and return it
     Token token = peekToken(tokenListCTX);
-
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_EXIT,
                  tokenListCTX);
-
-    // printf("\nindex: %p", tokenListCTX->indexPosition);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
                  tokenListCTX);
-
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_EOF, tokenListCTX);
     ExitStatement *exitStatement = malloc(sizeof(ExitStatement));
 
     if (!exitStatement) {
