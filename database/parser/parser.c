@@ -12,6 +12,10 @@ void parse(tokenListCTX *tokenListCTX) {
     }
 };
 
+const char *tokenTypeToString(TokenType s) {
+    return (s >= 0) ? tokens[s] : "UNKNOWN";
+};
+
 void syntaxError(const char *message) {
     printf("%s", message);
     return;
@@ -47,12 +51,12 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
         advance(tokenListCTX);
         return;
     } else {
-        // perror("Token did not match!");
-        printf("\nSyntax Error detected!");
         // Build a detailed error message
         char error_msg[256];
-        snprintf(error_msg, sizeof(error_msg), "\nExpected: %ld\nBut got: %ld",
-                 tokenTypeToBeChecked, tokenType);
+        snprintf(error_msg, sizeof(error_msg),
+                 "\nERROR:\n  Expected: %s\n  But got: %s",
+                 tokenTypeToString(tokenTypeToBeChecked),
+                 tokenTypeToString(tokenType));
 
         syntaxError(error_msg);
         return;
@@ -110,32 +114,28 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
 
     switch (token.type) {
     case TOKEN_KEYWORD_SELECT:
-        printf("\nSELECT STATEMENT DETECTED");
         statement->type = SELECT_STATEMENT;
         statement->data = parseSelectStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_INSERT:
-        printf("\nINSERT STATEMENT DETECTED");
         statement->type = INSERT_STATEMENT;
         statement->data = parseInsertStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_UPDATE:
-        printf("\nUPDATE STATEMENT DETECTED");
         statement->type = UPDATE_STATEMENT;
         statement->data = parseUpdateStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_DELETE:
-        printf("\nDELETE STATEMENT DETECTED");
         statement->type = DELETE_STATEMENT;
         statement->data = parseUpdateStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_EXIT:
-        printf("\nEXIT STATEMENT DETECTED");
         statement->type = EXIT_STATEMENT;
         statement->data = parseExitStatement(tokenListCTX);
         break;
     default:
-        syntaxError("\nExpected SELECT, INSERT, UPDATE, DELETE, or EXIT");
+        syntaxError(
+            "\nERROR:\n Expected SELECT, INSERT, UPDATE, DELETE, or EXIT");
         free(statement);
         return NULL;
     }

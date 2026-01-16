@@ -1,49 +1,43 @@
 #include <stddef.h>
+
+#define TOKEN_LIST                                                             \
+    X(TOKEN_KEYWORD_SELECT)                                                    \
+    X(TOKEN_KEYWORD_FROM)                                                      \
+    X(TOKEN_KEYWORD_WHERE)                                                     \
+    X(TOKEN_KEYWORD_INSERT)                                                    \
+    X(TOKEN_KEYWORD_UPDATE)                                                    \
+    X(TOKEN_KEYWORD_DELETE)                                                    \
+    X(TOKEN_KEYWORD_EXIT)                                                      \
+    X(TOKEN_KEYWORD_NULL)                                                      \
+    X(TOKEN_KEYWORD_AND)                                                       \
+    X(TOKEN_KEYWORD_OR)                                                        \
+    X(TOKEN_KEYWORD_ORDER)                                                     \
+    X(TOKEN_KEYWORD_BY)                                                        \
+    X(TOKEN_IDENTIFIER)                                                        \
+    X(TOKEN_STRING_LITERAL)                                                    \
+    X(TOKEN_INTEGER_LITERAL)                                                   \
+    X(TOKEN_FLOAT_LITERAL)                                                     \
+    X(TOKEN_OPERATOR_EQ)                                                       \
+    X(TOKEN_OPERATOR_NEQ)                                                      \
+    X(TOKEN_OPERATOR_LT)                                                       \
+    X(TOKEN_OPERATOR_LTE)                                                      \
+    X(TOKEN_OPERATOR_GT)                                                       \
+    X(TOKEN_OPERATOR_GTE)                                                      \
+    X(TOKEN_OPERATOR_PLUS)                                                     \
+    X(TOKEN_OPERATOR_MINUS)                                                    \
+    X(TOKEN_OPERATOR_STAR)                                                     \
+    X(TOKEN_OPERATOR_SLASH)                                                    \
+    X(TOKEN_COMMA)                                                             \
+    X(TOKEN_SEMICOLON)                                                         \
+    X(TOKEN_LPAREN)                                                            \
+    X(TOKEN_RPAREN)                                                            \
+    X(TOKEN_DOT)                                                               \
+    X(TOKEN_EOF)
+
 typedef enum {
-    // Keywords
-    // Just going to do simple SQL commands, no inner joins etc.
-    TOKEN_KEYWORD_SELECT,
-    TOKEN_KEYWORD_FROM,
-    TOKEN_KEYWORD_WHERE,
-    TOKEN_KEYWORD_INSERT,
-    TOKEN_KEYWORD_UPDATE,
-    TOKEN_KEYWORD_DELETE,
-    TOKEN_KEYWORD_EXIT,
-    TOKEN_KEYWORD_NULL,
-    TOKEN_KEYWORD_AND,
-    TOKEN_KEYWORD_OR,
-    TOKEN_KEYWORD_ORDER,
-    TOKEN_KEYWORD_BY,
-
-    // Identifiers -> names of columns, tables, etc
-    TOKEN_IDENTIFIER,
-
-    // Literals
-    TOKEN_STRING_LITERAL,
-    TOKEN_INTEGER_LITERAL,
-    TOKEN_FLOAT_LITERAL,
-
-    // Operators
-    TOKEN_OPERATOR_EQ,
-    TOKEN_OPERATOR_NEQ,
-    TOKEN_OPERATOR_LT,
-    TOKEN_OPERATOR_LTE,
-    TOKEN_OPERATOR_GT,
-    TOKEN_OPERATOR_GTE,
-    TOKEN_OPERATOR_PLUS,
-    TOKEN_OPERATOR_MINUS,
-    TOKEN_OPERATOR_STAR,
-    TOKEN_OPERATOR_SLASH,
-
-    // Punctuation
-    TOKEN_COMMA,
-    TOKEN_SEMICOLON,
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_DOT,
-
-    // Other
-    TOKEN_EOF
+#define X(token) token,
+    TOKEN_LIST
+#undef X
 } TokenType;
 
 typedef struct Token {
@@ -57,6 +51,14 @@ typedef struct {
     char *keyword;
     TokenType type;
 } Keyword;
+
+static const char *tokens[] = {
+#define X(token) #token,
+    TOKEN_LIST
+#undef X
+};
+
+const char *tokenTypeToString(TokenType s);
 
 static Keyword keywords[] = {
     {"SELECT", TOKEN_KEYWORD_SELECT}, {"INSERT", TOKEN_KEYWORD_INSERT},

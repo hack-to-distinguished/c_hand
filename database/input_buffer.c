@@ -26,7 +26,7 @@ void getLineInput(inputLineBuffer *iPL) {
     char *userInput = NULL;
     size_t *len = malloc(sizeof(size_t));
     ssize_t *charactersRead = malloc(sizeof(ssize_t));
-    printf("\ndb > ");
+    printf("db > ");
     *charactersRead = getline(&userInput, len, stdin);
 
     if (*charactersRead == -1) {
