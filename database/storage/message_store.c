@@ -5,6 +5,8 @@
 #include <time.h>
 #include "message_store.h"
 
+# define BUFFER_SIZE 2048
+
 void ms_view_all_entries(flat_message_store* fms)
 {
     // INFO: Start at 1 bc the first msg is empty
@@ -118,6 +120,34 @@ void free_memory(flat_message_store* fms)
         i++;
     }
     return;
+}
+
+
+void ms_http_message_store_endpoint(int sock, const char *body) {
+    char response[BUFFER_SIZE];
+    char escaped[BUFFER_SIZE];
+
+    // JSON escaping
+    size_t j = 0;
+    for (size_t i = 0; body[i] && j < BUFFER_SIZE - 2; i++) {
+        if (body[i] == '"' || body[i] == '\\') {
+            escaped[j++] = '\\';
+        }
+        escaped[j++] = body[i];
+    }
+    escaped[j] = '\0';
+
+    int body_len = snprintf(NULL, 0, "{\"message\": \"%s\"}", escaped);
+
+    snprintf(response, sizeof(response),
+         "HTTP/1.1 200 OK\r\n"
+         "Content-Type: application/json\r\n"
+         "Access-Control-Allow-Origin: *\r\n"
+         "Content-Length: %d\r\n"
+         "Connection: close\r\n"
+         "\r\n"
+         "{\"message\": \"%s\"}",
+         body_len, escaped);
 }
 
 // int main()
