@@ -18,7 +18,7 @@ void scanTokens(char *buffer) {
         currentPosOfLexeme = scanToken(currentPosOfLexeme, ctx, startOfLexeme);
     }
 
-    addToken(ctx, TOKEN_EOF, "");
+    addToken(ctx, TOKEN_EOF, "EOF");
     // printAllTokens(ctx);
     parse(ctx);
     destroyTokenList(ctx);
@@ -160,7 +160,7 @@ void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme) {
 };
 
 bool isAtEnd(char *posInBuffer) {
-    if (*posInBuffer == '\n' || *posInBuffer == '\0' || *posInBuffer == '\r') {
+    if (*posInBuffer == '\0' || *posInBuffer == '\r') {
         return true;
     }
     return false;

@@ -1,5 +1,4 @@
 #include "input_buffer.h"
-// #include "parser/parser.h"
 #include "tokenizer/scanner.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,50 +6,51 @@
 #include <stdlib.h>
 #include <string.h>
 
-inputLineBuffer *createInputLineBuffer() {
-    inputLineBuffer *ptrInputLineBuffer = malloc(sizeof(inputLineBuffer));
-    ptrInputLineBuffer->bufferLength = 0;
+inputBuffer *createInputBuffer() {
+    inputBuffer *ptrInputLineBuffer = malloc(sizeof(inputBuffer));
     ptrInputLineBuffer->buffer = NULL;
     return ptrInputLineBuffer;
 }
 
-void destroyInputLineBuffer(inputLineBuffer *iPL) {
-    free(iPL->buffer);
-    free(iPL->bufferLength);
-    free(iPL->charactersReadInclEOF);
-    free(iPL);
+void destroyInputBuffer(inputBuffer *ptrInputBuffer) {
+    free(ptrInputBuffer->buffer);
+    free(ptrInputBuffer);
     return;
 }
 
-void getLineInput(inputLineBuffer *iPL) {
-    char *userInput = NULL;
-    size_t *len = malloc(sizeof(size_t));
-    ssize_t *charactersRead = malloc(sizeof(ssize_t));
+void getInput(inputBuffer *ptrInputBuffer) {
+
+    size_t bufferSize = 2;
+    size_t bufferIndex = 0;
+    char *inputFromUser = (char *)malloc(sizeof(char) * bufferSize);
+
+    printf("----------\n");
     printf("db > ");
-    *charactersRead = getline(&userInput, len, stdin);
+    for (int character = fgetc(stdin); character != EOF && character != ';';
+         character = fgetc(stdin)) {
+        if (bufferIndex >= bufferSize) {
+            bufferSize *= 2;
+            inputFromUser = (char *)realloc(inputFromUser, bufferSize);
+        }
+        if (character == '\n' && bufferIndex > 0) {
+            printf("   > ");
+        }
+        if (character != '\n') {
+            inputFromUser[bufferIndex] = character;
+            bufferIndex += 1;
+        }
+    };
 
-    if (*charactersRead == -1) {
-        fprintf(stderr, "\nError occurred upon getting line from user.");
-        exit(1);
-    }
-    if (*charactersRead == 0) {
-        fprintf(stderr, "\nEOF was reach before any characters were read.");
-        exit(1);
-    }
+    inputFromUser = (char *)realloc(inputFromUser, bufferIndex + 2);
+    inputFromUser[bufferIndex] = ';';
+    inputFromUser[bufferIndex + 1] = '\0';
 
-    iPL->buffer = userInput;
-    iPL->bufferLength = len;
-    iPL->charactersReadInclEOF = charactersRead;
-
+    printf("----------\n");
+    ptrInputBuffer->buffer = inputFromUser;
     return;
 }
 
-void processLineInput(inputLineBuffer *iPL) {
-    if (*iPL->charactersReadInclEOF == 1) {
-        fprintf(stderr, "\nEmpty input.");
-        exit(1);
-    } else {
-        scanTokens(iPL->buffer);
-    }
+void processInput(inputBuffer *ptrInputBuffer) {
+    scanTokens(ptrInputBuffer->buffer);
     return;
 }
