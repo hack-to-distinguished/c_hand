@@ -34,16 +34,10 @@ void showIndex(tokenListCTX *tokenListCTX) {
            tokenListCTX->indexPosition - tokenListCTX->tokenList);
 }
 
-void advance(tokenListCTX *tokenListCTX) {
-    // tokenListCTX->indexPosition += 1;
-    if ((tokenListCTX->tokenList - tokenListCTX->indexPosition + 1) <
-        tokenListCTX->currentSize) {
-        tokenListCTX->indexPosition += 1;
-    }
-};
+void advance(tokenListCTX *tokenListCTX) { tokenListCTX->indexPosition += 1; };
 
-bool check(size_t tokenType, size_t tokenTypeToBeChecked) {
-    if (tokenType == tokenTypeToBeChecked) {
+bool check(size_t tokenType, size_t tokenTypeToBeCheckedAgainst) {
+    if (tokenType == tokenTypeToBeCheckedAgainst) {
         return true;
     }
     return false;
@@ -72,6 +66,10 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
 }
 
 SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX) {
+    Token token = peekToken(tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_SELECT,
+                 tokenListCTX);
+
     return NULL;
 };
 
@@ -88,7 +86,6 @@ DeleteStatement *parseDeleteStatement(tokenListCTX *tokenListCTX) {
 };
 
 ExitStatement *parseExitStatement(tokenListCTX *tokenListCTX) {
-    Token token = peekToken(tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_EXIT,
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
