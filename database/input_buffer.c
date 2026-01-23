@@ -19,33 +19,52 @@ void destroyInputBuffer(inputBuffer *ptrInputBuffer) {
 }
 
 void getInput(inputBuffer *ptrInputBuffer) {
-
     size_t bufferSize = 2;
     size_t bufferIndex = 0;
+    bool seenSemicolon = false;
     char *inputFromUser = (char *)malloc(sizeof(char) * bufferSize);
 
-    printf("----------\n");
-    printf("db > ");
-    for (int character = fgetc(stdin); character != EOF && character != ';';
-         character = fgetc(stdin)) {
-        if (bufferIndex >= bufferSize) {
+    if (!inputFromUser) {
+        perror("failed to allocate memory");
+        exit(-1);
+    }
+
+    int c;
+    printf("\ndb > ");
+    fflush(stdout);
+
+    while ((c = getchar()) != EOF) {
+        if (bufferIndex >= bufferSize - 1) {
             bufferSize *= 2;
             inputFromUser = (char *)realloc(inputFromUser, bufferSize);
+            if (!inputFromUser) {
+                perror("failed to reallocate memory");
+                exit(-1);
+            }
         }
-        if (character == '\n' && bufferIndex > 0) {
+        inputFromUser[bufferIndex] = c;
+        bufferIndex++;
+
+        if (c == ';') {
+            seenSemicolon = true;
+        }
+
+        if (c == '\n') {
+            if (seenSemicolon) {
+                break;
+            }
             printf("   > ");
-        }
-        if (character != '\n') {
-            inputFromUser[bufferIndex] = character;
-            bufferIndex += 1;
-        }
-    };
 
-    inputFromUser = (char *)realloc(inputFromUser, bufferIndex + 2);
-    inputFromUser[bufferIndex] = ';';
-    inputFromUser[bufferIndex + 1] = '\0';
+            fflush(stdout);
+        }
+    }
 
-    printf("----------\n");
+    inputFromUser[bufferIndex] = '\0';
+
+    char *lastSemicolon = strrchr(inputFromUser, ';');
+    if (lastSemicolon) {
+        lastSemicolon[1] = '\0';
+    }
     ptrInputBuffer->buffer = inputFromUser;
     return;
 }
