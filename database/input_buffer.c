@@ -21,12 +21,13 @@ void destroyInputBuffer(inputBuffer *ptrInputBuffer) {
 void getInput(inputBuffer *ptrInputBuffer) {
     size_t bufferSize = 2;
     size_t bufferIndex = 0;
-    bool seenSemicolon = false;
+    bool seenLastSemicolon = false;
     char *inputFromUser = (char *)malloc(sizeof(char) * bufferSize);
 
     if (!inputFromUser) {
         perror("failed to allocate memory");
-        exit(-1);
+        free(inputFromUser);
+        exit(EXIT_FAILURE);
     }
 
     int c;
@@ -39,22 +40,24 @@ void getInput(inputBuffer *ptrInputBuffer) {
             inputFromUser = (char *)realloc(inputFromUser, bufferSize);
             if (!inputFromUser) {
                 perror("failed to reallocate memory");
-                exit(-1);
+                free(inputFromUser);
+                exit(EXIT_FAILURE);
             }
         }
         inputFromUser[bufferIndex] = c;
         bufferIndex++;
 
         if (c == ';') {
-            seenSemicolon = true;
+            seenLastSemicolon = true;
+        } else if (c != '\n') {
+            seenLastSemicolon = false;
         }
 
         if (c == '\n') {
-            if (seenSemicolon) {
+            if (seenLastSemicolon) {
                 break;
             }
             printf("   > ");
-
             fflush(stdout);
         }
     }
