@@ -2,9 +2,13 @@
 // a new endpoint for the frontend to interact with the database
 // This file will be used for all interactions with the database
 #include <arpa/inet.h>
+#include <asm-generic/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include "../database/storage/message_store.h"
 #include "../threaded_server_src/http.h"
 #include "wsock_functions.h"
@@ -20,20 +24,51 @@ void error(const char *msg) {
 }
 
 int main(int argc, char *argv[]) {
-    
-    struct addrinfo hints;
-    struct addrinfo *res;
+
+    struct addrinfo hints, *res;
+    int server_fd;
+    int reuse_addr_flag = 1;
 
     // Define what we expect in addrinfo
+    memset(&hints, 0, sizeof hints); // sets sizeof hints bytes of 0 to hints
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
     // Get the pointer to addrinfo (not actually needed bc of the *res above)
-    // getaddrinfo();
+    const char *host = (argc > 1) ? argv[1] : NULL;
+    int addr_info = getaddrinfo(host, MYPORT, &hints, &res);
+    if (addr_info != 0) {
+        fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(addr_info));
+        exit(1);
+    }
+    printf("IP address for %s\n", argv[1]);
+
+    // This whole bit is lowkey useless
+    char ipstr[INET6_ADDRSTRLEN];
+
+    inet_ntop(res->ai_family, argv[1], ipstr, sizeof ipstr);
+    printf("Server IP address: %s\n", ipstr);
+    printf("Starting server on port %s\n", MYPORT);
+
+    server_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (server_fd == -1) {
+        error("Failed to create socket\n");
+    }
+
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr_flag, sizeof(reuse_addr_flag)) == -1) {
+        error("Failed to set socket options\n");
+    }
+    if (bind(server_fd, res->ai_addr, res->ai_addrlen) == -1) {
+        error("Unable to bind socket to port");
+    }
+    
+    listen(server_fd, BACKLOG);
 
 
 
 
+    freeaddrinfo(res);
+    printf("REACHED end of file\n");
     return 0;
 }
