@@ -8,6 +8,14 @@ void parse(tokenListCTX *tokenListCTX) {
     tokenListCTX->indexPosition = tokenListCTX->tokenList;
     SQLStatement *statement = parseSQLStatment(tokenListCTX);
     if (statement) {
+        if (statement->type == EXIT_STATEMENT) {
+            if (statement) {
+                free(statement->data);
+                free(statement);
+            }
+            exit(1);
+        }
+        free(statement->data);
         free(statement);
     }
 };
