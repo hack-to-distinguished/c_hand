@@ -28,12 +28,12 @@ SDBMS_SRCS = \
 	database/tokenizer/scanner.c \
 	database/parser/parser.c \
 	database/parser/parser_utils.c \
-	database/parser/parse_sql_statement.c \
-	database/parser/parse_select_statement.c \
-	database/parser/parse_exit_statement.c \
-	database/parser/parse_delete_statement.c \
-	database/parser/parse_insert_statement.c \
-	database/parser/parse_update_statement.c
+	database/parser/parsing_functions/parse_sql_statement.c \
+	database/parser/parsing_functions/parse_select_statement.c \
+	database/parser/parsing_functions/parse_exit_statement.c \
+	database/parser/parsing_functions/parse_delete_statement.c \
+	database/parser/parsing_functions/parse_insert_statement.c \
+	database/parser/parsing_functions/parse_update_statement.c
 SDBMS_BIN = sdbms
 
 # Data store
