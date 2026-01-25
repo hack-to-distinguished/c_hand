@@ -2,7 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+SelectList *parseSelectList(tokenListCTX *tokenListCTX) { return NULL; };
+
 SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX) {
+
+    SelectStatement *selectStatement = malloc(sizeof(SelectStatement));
+
+    if (!selectStatement) {
+        perror("Memory allocation failed for exit statement.");
+        free(selectStatement);
+        exit(EXIT_FAILURE);
+        return NULL;
+    }
+
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_SELECT,
                  tokenListCTX);
 
@@ -12,6 +24,9 @@ SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX) {
                      tokenListCTX);
     } else if (nextToken.type == TOKEN_IDENTIFIER) {
         // TODO: Create select list parser
+        SelectList *selectList = malloc(sizeof(SelectList));
+        selectList = parseSelectList(tokenListCTX);
+        selectStatement->SelectList = selectList;
     }
 
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_FROM,
@@ -24,15 +39,6 @@ SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX) {
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_EOF, tokenListCTX);
-
-    SelectStatement *selectStatement = malloc(sizeof(SelectStatement));
-
-    if (!selectStatement) {
-        perror("Memory allocation failed for exit statement.");
-        free(selectStatement);
-        exit(EXIT_FAILURE);
-        return NULL;
-    }
 
     // TODO: If user inputted extra statements, insert corresponding nodes into
     // select statement tree
