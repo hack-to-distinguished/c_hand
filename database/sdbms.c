@@ -5,11 +5,11 @@
 int main() {
 
     while (true) {
-        inputBuffer *iPL = createInputBuffer();
-        getInput(iPL);
+        inputBuffer *userInput = createInputBuffer();
+        getInput(userInput);
 
-        processInput(iPL);
-        destroyInputBuffer(iPL);
+        processInput(userInput);
+        destroyInputBuffer(userInput);
     }
 
     return 0;

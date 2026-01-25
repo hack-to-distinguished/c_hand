@@ -9,23 +9,27 @@ void scanTokens(char *buffer) {
     tokenListCTX *ctx = initialiseTokenList(8);
     char *startOfLexeme = buffer;
     char *currentPosOfLexeme = startOfLexeme;
-    int lineNumber = 1;
+    size_t lineNumber = 1;
 
     // scan the actual tokens
     while (!isAtEnd(currentPosOfLexeme)) {
         startOfLexeme = currentPosOfLexeme;
-        currentPosOfLexeme = scanToken(currentPosOfLexeme, ctx, startOfLexeme);
+        if (*startOfLexeme == '\n') {
+            lineNumber += 1;
+        }
+        currentPosOfLexeme =
+            scanToken(currentPosOfLexeme, ctx, startOfLexeme, lineNumber);
     }
 
-    addToken(ctx, TOKEN_EOF, "EOF");
-    printAllTokens(ctx);
+    addToken(ctx, TOKEN_EOF, "EOF", lineNumber);
+    // printAllTokens(ctx);
     parse(ctx);
     destroyTokenList(ctx);
     return;
 }
 
-char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
-                char *bufferStart) {
+char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
+                size_t lineNumber) {
     char c = *currentPosOfLexeme;
 
     switch (c) {
@@ -37,26 +41,26 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
         break;
     // Punctuation
     case ',':
-        addToken(ctx, TOKEN_COMMA, ",");
+        addToken(ctx, TOKEN_COMMA, ",", lineNumber);
         break;
     case ';':
-        addToken(ctx, TOKEN_SEMICOLON, ";");
+        addToken(ctx, TOKEN_SEMICOLON, ";", lineNumber);
         break;
     case '(':
-        addToken(ctx, TOKEN_LPAREN, "(");
+        addToken(ctx, TOKEN_LPAREN, "(", lineNumber);
         break;
     case ')':
-        addToken(ctx, TOKEN_RPAREN, ")");
+        addToken(ctx, TOKEN_RPAREN, ")", lineNumber);
         break;
     case '.':
-        addToken(ctx, TOKEN_DOT, ".");
+        addToken(ctx, TOKEN_DOT, ".", lineNumber);
         break;
 
     // Operators
     case '!':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_NEQ, "!=");
+            addToken(ctx, TOKEN_OPERATOR_NEQ, "!=", lineNumber);
             break;
         } else {
             fprintf(stderr, "\nUnrecognised Input");
@@ -64,42 +68,42 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
             break;
         }
     case '=':
-        addToken(ctx, TOKEN_OPERATOR_EQ, "=");
+        addToken(ctx, TOKEN_OPERATOR_EQ, "=", lineNumber);
         break;
     case '<':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_LTE, "<=");
+            addToken(ctx, TOKEN_OPERATOR_LTE, "<=", lineNumber);
         } else {
-            addToken(ctx, TOKEN_OPERATOR_LT, "<");
+            addToken(ctx, TOKEN_OPERATOR_LT, "<", lineNumber);
         }
         break;
     case '>':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_GTE, ">=");
+            addToken(ctx, TOKEN_OPERATOR_GTE, ">=", lineNumber);
         } else {
-            addToken(ctx, TOKEN_OPERATOR_GT, ">");
+            addToken(ctx, TOKEN_OPERATOR_GT, ">", lineNumber);
         }
         break;
     case '+':
-        addToken(ctx, TOKEN_OPERATOR_PLUS, "+");
+        addToken(ctx, TOKEN_OPERATOR_PLUS, "+", lineNumber);
         break;
     case '-':
-        addToken(ctx, TOKEN_OPERATOR_MINUS, "-");
+        addToken(ctx, TOKEN_OPERATOR_MINUS, "-", lineNumber);
         break;
     case '*':
-        addToken(ctx, TOKEN_OPERATOR_STAR, "*");
+        addToken(ctx, TOKEN_OPERATOR_STAR, "*", lineNumber);
         break;
     case '/':
-        addToken(ctx, TOKEN_OPERATOR_SLASH, "/");
+        addToken(ctx, TOKEN_OPERATOR_SLASH, "/", lineNumber);
         break;
 
     // STRING LITERALS
     case '\'':
         currentPosOfLexeme = stringLiteral(currentPosOfLexeme);
         addToken(ctx, TOKEN_STRING_LITERAL,
-                 getStringLiteral(currentPosOfLexeme, bufferStart));
+                 getStringLiteral(currentPosOfLexeme, bufferStart), lineNumber);
         break;
     default:
         // INTEGER + FLOAT LITERALS
@@ -108,9 +112,9 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
             char *numberLiteral =
                 getNumberLiteral(currentPosOfLexeme, bufferStart);
             if (checkFloat(numberLiteral)) {
-                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral);
+                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral, lineNumber);
             } else {
-                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral);
+                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral, lineNumber);
             }
             currentPosOfLexeme -= 1;
             // assuming that any identifier will begin with a character
@@ -125,7 +129,7 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
             bool found = false;
             for (int i = 0; i < (sizeof(keywords) / sizeof(Keyword)); i++) {
                 if (strcmp(keywords[i].keyword, lexeme) == 0) {
-                    addToken(ctx, keywords[i].type, lexeme);
+                    addToken(ctx, keywords[i].type, lexeme, lineNumber);
                     found = true;
                     break;
                 }
@@ -135,7 +139,7 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
                 free(lexeme);
                 char *lexemeIdentifier =
                     getIdentifierLiteral(currentPosOfLexeme, bufferStart);
-                addToken(ctx, TOKEN_IDENTIFIER, lexemeIdentifier);
+                addToken(ctx, TOKEN_IDENTIFIER, lexemeIdentifier, lineNumber);
             }
             currentPosOfLexeme -= 1;
         } else {
@@ -149,11 +153,13 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
     return (currentPosOfLexeme + 1);
 };
 
-void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme) {
+void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme,
+              size_t lineNumber) {
     Token *token = malloc(sizeof(Token));
     token->type = tokenType;
     token->lexeme = lexeme;
     token->self = token;
+    token->line = lineNumber;
     appendToken(token, ctx);
     return;
 };

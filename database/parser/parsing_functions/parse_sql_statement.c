@@ -1,4 +1,5 @@
 #include "../parser_utils.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,12 +39,19 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
         statement->type = EXIT_STATEMENT;
         statement->data = parseExitStatement(tokenListCTX);
         break;
-    default:
-        syntaxError(
-            "\nERROR:\n Expected SELECT, INSERT, UPDATE, DELETE, or EXIT");
+    default: {
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg),
+
+                 "\nERROR:\n  Expected SELECT, INSERT, UPDATE, DELETE, or "
+                 "EXIT\n  On line %ld",
+                 tokenListCTX->indexPosition->line);
+
+        syntaxError(error_msg);
         free(statement);
         exit(EXIT_FAILURE);
         return NULL;
+    }
     }
 
     return statement;

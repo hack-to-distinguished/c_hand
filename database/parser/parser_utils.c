@@ -39,9 +39,10 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
         // Build a detailed error message
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
-                 "\nERROR:\n  Expected: %s\n  But got: %s",
+                 "\nERROR:\n  Expected: %s\n  But got: %s\n  On line %ld",
                  tokenTypeToString(tokenTypeToBeChecked),
-                 tokenTypeToString(tokenType));
+                 tokenTypeToString(tokenType),
+                 tokenListCTX->indexPosition->line);
 
         syntaxError(error_msg);
         exit(EXIT_FAILURE);
