@@ -44,6 +44,7 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
                  tokenTypeToString(tokenType));
 
         syntaxError(error_msg);
+        exit(EXIT_FAILURE);
         return;
     }
 }

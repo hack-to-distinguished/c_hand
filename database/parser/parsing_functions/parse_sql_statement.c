@@ -42,6 +42,7 @@ SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX) {
         syntaxError(
             "\nERROR:\n Expected SELECT, INSERT, UPDATE, DELETE, or EXIT");
         free(statement);
+        exit(EXIT_FAILURE);
         return NULL;
     }
 

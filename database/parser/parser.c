@@ -1,6 +1,5 @@
 #include "parser_utils.h"
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 void parse(tokenListCTX *tokenListCTX) {
