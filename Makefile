@@ -21,7 +21,19 @@ CLIENT_SRCS = client.c
 CLIENT_BIN = client
 
 # Simple Database Management System
-SDBMS_SRCS = database/input_buffer.c database/sdbms.c database/tokenizer/token_list.c database/tokenizer/scanner.c database/parser/parser.c
+SDBMS_SRCS = \
+	database/input_buffer.c \
+	database/sdbms.c \
+	database/tokenizer/token_list.c \
+	database/tokenizer/scanner.c \
+	database/parser/parser.c \
+	database/parser/parser_utils.c \
+	database/parser/parse_sql_statement.c \
+	database/parser/parse_select_statement.c \
+	database/parser/parse_exit_statement.c \
+	database/parser/parse_delete_statement.c \
+	database/parser/parse_insert_statement.c \
+	database/parser/parse_update_statement.c
 SDBMS_BIN = sdbms
 
 # Data store

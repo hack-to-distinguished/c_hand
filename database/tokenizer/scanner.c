@@ -1,5 +1,4 @@
 #include "scanner.h"
-// #include "../parser/parser.h"
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
