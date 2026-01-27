@@ -11,7 +11,7 @@ WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_se
 WSOCK_SERVER_BIN = wsock_server
 
 # WebSocket database
-WSOCK_DB_SRC = web_server/wsock_database.c
+WSOCK_DB_SRC = web_server/wsock_database.c threaded_server_src/http.c
 WSOCK_DB_BIN = wsock_database
 
 # SSH server/client

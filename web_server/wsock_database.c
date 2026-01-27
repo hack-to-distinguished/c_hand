@@ -134,16 +134,12 @@ int main(int argc, char *argv[]) {
             }
 
             // Read the initial HTTP request
-            memset(buffer, 0, BUFFER_SIZE);
-            int bytes_read = recv(client_fd, buffer, BUFFER_SIZE -1, 0);
-            if (bytes_read <= 0) {
-                perror("Receive failed");
-                shutdown(client_fd, 2);
-                continue;
-            }
-            buffer[bytes_read] = '\0';
+            printf("Going to receive HTTP request on NJ code\n");
+            char* bytes_read = receive_HTTP_request(client_fd);
+            printf("Received http request: %s\n", bytes_read);
 
 
+            // TODO: add logic here to act based on the HTTP request from earlier
             const char *sec_key  = "x"; // change this to get an actuall proper security key
             if (sec_key) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -177,44 +173,6 @@ int main(int argc, char *argv[]) {
                     if (clients[j].fd == client_sock) {
                         client_idx = j;
                         break;
-                    }
-                }
-
-                // FIX: The handling of invalid/Closed sockets is wrong
-                if (client_idx == -1 || !clients[client_idx].is_websocket) {
-                    printf("Invalid client socket %d, closing\n", client_sock);
-                    shutdown(client_sock, 2);
-                    pfds[i] = pfds[fd_count - 1];
-                    fd_count--;
-                    i--;
-                    continue;
-                }
-
-                memset(buffer, 0, BUFFER_SIZE);
-                ssize_t bytes_recv = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
-
-                // FIX: The handling of invalid/Closed sockets is wrong
-                if (bytes_recv < 0) {
-                    printf("Client %s on socket %d disconnected\n", clients[client_idx].ip, client_sock);
-                    shutdown(client_sock, 2);
-
-                    clients[client_idx].fd = -1;
-                    clients[client_idx].is_websocket = false;
-
-                    pfds[i] = pfds[fd_count - 1];
-                    fd_count--;
-                    i--;
-                    continue;
-                }
-
-                if (bytes_recv == 0) {
-                    continue;// Control for ping/pong
-                }
-                printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
-
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clients[j].fd != -1 && clients[j].is_websocket) {
-                        send(clients[j].fd, buffer, strlen(buffer), 0);
                     }
                 }
             }
