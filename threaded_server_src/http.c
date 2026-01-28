@@ -82,7 +82,7 @@ char *receive_HTTP_request(int new_connection_fd) {
     }
 
     if (bytes_recv == 0 && total_received == 0) {
-        fprintf(stderr, "\nclient disconnected");
+        fprintf(stderr, "\nclient disconnected\n");
         free(ptr_http_request_buffer);
         return NULL;
     }
@@ -626,7 +626,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     char *crlf_ptr = strstr(buffer, http_version);
     if (crlf_ptr == NULL) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -634,7 +634,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     crlf_ptr += 8;
     if (result != 3) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -644,7 +644,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           strcmp(ctx->ptr_method, "POST") == 0 ||
           strcmp(ctx->ptr_method, "HEAD") == 0)) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -652,7 +652,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (strcmp(http_version, "HTTP/1.1") != 0) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -660,7 +660,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (!(crlf_ptr[0] == '\r' && crlf_ptr[1] == '\n')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -676,7 +676,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           buffer[len_method + len_uri + 1] == ' ' &&
           buffer[len_method + len_uri + 2] != ' ')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
