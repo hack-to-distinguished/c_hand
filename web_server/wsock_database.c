@@ -27,11 +27,6 @@ void error(const char *msg) {
     exit(1);
 }
 
-typedef struct {
-    int fd;
-    bool is_websocket;
-    char ip[INET6_ADDRSTRLEN];
-} client_t;
 
 int main(int argc, char *argv[]) {
 
@@ -80,125 +75,36 @@ int main(int argc, char *argv[]) {
         error("Failed to listen");
     }
 
-
-    client_t clients[MAX_CLIENTS];
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        clients[i].fd = -1;
-        clients[i].is_websocket = false;
-    }
-
     // We'll need a queue of clients, they don't all need to access the db at the same time
     // but their requests can't be ignored
     client_addr_len = sizeof(their_addr);
-
-    struct pollfd pfds[MAX_CLIENTS + 1]; // +1 for the server socket
-    pfds[0].fd = server_fd;
-    pfds[0].events = POLLIN;
 
     int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
     while (1) {
-        int poll_count = poll(pfds, fd_count, -1);
-        if (poll_count == -1) {
-            error("Poll error");
-        }
 
         // Check for new connections
-        if (pfds[0].revents & POLLIN) {
-            int client_fd = accept(server_fd, (struct sockaddr *)&their_addr, &client_addr_len);
-            if (client_fd == -1) {
-                perror("Accept failed");
-                continue;
-            }
-
-            int keepalive = 1;
-            if (setsockopt(client_fd, SOL_SOCKET, SO_KEEPALIVE, &keepalive, sizeof(keepalive)) == -1) {
-                perror("Failed to set SO_KEEPALIVE");
-            }
-
-            struct sockaddr_in *client_addr;
-            client_addr = (struct sockaddr_in*)&their_addr;
-            char client_ip[INET6_ADDRSTRLEN];
-            inet_ntop(their_addr.ss_family, &client_addr->sin_addr, client_ip, sizeof(client_ip));
-            printf("New connection from %s from socket %d\n", client_ip, client_fd);
-
-            // Check if we can accept more clients
-            if (fd_count >= MAX_CLIENTS + 1) {
-                printf("Server full, putting client in a queue for next loop\n");
-                const char *msg = "Pending";
-                send(client_fd, msg, strlen(buffer), 0);
-                // TODO: remove the close and add the user to a queue
-                shutdown(client_fd, 1);
-                continue;
-            }
-
-            // Read the initial HTTP request
-            printf("Going to receive HTTP request on NJ code\n");
-            char* bytes_read = receive_HTTP_request(client_fd);
-            printf("Received http request: %s\n", bytes_read);
-
-
-            // TODO: add logic here to act based on the HTTP request from earlier
-            const char *sec_key  = "x"; // change this to get an actuall proper security key
-            if (sec_key) {
-                for (int i = 0; i < MAX_CLIENTS; i++) {
-                    if (clients[i].fd == -1) {
-                        clients[i].fd = client_fd;
-                        clients[i].is_websocket = true;
-                        strncpy(clients[i].ip, client_ip, sizeof(clients[i].ip));
-                        break;
-                    }
-                }
-
-
-                pfds[fd_count].fd = client_fd;
-                pfds[fd_count].events = POLLIN;
-                pfds[fd_count].revents = 0; // Ensures that new conn starts with a clean slate
-                fd_count++;
-            } else {
-                printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
-                ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
-                shutdown(client_fd, 2);
-                continue;
-            }
+        int client_fd = accept(server_fd, (struct sockaddr *)&their_addr, &client_addr_len);
+        if (client_fd == -1) {
+            perror("Accept failed");
+            continue;
         }
 
-        for (int i = 1; i < fd_count; i++) {
-            if (pfds[i].revents & POLLIN) {
-                int client_sock = pfds[i].fd;
-
-                int client_idx = -1;
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clients[j].fd == client_sock) {
-                        client_idx = j;
-                        break;
-                    }
-                }
-            }
-
-            // Check for errors or disconnects
-            if (pfds[i].revents & (POLLERR | POLLHUP | POLLNVAL)) {
-                int client_sock = pfds[i].fd;
-
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clients[j].fd == client_sock) {
-                        printf("Client %s on socket %d has error or disconnected\n", clients[j].ip, client_sock);
-                        shutdown(client_sock, 2);
-                        clients[j].fd = -1;
-                        clients[j].is_websocket = false;
-                        break;
-                    }
-                }
-
-                pfds[i] = pfds[fd_count - 1];
-                fd_count--;
-                i--;
-            }
+        int keepalive = 1;
+        if (setsockopt(client_fd, SOL_SOCKET, SO_KEEPALIVE, &keepalive, sizeof(keepalive)) == -1) {
+            perror("Failed to set SO_KEEPALIVE");
         }
 
+        struct sockaddr_in *client_addr;
+        client_addr = (struct sockaddr_in*)&their_addr;
+        char client_ip[INET6_ADDRSTRLEN];
+        inet_ntop(their_addr.ss_family, &client_addr->sin_addr, client_ip, sizeof(client_ip));
+        printf("New connection from %s from socket %d\n", client_ip, client_fd);
 
 
+        printf("Going to receive HTTP request on NJ code\n");
+        parse_HTTP_requests(client_fd);
     }
 
     shutdown(server_fd, 2);

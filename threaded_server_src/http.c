@@ -470,9 +470,10 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
     if (file_ptr == NULL && strcmp(ctx->ptr_method, "GET") == 0) {
         fprintf(stderr, "\t Can't open file : %s\n", ptr_uri_buffer);
-        ERROR_STATE_404(ctx);
-        close(ctx->new_connection_fd);
-        return;
+        fprintf(stderr, "\t Or request isn't a file : %s\n", ptr_uri_buffer);
+        // ERROR_STATE_404(ctx);
+        // close(ctx->new_connection_fd);
+        // return;
     }
 
     struct stat sb;
@@ -480,13 +481,14 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
     if (access(uri_buffer, F_OK) == 0 && !S_ISDIR(sb.st_mode) &&
         strcmp(ctx->ptr_method, "GET") == 0) {
-        // printf("\nGET");
+        // printf("\nGET\n");
         send_requested_file_back(ctx, ptr_uri_buffer);
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         fclose(file_ptr);
         return;
+
     } else if (strcmp(ctx->ptr_method, "HEAD") == 0 &&
                access(uri_buffer, F_OK) == 0 && !S_ISDIR(sb.st_mode)) {
         send_requested_HEAD_back(ctx, ptr_uri_buffer);
@@ -494,12 +496,37 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+
     } else if (strcmp(ctx->ptr_method, "POST") == 0) {
         parse_body_of_POST(ctx);
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+
+    } else if (strcmp(ctx->ptr_method, "GET") == 0 &&
+        strcmp(ctx->ptr_uri, "/health") == 0) {
+        printf("URI is /health");
+
+        char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+        char *ptr_body;
+        int body_len;
+        ptr_body = "<body>\r\n"
+                "Test\r\n"
+                "</body>\r\n";
+        body_len = strlen(ptr_body);
+        snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Length: %d\r\n"
+                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                "%s",
+                body_len, ptr_body);
+        send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+
     } else {
         // printf("\nFile does not exist!");
         ERROR_STATE_404(ctx);
