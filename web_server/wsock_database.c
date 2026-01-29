@@ -19,7 +19,6 @@
 
 #define MYPORT "8082"
 #define BACKLOG 20
-#define BUFFER_SIZE 2048
 #define MAX_CLIENTS 20
 
 void error(const char *msg) {
@@ -30,7 +29,12 @@ void error(const char *msg) {
 
 int main(int argc, char *argv[]) {
 
-    struct sockaddr_storage their_addr; // marked as their_addr in wsock_server
+    if (argc < 1) {
+        printf("Please enter an address\n");
+        return 0;
+    }
+
+    struct sockaddr_storage their_addr;
     socklen_t client_addr_len;
     struct addrinfo hints, *res;
     int server_fd;
@@ -53,7 +57,6 @@ int main(int argc, char *argv[]) {
 
     // This whole bit is lowkey useless
     char ipstr[INET6_ADDRSTRLEN];
-
     inet_ntop(res->ai_family, argv[1], ipstr, sizeof ipstr);
     printf("Server IP address: %s\n", ipstr);
 
@@ -69,7 +72,7 @@ int main(int argc, char *argv[]) {
         error("Unable to bind socket to port\n");
     }
     freeaddrinfo(res);
-    
+
     printf("Starting WebSocket server on port %s\n", MYPORT);
     if (listen(server_fd, BACKLOG) == -1) {
         error("Failed to listen");
@@ -80,11 +83,9 @@ int main(int argc, char *argv[]) {
     client_addr_len = sizeof(their_addr);
 
     int fd_count = 1;
-    char buffer[BUFFER_SIZE];
 
     while (1) {
 
-        // Check for new connections
         int client_fd = accept(server_fd, (struct sockaddr *)&their_addr, &client_addr_len);
         if (client_fd == -1) {
             perror("Accept failed");
@@ -104,7 +105,7 @@ int main(int argc, char *argv[]) {
 
 
         printf("Going to receive HTTP request on NJ code\n");
-        parse_HTTP_requests(client_fd);
+        parse_HTTP_requests(client_fd); // Freeing of the client_fd happens in parse_HTTP_requests
     }
 
     shutdown(server_fd, 2);
