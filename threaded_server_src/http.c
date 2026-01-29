@@ -483,14 +483,26 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         strcmp(ctx->ptr_method, "GET") == 0) {
         // printf("\nGET\n");
         send_requested_file_back(ctx, ptr_uri_buffer);
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
         fclose(file_ptr);
+        return;
 
     } else if (strcmp(ctx->ptr_method, "HEAD") == 0 &&
                access(uri_buffer, F_OK) == 0 && !S_ISDIR(sb.st_mode)) {
         send_requested_HEAD_back(ctx, ptr_uri_buffer);
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
 
     } else if (strcmp(ctx->ptr_method, "POST") == 0) {
         parse_body_of_POST(ctx);
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
 
     } else if (strcmp(ctx->ptr_method, "GET") == 0) {
         if (strcmp(ctx->ptr_uri, "/health") == 0) {
@@ -530,17 +542,20 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
         }
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
 
 
     } else {
         // printf("\nFile does not exist!");
         ERROR_STATE_404(ctx);
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
     }
-    free(uri_buffer);
-    free(ctx->ptr_uri);
-    free(ctx->ptr_method);
-    close(ctx->new_connection_fd);
-    return;
 }
 
 void HEADER_NAME_STATE(http_request_ctx *ctx) {
