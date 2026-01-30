@@ -5,6 +5,8 @@
 #include <time.h>
 #include "message_store.h"
 
+# define BUFFER_SIZE 2048
+
 void ms_view_all_entries(flat_message_store* fms)
 {
     // INFO: Start at 1 bc the first msg is empty
@@ -120,28 +122,56 @@ void free_memory(flat_message_store* fms)
     return;
 }
 
-int main()
-{
-    // INFO: Code below is for testing purposes
-    flat_message_store fms[MSG_STORE_SIZE];
-    printf("Message store initalized\n\n");
-    int*   end_of_db_ptr = &fms[0].ID;
-    time_t now           = time(NULL);
 
-    ms_add_message("Christian", "Juan", "Christian test msg", &now, &now, fms,
-                   &end_of_db_ptr);
+void ms_http_message_store_endpoint(int sock, const char *body) {
+    char response[BUFFER_SIZE];
+    char escaped[BUFFER_SIZE];
 
-    ms_add_message("chris", "nj", "chris test msg", &now, &now, fms,
-                   &end_of_db_ptr);
-    ms_add_message("Alejandro", "Christian", "NJ test msg", &now, &now, fms,
-                   &end_of_db_ptr);
-    // ms_view_all_entries(fms);
+    // JSON escaping
+    size_t j = 0;
+    for (size_t i = 0; body[i] && j < BUFFER_SIZE - 2; i++) {
+        if (body[i] == '"' || body[i] == '\\') {
+            escaped[j++] = '\\';
+        }
+        escaped[j++] = body[i];
+    }
+    escaped[j] = '\0';
 
-    ms_stream_messages_desc(fms, &end_of_db_ptr);
-    ms_stream_user_messages_desc(fms, &end_of_db_ptr, "Christian");
+    int body_len = snprintf(NULL, 0, "{\"message\": \"%s\"}", escaped);
 
-    // end_of_db_ptr = ms_point_to_last_entry(fms);
-
-    free_memory(fms);
-    return (0);
+    snprintf(response, sizeof(response),
+         "HTTP/1.1 200 OK\r\n"
+         "Content-Type: application/json\r\n"
+         "Access-Control-Allow-Origin: *\r\n"
+         "Content-Length: %d\r\n"
+         "Connection: close\r\n"
+         "\r\n"
+         "{\"message\": \"%s\"}",
+         body_len, escaped);
 }
+
+// int main()
+// {
+//     // INFO: Code below is for testing purposes
+//     flat_message_store fms[MSG_STORE_SIZE];
+//     printf("Message store initalized\n\n");
+//     int*   end_of_db_ptr = &fms[0].ID;
+//     time_t now           = time(NULL);
+//
+//     ms_add_message("Christian", "Juan", "Christian test msg", &now, &now, fms,
+//                    &end_of_db_ptr);
+//
+//     ms_add_message("chris", "nj", "chris test msg", &now, &now, fms,
+//                    &end_of_db_ptr);
+//     ms_add_message("Alejandro", "Christian", "NJ test msg", &now, &now, fms,
+//                    &end_of_db_ptr);
+//     // ms_view_all_entries(fms);
+//
+//     ms_stream_messages_desc(fms, &end_of_db_ptr);
+//     ms_stream_user_messages_desc(fms, &end_of_db_ptr, "Christian");
+//
+//     // end_of_db_ptr = ms_point_to_last_entry(fms);
+//
+//     free_memory(fms);
+//     return (0);
+// }

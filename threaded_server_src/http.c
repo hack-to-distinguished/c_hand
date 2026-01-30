@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include "../database/storage/message_store.h"
 
 #define BUFFER_SIZE 1024
 
@@ -82,7 +83,7 @@ char *receive_HTTP_request(int new_connection_fd) {
     }
 
     if (bytes_recv == 0 && total_received == 0) {
-        fprintf(stderr, "\nclient disconnected");
+        fprintf(stderr, "\nclient disconnected\n");
         free(ptr_http_request_buffer);
         return NULL;
     }
@@ -469,10 +470,10 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
     FILE *file_ptr = fopen(uri_buffer, "r");
 
     if (file_ptr == NULL && strcmp(ctx->ptr_method, "GET") == 0) {
-        fprintf(stderr, "\t Can't open file : %s\n", ptr_uri_buffer);
-        ERROR_STATE_404(ctx);
-        close(ctx->new_connection_fd);
-        return;
+        fprintf(stderr, "\t Can't open file or no file: %s\n", ptr_uri_buffer);
+        // ERROR_STATE_404(ctx);
+        // close(ctx->new_connection_fd);
+        // return;
     }
 
     struct stat sb;
@@ -480,13 +481,14 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
     if (access(uri_buffer, F_OK) == 0 && !S_ISDIR(sb.st_mode) &&
         strcmp(ctx->ptr_method, "GET") == 0) {
-        // printf("\nGET");
+        // printf("\nGET\n");
         send_requested_file_back(ctx, ptr_uri_buffer);
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         fclose(file_ptr);
         return;
+
     } else if (strcmp(ctx->ptr_method, "HEAD") == 0 &&
                access(uri_buffer, F_OK) == 0 && !S_ISDIR(sb.st_mode)) {
         send_requested_HEAD_back(ctx, ptr_uri_buffer);
@@ -494,12 +496,58 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+
     } else if (strcmp(ctx->ptr_method, "POST") == 0) {
         parse_body_of_POST(ctx);
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+
+    } else if (strcmp(ctx->ptr_method, "GET") == 0) {
+        if (strcmp(ctx->ptr_uri, "/health") == 0) {
+            printf("/health - Checking availability\n");
+
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            char *ptr_body;
+            int body_len;
+            ptr_body = "<body>\r\n"
+                    "Test\r\n"
+                    "</body>\r\n";
+            body_len = strlen(ptr_body);
+            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Length: %d\r\n"
+                    "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                    "%s",
+                    body_len, ptr_body);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+
+        } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
+
+            // INFO: The below will be used in my next PR
+            // flat_message_store fms[MSG_STORE_SIZE];
+            // time_t now = time(NULL);
+            // int* end_of_db_ptr = &fms[0].ID;
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            char *ptr_body = "<body>\r\n"
+                    "[{'id':1,'text':'dummy'}]\r\n"
+                    "</body>\r\n";
+            int body_len = strlen(ptr_body);
+            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Length: %d\r\n"
+                    "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                    "%s",
+                    body_len, ptr_body);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+        }
+        free(uri_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
+
+
     } else {
         // printf("\nFile does not exist!");
         ERROR_STATE_404(ctx);
@@ -626,7 +674,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     char *crlf_ptr = strstr(buffer, http_version);
     if (crlf_ptr == NULL) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -634,7 +682,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     crlf_ptr += 8;
     if (result != 3) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -644,7 +692,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           strcmp(ctx->ptr_method, "POST") == 0 ||
           strcmp(ctx->ptr_method, "HEAD") == 0)) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -652,7 +700,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (strcmp(http_version, "HTTP/1.1") != 0) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -660,7 +708,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (!(crlf_ptr[0] == '\r' && crlf_ptr[1] == '\n')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -676,7 +724,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           buffer[len_method + len_uri + 1] == ' ' &&
           buffer[len_method + len_uri + 2] != ' ')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state");
+        printf("\nerror at request line state\n");
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;

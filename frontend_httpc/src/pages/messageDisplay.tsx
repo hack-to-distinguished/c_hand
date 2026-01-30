@@ -5,7 +5,7 @@ import MessageFeed from "../components/messageFeed.tsx";
 import "./messageDisplay.css";
 
 function MessageDisplay() {
-  const serverUrl = "ws://127.0.0.1:8080";
+  const serverUrl = "ws://127.0.0.1:8081";
   const { socket, connectionStatus } = useWebSocket(serverUrl);
 
   return (

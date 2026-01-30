@@ -1,37 +1,46 @@
 import { useEffect, useState, useRef } from "react";
 
 export function useWebSocket(serverUrl: string) {
-
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const socket = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    console.log("Attempting to connect to WebSocket...");
+    const ws = new WebSocket(serverUrl);
+    socket.current = ws;
+
     setConnectionStatus("Connecting...");
 
-    socket.current = new WebSocket(serverUrl);
-
-    socket.current.onopen = () => {
-      console.log("WebSocket connection established!");
-      setConnectionStatus("Connected");
+    ws.onopen = () => {
+      if (socket.current === ws) {
+        console.log("WebSocket connection established!");
+        setConnectionStatus("Connected");
+      }
     };
 
-    socket.current.onclose = () => {
-      console.log("WebSocket connection closed.");
-      setConnectionStatus("Disconnected");
+    ws.onclose = (event) =>{
+      if (socket.current === ws) {
+        console.log("WeSocket connection closed", event.code, event.reason);
+        setConnectionStatus("Disconnected");
+      }
     };
 
-    socket.current.onerror = (error) => {
-      console.error("WebSocket error: ", error);
-      setConnectionStatus("Error");
+    ws.onerror = (error) => {
+      if (socket.current === ws) {
+        console.error("WebSocket error: ", error);
+        setConnectionStatus("Error");
+      }
     };
 
     return () => {
-      if (socket.current) {
-        console.log("Closing WebSocket connection.");
-        socket.current.close();
+      if ( ws.readyState === WebSocket.OPEN ||  ws.readyState === WebSocket.CONNECTING) {
+        ws.close(1000, "Component unmounting");
+      }
+
+      if (socket.current === ws) {
+        socket.current = null;
       }
     };
+
   }, [serverUrl]);
 
   return { socket, connectionStatus };
