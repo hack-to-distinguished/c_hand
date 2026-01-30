@@ -1,17 +1,12 @@
 #include "../tokenizer/token_list.h"
-#include "./nodes/select_list.h"
-#include "./nodes/statement_nodes.h"
+#include "ast/ast.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 // PARSE FUNCS
-SQLStatement *parseSQLStatment(tokenListCTX *tokenListCTX);
-SelectStatement *parseSelectStatement(tokenListCTX *tokenListCTX);
-InsertStatement *parseInsertStatement(tokenListCTX *tokenListCTX);
-UpdateStatement *parseUpdateStatement(tokenListCTX *tokenListCTX);
-DeleteStatement *parseDeleteStatement(tokenListCTX *tokenListCTX);
-ExitStatement *parseExitStatement(tokenListCTX *tokenListCTX);
-SelectList *parseSelectList(tokenListCTX *tokenListCTX);
+ASTNode *parseSQLStatment(tokenListCTX *tokenListCTX);
+ASTNode *parseExitStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 void parse(tokenListCTX *tokenListCTX);

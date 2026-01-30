@@ -22,7 +22,7 @@ void scanTokens(char *buffer) {
     }
 
     addToken(ctx, TOKEN_EOF, "EOF", lineNumber);
-    // printAllTokens(ctx);
+    printAllTokens(ctx);
     parse(ctx);
     destroyTokenList(ctx);
     return;
