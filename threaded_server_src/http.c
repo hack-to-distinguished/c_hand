@@ -1,4 +1,5 @@
 #include "http.h"
+#include "../database/storage/message_store.h"
 #include <alloca.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -10,7 +11,6 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include "../database/storage/message_store.h"
 
 #define BUFFER_SIZE 1024
 
@@ -512,15 +512,15 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             char *ptr_body;
             int body_len;
             ptr_body = "<body>\r\n"
-                    "Test\r\n"
-                    "</body>\r\n";
+                       "Test\r\n"
+                       "</body>\r\n";
             body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Length: %d\r\n"
-                    "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                    "%s",
-                    body_len, ptr_body);
+                     "HTTP/1.1 200 OK\r\n"
+                     "Content-Length: %d\r\n"
+                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                     "%s",
+                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
@@ -531,22 +531,21 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             // int* end_of_db_ptr = &fms[0].ID;
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             char *ptr_body = "<body>\r\n"
-                    "[{'id':1,'text':'dummy'}]\r\n"
-                    "</body>\r\n";
+                             "[{'id':1,'text':'dummy'}]\r\n"
+                             "</body>\r\n";
             int body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Length: %d\r\n"
-                    "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                    "%s",
-                    body_len, ptr_body);
+                     "HTTP/1.1 200 OK\r\n"
+                     "Content-Length: %d\r\n"
+                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                     "%s",
+                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
         }
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
-
 
     } else {
         // printf("\nFile does not exist!");
@@ -746,6 +745,7 @@ void parse_HTTP_requests(int new_connection_fd) {
     char *ptr_http_client_buffer = receive_HTTP_request(new_connection_fd);
     if (ptr_http_client_buffer == NULL) {
         free(ptr_http_client_buffer);
+        free(ctx);
         return;
     }
 
