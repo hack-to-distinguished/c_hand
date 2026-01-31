@@ -5,6 +5,7 @@
 
 void parse(tokenListCTX *tokenListCTX) {
     // reset position of indexPosition pointer
+
     tokenListCTX->indexPosition = tokenListCTX->tokenList;
     ASTNode *sqlStatement = parseSQLStatment(tokenListCTX);
     if (sqlStatement) {

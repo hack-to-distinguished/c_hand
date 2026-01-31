@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
+    printf("\ndean");
 
     ASTNode *selectStatement = malloc(sizeof(ASTNode));
 
@@ -15,8 +16,8 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
     }
 
     selectStatement->NodeType = AST_SELECT;
+    selectStatement->next = NULL;
     selectStatement->Data.SelectStatement.selectAll = false;
-    selectStatement->Data.SelectStatement.columns = NULL;
     selectStatement->Data.SelectStatement.tableList = NULL;
     selectStatement->Data.SelectStatement.selectList = NULL;
     selectStatement->Data.SelectStatement.whereClause = NULL;
@@ -26,15 +27,16 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
                  tokenListCTX);
 
     Token nextToken = peekToken(tokenListCTX);
+    printf("\ntoken type (next): %s", tokenTypeToString(nextToken.type));
     if (nextToken.type == TOKEN_OPERATOR_STAR) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_STAR,
                      tokenListCTX);
         selectStatement->Data.SelectStatement.selectAll = true;
     } else if (nextToken.type == TOKEN_IDENTIFIER) {
         // TODO: Create select list parser
-        // SelectList *selectList = malloc(sizeof(SelectList));
-        // selectList = parseSelectList(tokenListCTX);
-        // selectStatement->SelectList = selectList;
+        printf("\nselect list");
+        selectStatement->Data.SelectStatement.selectList =
+            parseSelectList(tokenListCTX);
     }
 
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_FROM,

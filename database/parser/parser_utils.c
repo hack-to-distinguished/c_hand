@@ -19,6 +19,10 @@ void showIndex(tokenListCTX *tokenListCTX) {
 
 void advance(tokenListCTX *tokenListCTX) { tokenListCTX->indexPosition += 1; };
 
+void decrement(tokenListCTX *tokenListCTX) {
+    tokenListCTX->indexPosition -= 1;
+};
+
 bool check(size_t tokenType, size_t tokenTypeToBeCheckedAgainst) {
     if (tokenType == tokenTypeToBeCheckedAgainst) {
         return true;
