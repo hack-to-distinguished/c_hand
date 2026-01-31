@@ -1,6 +1,7 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -g -O1 -Wall -Wextra -pthread -fsanitize=address -fno-omit-frame-pointer
+CFLAGS = -g -O1 -pthread -fsanitize=address -fno-omit-frame-pointer
+# CFLAGS = -g -O1 -Wall -Wextra -pthread -fsanitize=address -fno-omit-frame-pointer
 
 # Threadpool HTTP server
 THREADPOOL_SRCS = threaded_server_src/http.c threaded_server_src/threadpool.c threaded_server_src/threadpoolserver.c
@@ -25,7 +26,28 @@ CLIENT_SRCS = client.c
 CLIENT_BIN = client
 
 # Simple Database Management System
-SDBMS_SRCS = database/input_buffer.c database/sdbms.c database/token_list.c database/scanner.c
+SDBMS_SRCS = \
+	database/input_buffer.c \
+	database/sdbms.c \
+	database/tokenizer/token_list.c \
+	database/tokenizer/scanner.c \
+	database/parser/parser.c \
+	database/parser/parser_utils.c \
+	database/parser/parsing_functions/parse_sql_statement.c \
+	database/parser/parsing_functions/parse_select_statement.c \
+	database/parser/parsing_functions/parse_exit_statement.c \
+	database/parser/parsing_functions/parse_delete_statement.c \
+	database/parser/parsing_functions/parse_insert_statement.c \
+	database/parser/parsing_functions/parse_update_statement.c \
+	database/parser/parsing_functions/parse_select_list.c \
+	database/parser/parsing_functions/parse_simple_expression.c \
+	database/parser/parsing_functions/parse_term.c \
+	database/parser/parsing_functions/parse_additive_operator.c \
+	database/parser/parsing_functions/parse_factor.c \
+	database/parser/parsing_functions/parse_multiplicative_operator.c \
+	database/parser/parsing_functions/parse_qualified_identifier.c \
+	database/parser/parsing_functions/parse_literal.c \
+	database/parser/parsing_functions/parse_function_call.c 
 SDBMS_BIN = sdbms
 
 

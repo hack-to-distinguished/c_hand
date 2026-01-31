@@ -1,18 +1,15 @@
 #include "input_buffer.h"
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main() {
 
     while (true) {
-        inputLineBuffer *iPL = createInputLineBuffer();
-        getLineInput(iPL);
+        inputBuffer *userInput = createInputBuffer();
+        getInput(userInput);
 
-        processLineInput(iPL);
-        destroyInputLineBuffer(iPL);
+        processInput(userInput);
+        destroyInputBuffer(userInput);
     }
 
     return 0;

@@ -9,15 +9,17 @@ tokenListCTX *initialiseTokenList(size_t size) {
         fprintf(stderr, "\nMemory not allocated successfully for tokenListCTX");
         exit(1);
     } else {
-        Token *tail;
+        Token *tokenList;
         Token *indexPosition;
-        tail = (Token *)malloc(size * sizeof(Token));
-        if (tail == NULL) {
-            fprintf(stderr, "\nMemory not allocated successfully for tail");
+        tokenList = (Token *)malloc(size * sizeof(Token));
+        // printf("\nCreated Token List at: %p", tokenList);
+        if (tokenList == NULL) {
+            fprintf(stderr,
+                    "\nMemory not allocated successfully for token list!");
             exit(1);
         }
-        ctx->tail = tail;
-        indexPosition = tail;
+        indexPosition = tokenList;
+        ctx->tokenList = tokenList;
         ctx->indexPosition = indexPosition;
         ctx->maxSize = size;
         ctx->currentSize = 0;
@@ -34,13 +36,13 @@ void appendToken(Token *token, tokenListCTX *ctx) {
         ctx->currentSize += 1;
     } else {
         ctx->currentSize += 1;
-        ctx->tail =
-            (Token *)realloc(ctx->tail, (int)ctx->currentSize * sizeof(Token));
-        if (ctx->tail == NULL) {
+        ctx->tokenList = (Token *)realloc(
+            ctx->tokenList, (int)ctx->currentSize * sizeof(Token));
+        if (ctx->tokenList == NULL) {
             fprintf(stderr, "\nMemory not reallocated successfully for tail");
             exit(1);
         }
-        ctx->indexPosition = ctx->tail + ctx->currentSize - 1;
+        ctx->indexPosition = ctx->tokenList + ctx->currentSize - 1;
         *ctx->indexPosition = *token;
     }
     return;
@@ -49,9 +51,13 @@ void appendToken(Token *token, tokenListCTX *ctx) {
 void printAllTokens(tokenListCTX *ctx) {
     int counter = 0;
     while ((ctx->currentSize > counter)) {
-        printf("\nToken Type: %d, Lexeme: %s (%p), Token Address: %p",
-               ctx->tail[counter].type, ctx->tail[counter].lexeme,
-               &ctx->tail[counter], ctx->tail[counter].self);
+        printf("\nToken Type: %s, Lexeme: %s (%p), Token Address (actual): %p, "
+               "Copied "
+               "Contents stored at: %p",
+               tokenTypeToString(ctx->tokenList[counter].self->type),
+               ctx->tokenList[counter].self->lexeme,
+               ctx->tokenList[counter].self->lexeme,
+               ctx->tokenList[counter].self, &ctx->tokenList[counter]);
         counter += 1;
     }
     return;
@@ -61,14 +67,15 @@ void destroyTokenList(tokenListCTX *ctx) {
     // printf("\nDestroying token list!");
     printf("\n");
     for (size_t i = 0; i < ctx->currentSize; i++) {
-        printf("\nDestroying Token at address %p!", ctx->tail[i].self);
-        if (ctx->tail[i].type <= 13) {
-            free(ctx->tail[i].lexeme);
+        // printf("\nDestroying Token at address %p!", ctx->tokenList[i].self);
+        if (ctx->tokenList[i].type <= 15) {
+            free(ctx->tokenList[i].lexeme);
         }
-        free(ctx->tail[i].self);
+        free(ctx->tokenList[i].self);
     }
-    free(ctx->tail);
-    printf("\nFreeing tokenListCTX at address %p\n", ctx);
+    // printf("\nFreeing tokenListCTX at address %p\n", ctx);
+    // printf("Freeing tokenList at address %p\n", ctx->tokenList);
+    free(ctx->tokenList);
     free(ctx);
     printf("\n");
     return;

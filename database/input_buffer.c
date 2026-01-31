@@ -1,55 +1,78 @@
 #include "input_buffer.h"
-#include "scanner.h"
+#include "tokenizer/scanner.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-inputLineBuffer *createInputLineBuffer() {
-    inputLineBuffer *ptrInputLineBuffer = malloc(sizeof(inputLineBuffer));
-    ptrInputLineBuffer->bufferLength = 0;
+inputBuffer *createInputBuffer() {
+    inputBuffer *ptrInputLineBuffer = malloc(sizeof(inputBuffer));
     ptrInputLineBuffer->buffer = NULL;
     return ptrInputLineBuffer;
 }
 
-void destroyInputLineBuffer(inputLineBuffer *iPL) {
-    free(iPL->buffer);
-    free(iPL->bufferLength);
-    free(iPL->charactersReadInclEOF);
-    free(iPL);
+void destroyInputBuffer(inputBuffer *ptrInputBuffer) {
+    free(ptrInputBuffer->buffer);
+    free(ptrInputBuffer);
     return;
 }
 
-void getLineInput(inputLineBuffer *iPL) {
-    char *userInput = NULL;
-    size_t *len = malloc(sizeof(size_t));
-    ssize_t *charactersRead = malloc(sizeof(ssize_t));
+void getInput(inputBuffer *ptrInputBuffer) {
+    size_t bufferSize = 2;
+    size_t bufferIndex = 0;
+    bool seenLastSemicolon = false;
+    char *inputFromUser = (char *)malloc(sizeof(char) * bufferSize);
+
+    if (!inputFromUser) {
+        perror("failed to allocate memory");
+        free(inputFromUser);
+        exit(EXIT_FAILURE);
+    }
+
+    int c;
     printf("\ndb > ");
-    *charactersRead = getline(&userInput, len, stdin);
+    fflush(stdout);
 
-    if (*charactersRead == -1) {
-        fprintf(stderr, "\nError occurred upon getting line from user.");
-        exit(1);
+    while ((c = getchar()) != EOF) {
+        if (bufferIndex >= bufferSize - 1) {
+            bufferSize *= 2;
+            inputFromUser = (char *)realloc(inputFromUser, bufferSize);
+            if (!inputFromUser) {
+                perror("failed to reallocate memory");
+                free(inputFromUser);
+                exit(EXIT_FAILURE);
+            }
+        }
+        inputFromUser[bufferIndex] = c;
+        bufferIndex++;
+
+        if (c == ';') {
+            seenLastSemicolon = true;
+        } else if (c != '\n') {
+            seenLastSemicolon = false;
+        }
+
+        if (c == '\n') {
+            if (seenLastSemicolon) {
+                break;
+            }
+            printf("   > ");
+            fflush(stdout);
+        }
     }
-    if (*charactersRead == 0) {
-        fprintf(stderr, "\nEOF was reach before any characters were read.");
-        exit(1);
+
+    inputFromUser[bufferIndex] = '\0';
+
+    char *lastSemicolon = strrchr(inputFromUser, ';');
+    if (lastSemicolon) {
+        lastSemicolon[1] = '\0';
     }
-
-    iPL->buffer = userInput;
-    iPL->bufferLength = len;
-    iPL->charactersReadInclEOF = charactersRead;
-
+    ptrInputBuffer->buffer = inputFromUser;
     return;
 }
 
-void processLineInput(inputLineBuffer *iPL) {
-    if (*iPL->charactersReadInclEOF == 1) {
-        fprintf(stderr, "\nEmpty input.");
-        exit(1);
-    } else {
-        scanTokens(iPL->buffer);
-    }
+void processInput(inputBuffer *ptrInputBuffer) {
+    scanTokens(ptrInputBuffer->buffer);
     return;
 }
