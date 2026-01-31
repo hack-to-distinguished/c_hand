@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 1024
+#define START_SIZE 32
 
 const mime_type mime_types[] = {
     {"txt", "text/plain", "text"},       {"html", "text/html", "text"},
@@ -27,6 +28,9 @@ const mime_type mime_types[] = {
     {"avi", "video/x-msvideo", "video"}, {"flv", "video/x-flv", "video"}};
 
 const size_t mime_types_len = sizeof(mime_types) / sizeof(mime_types[0]);
+
+flat_message_store fms[MSG_STORE_SIZE];
+
 
 char *receive_HTTP_request(int new_connection_fd) {
     size_t allocated_size = BUFFER_SIZE + 1;
@@ -525,22 +529,18 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            flat_message_store fms[MSG_STORE_SIZE];
-            typedef struct eg {
-                char* message;
-            } egg;
+            struct Tuple {
+                int total_len;
+                char* messages_by_user;
+            };
             time_t now = time(NULL);
-            int* end_of_db_ptr = &fms[0].ID;
-            // ms_get_all_messages_desc(fms, &end_of_db_ptr);
+            int* end_of_db_ptr = ms_point_to_last_entry(fms);
+            int body_len = 0;
+            size_t mbu_cap = START_SIZE;
+            char *ptr_body = malloc(START_SIZE);
+            struct Tuple res = ms_get_all_messages_desc(fms, &end_of_db_ptr, body_len);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            char *ptr_body = "[{'id':1,'text':'dummy'}]";
-            // char *ptr_body = "[{'id':1,'text':'dummy'}]";
-            int index = *end_of_db_ptr;
-            // while (fms[index - 1].ID < fms[index].ID) {
-            //     strcpy(egg[index].message = fms[index].message);
-            // }
-            int body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                     "HTTP/1.1 200 OK\r\n"
                     "Content-Length: %d\r\n"
