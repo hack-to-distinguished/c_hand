@@ -76,6 +76,20 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int** end_of_db_ptr,
     return;
 }
 
+// TODO: Make a function that returns the struct?
+flat_message_store* ms_get_all_messages_desc(flat_message_store* fms, int** end_of_db_ptr) {
+
+    int index = **end_of_db_ptr;
+    while (fms[index -1].ID != '\0' && fms[index - 1].ID < fms[index].ID)
+    {
+        puts(fms[index].message);
+        index--;
+    }
+    printf("\n --- Read all data ---\n\n");
+    return fms;
+
+}
+
 void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
                     time_t* sent_time, time_t* recieved_time,
                     flat_message_store* fms, int** end_of_db_ptr)

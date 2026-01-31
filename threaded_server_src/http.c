@@ -525,20 +525,29 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            // INFO: The below will be used in my next PR
-            // flat_message_store fms[MSG_STORE_SIZE];
-            // time_t now = time(NULL);
-            // int* end_of_db_ptr = &fms[0].ID;
+            flat_message_store fms[MSG_STORE_SIZE];
+            typedef struct eg {
+                char* message;
+            } egg;
+            time_t now = time(NULL);
+            int* end_of_db_ptr = &fms[0].ID;
+            // ms_get_all_messages_desc(fms, &end_of_db_ptr);
+
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            char *ptr_body = "<body>\r\n"
-                    "[{'id':1,'text':'dummy'}]\r\n"
-                    "</body>\r\n";
+            char *ptr_body = "[{'id':1,'text':'dummy'}]";
+            // char *ptr_body = "[{'id':1,'text':'dummy'}]";
+            int index = *end_of_db_ptr;
+            while (fms[index - 1].ID < fms[index].ID) {
+                strcpy(egg[index].message = fms[index].message);
+            }
             int body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                     "HTTP/1.1 200 OK\r\n"
                     "Content-Length: %d\r\n"
                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                    "%s",
+                    "<body>\r\n"
+                    "%s\r\n"
+                    "</body>\r\n",
                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
         }
