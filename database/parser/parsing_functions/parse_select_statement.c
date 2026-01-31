@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
-    printf("\ndean");
 
     ASTNode *selectStatement = malloc(sizeof(ASTNode));
 
@@ -27,14 +26,12 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
                  tokenListCTX);
 
     Token nextToken = peekToken(tokenListCTX);
-    printf("\ntoken type (next): %s", tokenTypeToString(nextToken.type));
     if (nextToken.type == TOKEN_OPERATOR_STAR) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_STAR,
                      tokenListCTX);
         selectStatement->Data.SelectStatement.selectAll = true;
     } else if (nextToken.type == TOKEN_IDENTIFIER) {
         // TODO: Create select list parser
-        printf("\nselect list");
         selectStatement->Data.SelectStatement.selectList =
             parseSelectList(tokenListCTX);
     }
