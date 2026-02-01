@@ -101,10 +101,10 @@ Currently, a **tokenizer** has been implemented — it converts SQL commands and
 **Goal:**  
 To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*.
 
-<img width="821" height="937" alt="image" src="https://github.com/user-attachments/assets/bbf9ef3e-d93e-4b09-8fe3-50012835a064" />
+<img width="1573" height="528" alt="image" src="https://github.com/user-attachments/assets/dcfe676d-9854-4e50-81ca-c3923b1c2d82" />
 
 Parser so far:
-<img width="1570" height="609" alt="image" src="https://github.com/user-attachments/assets/838fb563-e0e3-42a4-b031-e45c05112a23" />
+<img width="1578" height="538" alt="image" src="https://github.com/user-attachments/assets/b2c8181e-4b1f-4665-9029-e3137103d778" />
 
 ---
 ## Project Plan
