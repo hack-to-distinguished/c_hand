@@ -20,7 +20,7 @@ ASTNode *parseAdditiveOperator(tokenListCTX *tokenListCTX) {
     if (peekToken(tokenListCTX).type == TOKEN_OPERATOR_PLUS) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_PLUS,
                      tokenListCTX);
-    } else {
+    } else if (peekToken(tokenListCTX).type == TOKEN_OPERATOR_MINUS) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_MINUS,
                      tokenListCTX);
     }

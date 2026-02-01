@@ -45,6 +45,27 @@ ASTNode *parseFactor(tokenListCTX *tokenListCTX) {
             parseSimpleExpression(tokenListCTX);
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN,
                      tokenListCTX);
+    } else {
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg),
+                 "\nERROR:\n  Expected: %s |\n            %s |\n            %s "
+                 "|\n            %s |"
+                 "\n            %s |"
+                 "\n            %s"
+                 "\nBut got: %s\n  "
+                 "On line %ld",
+                 tokenTypeToString(TOKEN_IDENTIFIER),
+                 tokenTypeToString(TOKEN_STRING_LITERAL),
+                 tokenTypeToString(TOKEN_INTEGER_LITERAL),
+                 tokenTypeToString(TOKEN_FLOAT_LITERAL),
+                 tokenTypeToString(TOKEN_KEYWORD_NULL),
+                 tokenTypeToString(TOKEN_LPAREN),
+                 tokenTypeToString(peekToken(tokenListCTX).type),
+                 tokenListCTX->indexPosition->line);
+
+        syntaxError(error_msg);
+        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     return factor;
