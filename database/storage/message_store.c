@@ -8,6 +8,9 @@
 # define BUFFER_SIZE 2048
 # define START_SIZE 32
 
+// fms is extern so it will only be declared here
+flat_message_store fms[MSG_STORE_SIZE]; 
+
 void ms_view_all_entries(flat_message_store* fms)
 {
     // INFO: Start at 1 bc the first msg is empty
@@ -87,6 +90,7 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** latest_entry_
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
     if (index - 1 >= -10) {
+        printf("FMS ID no idx: %d\n\n", fms->ID);
         printf("FMS ID: %d\n\n", fms[index].ID);
     } 
     while (fms[index - 1].ID > -1 && fms[index - 1].ID < fms[index].ID)

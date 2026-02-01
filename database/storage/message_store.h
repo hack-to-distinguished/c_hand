@@ -1,7 +1,7 @@
 #include <time.h>
 
-#define USER_ID_SIZE 256
-#define MSG_STORE_SIZE 1000
+# define USER_ID_SIZE 256
+# define MSG_STORE_SIZE 1000
 
 typedef struct
 {

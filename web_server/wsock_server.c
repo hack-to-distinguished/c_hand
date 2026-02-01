@@ -86,10 +86,10 @@ int main(int argc, char *argv[]) {
     int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
-    flat_message_store fms[MSG_STORE_SIZE];
+    fms[0].ID = 999999;
     time_t now = time(NULL);
-    int* end_of_db_ptr = &fms[0].ID;
-    end_of_db_ptr = ms_point_to_last_entry(fms);
+    int* latest_entry_ptr = &fms[0].ID;
+    latest_entry_ptr = ms_point_to_last_entry(fms);
 
     while (1) {
         int poll_count = poll(pfds, fd_count, -1);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
-                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &end_of_db_ptr);
+                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &latest_entry_ptr);
 
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd != -1 && clients[j].is_websocket) {

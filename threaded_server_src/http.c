@@ -29,8 +29,6 @@ const mime_type mime_types[] = {
 
 const size_t mime_types_len = sizeof(mime_types) / sizeof(mime_types[0]);
 
-flat_message_store fms[MSG_STORE_SIZE];
-
 
 char *receive_HTTP_request(int new_connection_fd) {
     size_t allocated_size = BUFFER_SIZE + 1;
