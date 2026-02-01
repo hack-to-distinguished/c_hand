@@ -12,6 +12,7 @@ typedef struct {
     char **ptr_ptr_http_client_buffer;
     int new_connection_fd;
     bool host_header_present;
+    char *header_value;
     char *ptr_uri;
     char *ptr_method;
     char *ptr_body_content_type;

@@ -36,7 +36,6 @@ char *receive_HTTP_request(int new_connection_fd) {
     int bytes_recv;
     size_t body_len = 0;
     bool header_read = false;
-    int i = 0;
 
     while ((bytes_recv = recv(new_connection_fd,
                               ptr_http_request_buffer + total_received,
@@ -141,6 +140,7 @@ void HEADER_VALUE_STATE(http_request_ctx *ctx) {
     bool single_crlf_found = false;
     char *buffer = *ctx->ptr_ptr_http_client_buffer;
     char header_value[256];
+    ctx->header_value = header_value;
     size_t header_value_counter = 0;
     size_t start_pos = 0;
     size_t buffer_len = strlen(buffer);
@@ -155,7 +155,7 @@ void HEADER_VALUE_STATE(http_request_ctx *ctx) {
         }
     }
 
-    for (NULL; start_pos < buffer_len; start_pos++) {
+    for (; start_pos < buffer_len; start_pos++) {
         if (!(buffer[start_pos] == '\r' || buffer[start_pos] == '\n') &&
             !header_value_found) {
             header_value[header_value_counter] = buffer[start_pos];
@@ -243,7 +243,6 @@ void send_requested_file_back(http_request_ctx *ctx, char *ptr_uri_buffer) {
         return;
     }
 
-    const char *file_extension = mime_type->ptr_file_extension;
     const char *content_type = mime_type->ptr_http_content_type;
     const char *content_type_prefix = mime_type->ptr_http_content_type_prefix;
 
@@ -378,7 +377,7 @@ void parse_body_of_POST(http_request_ctx *ctx) {
             (int)*ctx->ptr_body_content_length + 1);
     ptr_body[(int)*ctx->ptr_body_content_length] = '\0';
 
-    const char *body = ptr_body;
+    // const char *body = ptr_body;
 
     if (strstr(ctx->ptr_body_content_type, "multipart/form-data")) {
         char *ptr_body = *ctx->ptr_ptr_http_client_buffer;
@@ -435,8 +434,7 @@ void parse_body_of_POST(http_request_ctx *ctx) {
 
         FILE *file_to_be_saved = fopen(full_path, "wb");
 
-        size_t bytes_written =
-            fwrite(content_start, 1, content_len, file_to_be_saved);
+        fwrite(content_start, 1, content_len, file_to_be_saved);
         fclose(file_to_be_saved);
 
         free(full_boundary);
@@ -627,9 +625,9 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     int result =
         sscanf(buffer, "%s %s %s", ctx->ptr_method, ctx->ptr_uri, http_version);
 
-    char *ptr_body_content_type;
+    char *ptr_body_content_type = NULL;
     char *start = strstr(buffer, "Content-Type: ");
-    char *end;
+    char *end = NULL;
     if (start != NULL) {
         start += 14;
         size_t pos = 0;
@@ -658,7 +656,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     ctx->ptr_body_content_type = ptr_body_content_type;
     // printf("\nContent Type: %s", ptr_body_content_type);
 
-    size_t *ptr_body_content_length;
+    size_t *ptr_body_content_length = NULL;
     start = strstr(buffer, "Content-Length: ");
     if (start != NULL) {
         start += 16;

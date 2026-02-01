@@ -14,6 +14,7 @@ void parse(tokenListCTX *tokenListCTX) {
             free(sqlStatement);
             exit(EXIT_SUCCESS);
         }
+        // TODO: free AST
         free(sqlStatement);
     }
 };

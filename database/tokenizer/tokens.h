@@ -42,13 +42,13 @@ typedef enum {
 
 typedef struct Token {
     TokenType type;
-    char *lexeme;
+    const char *lexeme;
     size_t line;
     struct Token *self;
 } Token;
 
 typedef struct {
-    char *keyword;
+    const char *keyword;
     TokenType type;
 } Keyword;
 
