@@ -103,6 +103,9 @@ To gain a deeper understanding of how databases work internally and to eventuall
 
 <img width="821" height="937" alt="image" src="https://github.com/user-attachments/assets/bbf9ef3e-d93e-4b09-8fe3-50012835a064" />
 
+Parser so far:
+<img width="1570" height="609" alt="image" src="https://github.com/user-attachments/assets/838fb563-e0e3-42a4-b031-e45c05112a23" />
+
 ---
 ## Project Plan
 
