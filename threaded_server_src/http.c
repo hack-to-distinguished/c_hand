@@ -529,16 +529,9 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            struct Tuple {
-                int total_len;
-                char* messages_by_user;
-            };
-            time_t now = time(NULL);
-            int* end_of_db_ptr = ms_point_to_last_entry(fms);
-            int body_len = 0;
-            size_t mbu_cap = START_SIZE;
-            char *ptr_body = malloc(START_SIZE);
-            struct Tuple res = ms_get_all_messages_desc(fms, &end_of_db_ptr, body_len);
+            // INFO: I'm retarded. It's not the same db
+            int* end_idx = ms_point_to_last_entry(fms);
+            msg_buffer msg_res = ms_get_all_messages_desc(fms, &end_idx);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
@@ -548,8 +541,9 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     "<body>\r\n"
                     "%s\r\n"
                     "</body>\r\n",
-                    body_len, ptr_body);
+                    msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            free(msg_res.messages_by_user);
         }
         free(uri_buffer);
         free(ctx->ptr_uri);

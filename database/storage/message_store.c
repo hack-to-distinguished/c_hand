@@ -77,45 +77,46 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int** end_of_db_ptr,
     return;
 }
 
-// TODO: Make a function that returns the struct?
-struct Tuple {
-    int total_len;
-    char* messages_by_user;
-};
-struct Tuple ms_get_all_messages_desc(flat_message_store* fms, int** end_of_db_ptr, size_t* out_len) {
-
+msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** latest_entry_ptr) {
+    int index = **latest_entry_ptr;
+    printf("Getting %d messages\n", index);
+    
     char* msg_by_user = malloc(START_SIZE);
-    msg_by_user = "";
+    msg_by_user[0] = '\0';
     size_t mbu_len = 0, mbu_cap = START_SIZE;
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
-    int index = **end_of_db_ptr;
-    while (fms[index -1].ID != '\0' && fms[index - 1].ID < fms[index].ID)
+    if (index - 1 >= -10) {
+        printf("FMS ID: %d\n\n", fms[index].ID);
+    } 
+    while (fms[index - 1].ID > -1 && fms[index - 1].ID < fms[index].ID)
     {
-        // puts(fms[index].message);
-        // TODO: Piece together two pieces of data: {"sender_id": "message"}
-        snprintf(msg_construction_buffer, BUFFER_SIZE,
-                "{'%s': '%s'}", fms[index].sender_id, fms[index].message);
-        // TODO: before adding data check that if you add it, it won't overflow
+        snprintf(
+            msg_construction_buffer, BUFFER_SIZE,
+            "{'%s': '%s'}", fms[index].sender_id, fms[index].message
+        );
+        
         int msg_c_b_len = strlen(msg_construction_buffer);
         if (msg_c_b_len + mbu_len + 1 >= mbu_cap) {
             mbu_cap = mbu_cap * 2;
-            char **msg_by_user = realloc(*msg_by_user, mbu_cap);
-            // msg_by_user = mbu_2;
+            char *tmp_ptr = realloc(msg_by_user, mbu_cap);
+            if (!tmp_ptr){ 
+                printf("Failed to reallocate memory for the messages");
+            }
+            msg_by_user = tmp_ptr;
         }
-        // TODO: add the data
         strcat(msg_by_user, msg_construction_buffer); 
-        mbu_len = mbu_len +msg_c_b_len;
+        mbu_len += msg_c_b_len;
+        
         index--;
         printf("CAP: %zu \nLEN: %zu \n ADDING: %s", mbu_cap, mbu_len, msg_construction_buffer);
     }
     msg_by_user[mbu_len] = '\0';
-    mbu_len = mbu_len + strlen(msg_construction_buffer);
-    struct Tuple msg_info = {mbu_len, msg_by_user};
-
-    printf("\n --- Read all data ---\n\n");
-    printf("Messages: %s", msg_by_user);
-    return msg_info;
+    free(msg_construction_buffer);
+    msg_buffer out = {mbu_len, msg_by_user};
+    
+    printf("\n --- Messages: --- \n%s", msg_by_user);
+    return out;
 }
 
 void ms_add_message(char* sender_id, char* recipient_id, char* user_message,

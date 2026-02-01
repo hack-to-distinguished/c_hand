@@ -16,6 +16,12 @@ typedef struct
     size_t send_status; // 0=Failed 1=Sent 2=Pending
     size_t recv_status; // 1=Received 2=Read
 } flat_message_store;
+extern flat_message_store fms[MSG_STORE_SIZE];
+
+typedef struct {
+    int total_len;
+    char* messages_by_user;
+} msg_buffer;
 
 extern int* end_of_db_ptr;
 
@@ -30,4 +36,4 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int** end_of_db_ptr,
                                   char* sender_id);
 void ms_show_latest_msg();
 void free_memory(flat_message_store* fms);
-struct Tuple ms_get_all_messages_desc(flat_message_store* fms, int** end_of_db_ptr, size_t* out_len);
+msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** end_of_db_ptr);
