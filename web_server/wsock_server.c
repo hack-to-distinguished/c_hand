@@ -87,9 +87,9 @@ int main(int argc, char *argv[]) {
     char buffer[BUFFER_SIZE];
 
     fms[0].ID = 999999;
+    fms[1].ID = 42;
     time_t now = time(NULL);
-    int* latest_entry_ptr = &fms[0].ID;
-    latest_entry_ptr = ms_point_to_last_entry(fms);
+    int latest_entry_ptr = ms_point_to_last_entry(fms);
 
     while (1) {
         int poll_count = poll(pfds, fd_count, -1);

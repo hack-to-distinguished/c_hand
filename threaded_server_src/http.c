@@ -527,8 +527,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            // INFO: I'm retarded. It's not the same db
-            int* end_idx = ms_point_to_last_entry(fms);
+            int end_idx = ms_point_to_last_entry(fms);
             msg_buffer msg_res = ms_get_all_messages_desc(fms, &end_idx);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);

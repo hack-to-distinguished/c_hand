@@ -34,22 +34,25 @@ void ms_view_all_entries(flat_message_store* fms)
     printf("Messages printed: %d\n\n", i);
 }
 
-int* ms_point_to_last_entry(flat_message_store* fms)
+int ms_point_to_last_entry(flat_message_store* fms)
 {
     int i = 1;
     while (fms[i].ID > fms[i - 1].ID)
     {
         i++;
     }
-    printf("End of list at: %d\n", fms[i - 1].ID);
-    return &fms[i - 1].ID;
+    printf("End of list:\nIndex:%d - ID: %d\n", i, fms[i - 1].ID);
+    // return &fms[i - 1].ID;
+    // returns a pointer to the last ID field in fms
+    // What it should return: pointer to the last index
+    return i;
 }
 
 // TODO: Create get latest entry
-void ms_stream_messages_desc(flat_message_store* fms, int** end_of_db_ptr)
+void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_ptr)
 {
     printf("\nStreaming messages\n");
-    int index = **end_of_db_ptr;
+    int index = *end_of_db_ptr;
     while (fms[index - 1].ID < fms[index].ID)
     {
         puts(fms[index].message);
@@ -61,13 +64,13 @@ void ms_stream_messages_desc(flat_message_store* fms, int** end_of_db_ptr)
 
 void ms_show_latest_msg();
 
-void ms_stream_user_messages_desc(flat_message_store* fms, int** end_of_db_ptr,
+void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_ptr,
                                   char* sender_id)
 {
     // INFO: Creating linked lists between a users message would make
     // getting those user's message much faster
     printf("\nGetting %s's messages\n", sender_id);
-    int index = **end_of_db_ptr;
+    int index = *end_of_db_ptr;
     while (fms[index - 1].ID < fms[index].ID)
     {
         if (strcmp(fms[index].sender_id, sender_id) == 0)
@@ -80,8 +83,8 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int** end_of_db_ptr,
     return;
 }
 
-msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** latest_entry_ptr) {
-    int index = **latest_entry_ptr;
+msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
+    int index = *latest_entry_ptr;
     printf("Getting %d messages\n", index);
     
     char* msg_by_user = malloc(START_SIZE);
@@ -90,8 +93,8 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** latest_entry_
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
     if (index - 1 >= -10) {
-        printf("FMS ID no idx: %d\n\n", fms->ID);
-        printf("FMS ID: %d\n\n", fms[index].ID);
+        printf("\nfms->ID: %d\n", fms->ID);
+        printf("fms[index].ID: %d\n\n", fms[index].ID);
     } 
     while (fms[index - 1].ID > -1 && fms[index - 1].ID < fms[index].ID)
     {
@@ -125,24 +128,24 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int** latest_entry_
 
 void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
                     time_t* sent_time, time_t* recieved_time,
-                    flat_message_store* fms, int** end_of_db_ptr)
+                    flat_message_store* fms, int *end_of_db_ptr)
 {
-    int index = **end_of_db_ptr;
-    index++;
-    printf("Inserting data at index %d\n", index);
+    int idx = *end_of_db_ptr;
+    idx++;
+    printf("Inserting data at index %d\n", idx);
 
-    strcpy(fms[index].sender_id, sender_id);
-    strcpy(fms[index].recipient_id, recipient_id);
-    fms[index].msg_len = strlen(user_message);
-    fms[index].message = malloc(fms[index].msg_len + 1);
-    strcpy(fms[index].message, user_message);
-    fms[index].send_time   = time(sent_time);
-    fms[index].recv_time   = time(recieved_time);
-    fms[index].send_status = 1;
-    fms[index].recv_status = 1;
-    fms[index].ID          = index;
+    strcpy(fms[idx].sender_id, sender_id);
+    strcpy(fms[idx].recipient_id, recipient_id);
+    fms[idx].msg_len = strlen(user_message);
+    fms[idx].message = malloc(fms[idx].msg_len + 1);
+    strcpy(fms[idx].message, user_message);
+    fms[idx].send_time   = time(sent_time);
+    fms[idx].recv_time   = time(recieved_time);
+    fms[idx].send_status = 1;
+    fms[idx].recv_status = 1;
+    fms[idx].ID          = idx;
 
-    *end_of_db_ptr = &fms[index].ID;
+    *end_of_db_ptr = idx;
     return;
 
     // IMPROVEMENT:
