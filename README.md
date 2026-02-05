@@ -39,6 +39,7 @@ A custom-built HTTP/1.1 web server written from scratch in C, designed for **hig
 **Key Features:**
 - Thread pool implementation for efficiently handling multiple simultaneous client connections.
 - Stateful HTTP request parsing using a **state machine** for precise and robust request handling.
+- Supports both GET + POST methods.
 
 ### State Machine Diagram
 
