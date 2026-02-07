@@ -53,3 +53,75 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
         return;
     }
 }
+
+void destroyASTNode(ASTNode *node) {
+    if (!node)
+        return;
+
+    switch (node->NodeType) {
+    case AST_EXIT: {
+        free(node);
+        break;
+    }
+    case AST_SELECT: {
+        // INFO: only have select list done
+        if (node->Data.SelectStatement.selectList) {
+            destroyASTNode(node->Data.SelectStatement.selectList);
+        }
+        // TODO: do table list, where clause, and order by clause
+        free(node);
+        break;
+    }
+    case AST_SELECT_LIST: {
+        destroyASTNode(node->Data.SelectList.simpleExpression);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
+    case AST_SIMPLE_EXPRESSION: {
+        destroyASTNode(node->Data.SimpleExpression.term);
+
+        ASTNode *current = node->Data.SimpleExpression.additiveOperator;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
+    case AST_ADDITIVE_OPERATOR: {
+        destroyASTNode(node->Data.AdditiveOperator.term);
+        free(node);
+        break;
+    }
+    case AST_TERM: {
+        destroyASTNode(node->Data.Term.factor);
+
+        ASTNode *current = node->Data.Term.multiplicativeOperator;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_MULTIPLICATIVE_OPERATOR: {
+        destroyASTNode(node->Data.MultiplicativeOperator.factor);
+        free(node);
+        break;
+    }
+    case AST_FACTOR: {
+        free(node);
+        break;
+    }
+    }
+};

@@ -11,10 +11,10 @@ void parse(tokenListCTX *tokenListCTX) {
     if (sqlStatement) {
         if (sqlStatement->NodeType == AST_EXIT) {
             printf("\nEXITING...");
-            free(sqlStatement);
+            destroyASTNode(sqlStatement);
             exit(EXIT_SUCCESS);
         }
         // TODO: free AST
-        free(sqlStatement);
+        destroyASTNode(sqlStatement);
     }
 };

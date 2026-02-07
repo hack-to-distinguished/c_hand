@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+void destroyASTNode(ASTNode *node);
+
 // PARSE FUNCS
 ASTNode *parseSQLStatment(tokenListCTX *tokenListCTX);
 ASTNode *parseExitStatement(tokenListCTX *tokenListCTX);
