@@ -90,7 +90,20 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
         addToken(ctx, TOKEN_OPERATOR_PLUS, "+", lineNumber);
         break;
     case '-':
-        addToken(ctx, TOKEN_OPERATOR_MINUS, "-", lineNumber);
+        if (!isDigit(*(currentPosOfLexeme - 1)) &&
+            isDigit(*(currentPosOfLexeme + 1))) {
+            currentPosOfLexeme = numberLiteral(currentPosOfLexeme, true);
+            char *numberLiteral =
+                getNumberLiteral(currentPosOfLexeme, bufferStart, true);
+            if (checkFloat(numberLiteral)) {
+                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral, lineNumber);
+            } else {
+                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral, lineNumber);
+            }
+            currentPosOfLexeme -= 1;
+        } else {
+            addToken(ctx, TOKEN_OPERATOR_MINUS, "-", lineNumber);
+        }
         break;
     case '*':
         addToken(ctx, TOKEN_OPERATOR_STAR, "*", lineNumber);
@@ -108,9 +121,9 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
     default:
         // INTEGER + FLOAT LITERALS
         if (isDigit(c)) {
-            currentPosOfLexeme = numberLiteral(currentPosOfLexeme);
+            currentPosOfLexeme = numberLiteral(currentPosOfLexeme, false);
             char *numberLiteral =
-                getNumberLiteral(currentPosOfLexeme, bufferStart);
+                getNumberLiteral(currentPosOfLexeme, bufferStart, false);
             if (checkFloat(numberLiteral)) {
                 addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral, lineNumber);
             } else {
@@ -214,10 +227,19 @@ bool isDigit(char c) {
     return false;
 };
 
-char *numberLiteral(char *currentPosOfLexeme) {
-    while (!isAtEnd(currentPosOfLexeme) &&
-           (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.')) {
-        currentPosOfLexeme += 1;
+char *numberLiteral(char *currentPosOfLexeme, bool isNegative) {
+    if (isNegative) {
+        while (!isAtEnd(currentPosOfLexeme) &&
+               (isDigit(currentPosOfLexeme[0]) ||
+                currentPosOfLexeme[0] == '.' || currentPosOfLexeme[0] == '-')) {
+            currentPosOfLexeme += 1;
+        }
+    } else {
+        while (
+            !isAtEnd(currentPosOfLexeme) &&
+            (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.')) {
+            currentPosOfLexeme += 1;
+        }
     }
 
     if (currentPosOfLexeme[0] == '.') {
@@ -228,20 +250,34 @@ char *numberLiteral(char *currentPosOfLexeme) {
     return currentPosOfLexeme;
 };
 
-char *getNumberLiteral(char *currentPosOfLexeme, char *startOfLexeme) {
+char *getNumberLiteral(char *currentPosOfLexeme, char *startOfLexeme,
+                       bool isNegative) {
     size_t len = (&currentPosOfLexeme[0] - startOfLexeme) + 1;
     currentPosOfLexeme -= len - 1;
     char *number = malloc(sizeof(char) * len);
     size_t index = 0;
     size_t numOfDecimals = 0;
-    while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.') {
-        if (currentPosOfLexeme[0] == '.') {
-            numOfDecimals += 1;
+    if (isNegative) {
+        while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.' ||
+               currentPosOfLexeme[0] == '-') {
+            if (currentPosOfLexeme[0] == '.') {
+                numOfDecimals += 1;
+            }
+            number[index] = currentPosOfLexeme[0];
+            currentPosOfLexeme += 1;
+            index += 1;
         }
-        number[index] = currentPosOfLexeme[0];
-        currentPosOfLexeme += 1;
-        index += 1;
+    } else {
+        while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.') {
+            if (currentPosOfLexeme[0] == '.') {
+                numOfDecimals += 1;
+            }
+            number[index] = currentPosOfLexeme[0];
+            currentPosOfLexeme += 1;
+            index += 1;
+        }
     }
+
     number[index] = '\0';
     if (numOfDecimals > 1) {
         fprintf(stderr, "\nUnrecognised number format.");
