@@ -15,13 +15,14 @@ ASTNode *parseFunctionCall(tokenListCTX *tokenListCTX) {
 
     functionCall->NodeType = AST_FUNCTION_CALL;
     functionCall->next = NULL;
+    functionCall->Data.FunctionCall.argList = NULL;
 
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_LPAREN, tokenListCTX);
-    // TODO: 0 or 1 arg list...
-    ASTNode *argList = parseArgList(tokenListCTX);
-    if (argList) {
+    Token nextToken = peekToken(tokenListCTX);
+    if (nextToken.type != TOKEN_RPAREN) {
+        ASTNode *argList = parseArgList(tokenListCTX);
         functionCall->Data.FunctionCall.argList = argList;
     }
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN, tokenListCTX);
