@@ -120,6 +120,28 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_FACTOR: {
+        if (node->Data.Factor.qualifiedIdentifier) {
+            destroyASTNode(node->Data.Factor.qualifiedIdentifier);
+        } else if (node->Data.Factor.literal) {
+            destroyASTNode(node->Data.Factor.literal);
+        } else if (node->Data.Factor.functionCall) {
+            destroyASTNode(node->Data.Factor.functionCall);
+        } else if (node->Data.Factor.simpleExpression) {
+            destroyASTNode(node->Data.Factor.simpleExpression);
+        }
+        free(node);
+        break;
+    }
+    case AST_QUALIFIED_IDENTIFIER: {
+        free(node);
+        break;
+    }
+    case AST_LITERAL: {
+        free(node);
+        break;
+    }
+    case AST_FUNCTION_CALL: {
+        // TODO: implement freeing of arg list
         free(node);
         break;
     }

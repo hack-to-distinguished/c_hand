@@ -30,7 +30,7 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_STAR,
                      tokenListCTX);
         selectStatement->Data.SelectStatement.selectAll = true;
-    } else if (nextToken.type == TOKEN_IDENTIFIER) {
+    } else {
         // TODO: Create select list parser
         selectStatement->Data.SelectStatement.selectList =
             parseSelectList(tokenListCTX);
