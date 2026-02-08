@@ -20,6 +20,10 @@ ASTNode *parseFunctionCall(tokenListCTX *tokenListCTX) {
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_LPAREN, tokenListCTX);
     // TODO: 0 or 1 arg list...
+    ASTNode *argList = parseArgList(tokenListCTX);
+    if (argList) {
+        functionCall->Data.FunctionCall.argList = argList;
+    }
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN, tokenListCTX);
 
     return functionCall;

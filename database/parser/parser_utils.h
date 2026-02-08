@@ -18,6 +18,7 @@ ASTNode *parseMultiplicativeOperator(tokenListCTX *tokenListCTX);
 ASTNode *parseQualifiedIdentifier(tokenListCTX *tokenListCTX);
 ASTNode *parseLiteral(tokenListCTX *tokenListCTX);
 ASTNode *parseFunctionCall(tokenListCTX *tokenListCTX);
+ASTNode *parseArgList(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 void parse(tokenListCTX *tokenListCTX);

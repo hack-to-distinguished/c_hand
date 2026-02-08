@@ -47,7 +47,8 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_multiplicative_operator.c \
 	database/parser/parsing_functions/parse_qualified_identifier.c \
 	database/parser/parsing_functions/parse_literal.c \
-	database/parser/parsing_functions/parse_function_call.c 
+	database/parser/parsing_functions/parse_function_call.c \
+	database/parser/parsing_functions/parse_arg_list.c 
 SDBMS_BIN = sdbms
 
 

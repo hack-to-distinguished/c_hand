@@ -14,7 +14,7 @@ struct ASTNode {
         AST_QUALIFIED_IDENTIFIER,
         AST_LITERAL,
         AST_FUNCTION_CALL,
-        AST_INSERT,
+        AST_ARG_LIST,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT
@@ -52,7 +52,12 @@ struct ASTNode {
 
         struct {
             // INFO: arg list may need a pointer?
+            ASTNode *argList;
         } FunctionCall;
+
+        struct {
+            ASTNode *simpleExpression;
+        } ArgList;
 
         struct {
             // INFO: dont need anything here, its just tokens

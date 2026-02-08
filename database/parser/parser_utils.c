@@ -142,6 +142,21 @@ void destroyASTNode(ASTNode *node) {
     }
     case AST_FUNCTION_CALL: {
         // TODO: implement freeing of arg list
+        if (node->Data.FunctionCall.argList) {
+            destroyASTNode(node->Data.FunctionCall.argList);
+        }
+        free(node);
+        break;
+    }
+    case AST_ARG_LIST: {
+        destroyASTNode(node->Data.ArgList.simpleExpression);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current);
+            current = next;
+        }
         free(node);
         break;
     }
