@@ -78,7 +78,8 @@ void destroyASTNode(ASTNode *node) {
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current);
+            destroyASTNode(current->Data.SelectList.simpleExpression);
+            free(current);
             current = next;
         }
         free(node);
@@ -154,7 +155,8 @@ void destroyASTNode(ASTNode *node) {
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current);
+            destroyASTNode(current->Data.ArgList.simpleExpression);
+            free(current);
             current = next;
         }
         free(node);
