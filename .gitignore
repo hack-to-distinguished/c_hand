@@ -18,6 +18,7 @@ msg*
 .DS_Store
 threadpoolserver.dSYM
 .zed
+wsock_server.dSYM/
 client.dSYM/
 sdbms.dSYM/
 ssh_server/client.dSYM/
