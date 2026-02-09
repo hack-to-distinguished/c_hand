@@ -90,7 +90,8 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
         addToken(ctx, TOKEN_OPERATOR_PLUS, "+", lineNumber);
         break;
     case '-':
-        if (!isDigit(*(currentPosOfLexeme - 1)) &&
+        if ((!isDigit(*(currentPosOfLexeme - 1)) &&
+             !isAlpha(*(currentPosOfLexeme - 1))) &&
             isDigit(*(currentPosOfLexeme + 1))) {
             currentPosOfLexeme = numberLiteral(currentPosOfLexeme, true);
             char *numberLiteral =
