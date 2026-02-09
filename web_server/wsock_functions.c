@@ -225,7 +225,6 @@ const char *ws_parse_websocket_http(const char *http_header) {
 
     static char accept_key[32]; // Base64 of 20 bytes is 28 chars + padding + null
     ws_base64_encode(digest, 20, accept_key, sizeof(accept_key));
-    printf("Sec-WebSocket-Accept: %s\n", accept_key);
     return accept_key;
 }
 
