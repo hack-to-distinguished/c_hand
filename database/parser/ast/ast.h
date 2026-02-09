@@ -15,6 +15,7 @@ struct ASTNode {
         AST_LITERAL,
         AST_FUNCTION_CALL,
         AST_ARG_LIST,
+        AST_TABLE_LIST,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT
@@ -78,6 +79,10 @@ struct ASTNode {
         struct {
             // INFO: Nothing required here
         } ExitStatement;
+
+        struct {
+            // INFO: Nothing required here
+        } TableList;
 
     } Data;
     ASTNode *next;

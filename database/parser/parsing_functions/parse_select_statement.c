@@ -38,8 +38,10 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
 
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_FROM,
                  tokenListCTX);
-    consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
-                 tokenListCTX);
+
+    // INFO: parse table list
+    selectStatement->Data.SelectStatement.tableList =
+        parseTableList(tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_EOF, tokenListCTX);
@@ -47,7 +49,6 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
     // TODO: OPTIONAL statements:
     // TODO: Create where clause parser
     // TODO: Create order by clause parser
-    // TODO: Create table list parser
 
     // TODO: If user inputted extra statements, insert corresponding nodes into
     // select statement tree

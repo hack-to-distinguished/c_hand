@@ -19,6 +19,7 @@ ASTNode *parseQualifiedIdentifier(tokenListCTX *tokenListCTX);
 ASTNode *parseLiteral(tokenListCTX *tokenListCTX);
 ASTNode *parseFunctionCall(tokenListCTX *tokenListCTX);
 ASTNode *parseArgList(tokenListCTX *tokenListCTX);
+ASTNode *parseTableList(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 void parse(tokenListCTX *tokenListCTX);

@@ -68,7 +68,15 @@ void destroyASTNode(ASTNode *node) {
         if (node->Data.SelectStatement.selectList) {
             destroyASTNode(node->Data.SelectStatement.selectList);
         }
-        // TODO: do table list, where clause, and order by clause
+
+        if (node->Data.SelectStatement.tableList) {
+            destroyASTNode(node->Data.SelectStatement.tableList);
+        }
+        // TODO: where clause, and order by clause
+        free(node);
+        break;
+    }
+    case AST_TABLE_LIST: {
         free(node);
         break;
     }
