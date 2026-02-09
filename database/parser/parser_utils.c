@@ -204,6 +204,7 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_LOGICAL_OPERATOR: {
+        destroyASTNode(node->Data.LogicalOperator.expression);
         free(node);
         break;
     }
