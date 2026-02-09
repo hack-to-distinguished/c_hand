@@ -72,6 +72,11 @@ void destroyASTNode(ASTNode *node) {
         if (node->Data.SelectStatement.tableList) {
             destroyASTNode(node->Data.SelectStatement.tableList);
         }
+
+        if (node->Data.SelectStatement.whereClause) {
+            destroyASTNode(node->Data.SelectStatement.whereClause);
+        }
+
         // TODO: where clause, and order by clause
         free(node);
         break;
@@ -167,6 +172,38 @@ void destroyASTNode(ASTNode *node) {
             free(current);
             current = next;
         }
+        free(node);
+        break;
+    }
+    case AST_WHERE_CLAUSE: {
+        destroyASTNode(node->Data.WhereClause.condition);
+        free(node);
+        break;
+    }
+    case AST_CONDITION: {
+        destroyASTNode(node->Data.Condition.expression);
+        ASTNode *current = node->Data.Condition.logicalOperator;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_EXPRESSION: {
+        destroyASTNode(node->Data.Expression.simpleExpressionL);
+        destroyASTNode(node->Data.Expression.comparisonOperator);
+        destroyASTNode(node->Data.Expression.simpleExpressionR);
+        free(node);
+        break;
+    }
+    case AST_COMPARISON_OPERATOR: {
+        free(node);
+        break;
+    }
+    case AST_LOGICAL_OPERATOR: {
         free(node);
         break;
     }

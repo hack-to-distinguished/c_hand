@@ -16,6 +16,11 @@ struct ASTNode {
         AST_FUNCTION_CALL,
         AST_ARG_LIST,
         AST_TABLE_LIST,
+        AST_WHERE_CLAUSE,
+        AST_CONDITION,
+        AST_EXPRESSION,
+        AST_COMPARISON_OPERATOR,
+        AST_LOGICAL_OPERATOR,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT
@@ -83,6 +88,29 @@ struct ASTNode {
         struct {
             // INFO: Nothing required here
         } TableList;
+
+        struct {
+            ASTNode *condition;
+        } WhereClause;
+
+        struct {
+            ASTNode *expression;
+            ASTNode *logicalOperator;
+        } Condition;
+
+        struct {
+            ASTNode *expression;
+        } LogicalOperator;
+
+        struct {
+            ASTNode *simpleExpressionL;
+            ASTNode *simpleExpressionR;
+            ASTNode *comparisonOperator;
+        } Expression;
+
+        struct {
+            // INFO: Nothing required here
+        } ComparisonOperator;
 
     } Data;
     ASTNode *next;

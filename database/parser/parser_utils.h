@@ -20,6 +20,11 @@ ASTNode *parseLiteral(tokenListCTX *tokenListCTX);
 ASTNode *parseFunctionCall(tokenListCTX *tokenListCTX);
 ASTNode *parseArgList(tokenListCTX *tokenListCTX);
 ASTNode *parseTableList(tokenListCTX *tokenListCTX);
+ASTNode *parseWhereClause(tokenListCTX *tokenListCTX);
+ASTNode *parseCondition(tokenListCTX *tokenListCTX);
+ASTNode *parseExpression(tokenListCTX *tokenListCTX);
+ASTNode *parseComparisonOperator(tokenListCTX *tokenListCTX);
+ASTNode *parseLogicalOperator(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 void parse(tokenListCTX *tokenListCTX);

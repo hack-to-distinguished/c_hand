@@ -42,16 +42,18 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
     // INFO: parse table list
     selectStatement->Data.SelectStatement.tableList =
         parseTableList(tokenListCTX);
+
+    if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_WHERE) {
+        selectStatement->Data.SelectStatement.whereClause =
+            parseWhereClause(tokenListCTX);
+    }
+
+    // TODO: OPTIONAL statements:
+    // TODO: Create order by clause parser
+
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
                  tokenListCTX);
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_EOF, tokenListCTX);
-
-    // TODO: OPTIONAL statements:
-    // TODO: Create where clause parser
-    // TODO: Create order by clause parser
-
-    // TODO: If user inputted extra statements, insert corresponding nodes into
-    // select statement tree
 
     return selectStatement;
 };
