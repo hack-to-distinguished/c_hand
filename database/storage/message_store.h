@@ -23,17 +23,17 @@ typedef struct {
     char* messages_by_user;
 } msg_buffer;
 
-extern int* end_of_db_ptr;
+extern int* end_of_db_idx;
 
 int ms_point_to_last_entry(flat_message_store* fms);
-void ms_view_all_entries(flat_message_store* fms);
+void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx);
 void ms_resize_store();
 void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
                     time_t* sent_time, time_t* recieved_time,
-                    flat_message_store* fms, int *end_of_db_ptr);
-void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_ptr);
-void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_ptr,
+                    flat_message_store* fms, int *end_of_db_idx);
+void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_idx);
+void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
                                   char* sender_id);
 void ms_show_latest_msg();
 void free_memory(flat_message_store* fms);
-msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_ptr);
+msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_idx);

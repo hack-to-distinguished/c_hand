@@ -11,12 +11,16 @@
 // fms is extern so it will only be declared here
 flat_message_store fms[MSG_STORE_SIZE]; 
 
-void ms_view_all_entries(flat_message_store* fms)
+void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx)
 {
-    // INFO: Start at 1 bc the first msg is empty
-    int i = 1;
-    while (fms[i].ID > fms[i - 1].ID)
-    {
+    int idx = *end_of_db_idx;
+    int i = 0;
+    if (idx - 10 > i) {
+        i = idx;
+    }
+    int upper_bound = i + 10;
+    
+    for (i = i; i < upper_bound; i++) {
         printf("\nIteration num: %d\n", i);
         printf("Message Store ID: %d\n", fms[i].ID);
         printf("Message Store sender_id: %s\n", fms[i].sender_id);
@@ -29,7 +33,7 @@ void ms_view_all_entries(flat_message_store* fms)
         // TODO: Fix the char pointer print above
         printf("Message Store send_status: %zu\n", fms[i].send_status);
         printf("Message Store recv_status: %zu\n", fms[i].recv_status);
-        i++;
+        // i++;
     }
     printf("Messages printed: %d\n\n", i);
 }
@@ -39,20 +43,19 @@ int ms_point_to_last_entry(flat_message_store* fms)
     int i = 1;
     while (fms[i].ID > fms[i - 1].ID)
     {
+        printf("Loop count: %d\n", i);
         i++;
     }
-    printf("End of list:\nIndex:%d - ID: %d\n", i, fms[i - 1].ID);
-    // return &fms[i - 1].ID;
-    // returns a pointer to the last ID field in fms
-    // What it should return: pointer to the last index
-    return i;
+    printf("Index of last entry: %d\n", i);
+    printf("ID at last entry: %d\n", fms[i - 1].ID);
+    return i-1;
 }
 
 // TODO: Create get latest entry
-void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_ptr)
+void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_idx)
 {
     printf("\nStreaming messages\n");
-    int index = *end_of_db_ptr;
+    int index = *end_of_db_idx;
     while (fms[index - 1].ID < fms[index].ID)
     {
         puts(fms[index].message);
@@ -64,13 +67,13 @@ void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_ptr)
 
 void ms_show_latest_msg();
 
-void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_ptr,
+void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
                                   char* sender_id)
 {
     // INFO: Creating linked lists between a users message would make
     // getting those user's message much faster
     printf("\nGetting %s's messages\n", sender_id);
-    int index = *end_of_db_ptr;
+    int index = *end_of_db_idx;
     while (fms[index - 1].ID < fms[index].ID)
     {
         if (strcmp(fms[index].sender_id, sender_id) == 0)
@@ -85,17 +88,16 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_ptr,
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
     int index = *latest_entry_ptr;
-    printf("Getting %d messages\n", index);
+    printf("\nindex: %d\n", index);
+    printf("fms[index].ID: %d\n", fms[index].ID);
+    printf("fms->ID: %d\n", fms->ID);
     
     char* msg_by_user = malloc(START_SIZE);
     msg_by_user[0] = '\0';
     size_t mbu_len = 0, mbu_cap = START_SIZE;
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
-    if (index - 1 >= -10) {
-        printf("\nfms->ID: %d\n", fms->ID);
-        printf("fms[index].ID: %d\n\n", fms[index].ID);
-    } 
+    
     while (fms[index - 1].ID > -1 && fms[index - 1].ID < fms[index].ID)
     {
         snprintf(
@@ -128,9 +130,9 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
 void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
                     time_t* sent_time, time_t* recieved_time,
-                    flat_message_store* fms, int *end_of_db_ptr)
+                    flat_message_store* fms, int *end_of_db_idx)
 {
-    int idx = *end_of_db_ptr;
+    int idx = *end_of_db_idx;
     idx++;
     printf("Inserting data at index %d\n", idx);
 
@@ -145,7 +147,8 @@ void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
     fms[idx].recv_status = 1;
     fms[idx].ID          = idx;
 
-    *end_of_db_ptr = idx;
+    *end_of_db_idx = idx;
+    printf("Successfully added %s to index %d\n\n", user_message, idx);
     return;
 
     // IMPROVEMENT:
@@ -154,8 +157,7 @@ void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
 }
 
 void ms_resize_store()
-{
-    // TODO: Implement resizing mechanism when the store fills up
+{ // TODO: Implement resizing mechanism when the store fills up
     return;
 }
 
@@ -205,22 +207,22 @@ void ms_http_message_store_endpoint(int sock, const char *body) {
 //     // INFO: Code below is for testing purposes
 //     flat_message_store fms[MSG_STORE_SIZE];
 //     printf("Message store initalized\n\n");
-//     int*   end_of_db_ptr = &fms[0].ID;
+//     int*   end_of_db_idx = &fms[0].ID;
 //     time_t now           = time(NULL);
 //
 //     ms_add_message("Christian", "Juan", "Christian test msg", &now, &now, fms,
-//                    &end_of_db_ptr);
+//                    &end_of_db_idx);
 //
 //     ms_add_message("chris", "nj", "chris test msg", &now, &now, fms,
-//                    &end_of_db_ptr);
+//                    &end_of_db_idx);
 //     ms_add_message("Alejandro", "Christian", "NJ test msg", &now, &now, fms,
-//                    &end_of_db_ptr);
+//                    &end_of_db_idx);
 //     // ms_view_all_entries(fms);
 //
-//     ms_stream_messages_desc(fms, &end_of_db_ptr);
-//     ms_stream_user_messages_desc(fms, &end_of_db_ptr, "Christian");
+//     ms_stream_messages_desc(fms, &end_of_db_idx);
+//     ms_stream_user_messages_desc(fms, &end_of_db_idx, "Christian");
 //
-//     // end_of_db_ptr = ms_point_to_last_entry(fms);
+//     // end_of_db_idx = ms_point_to_last_entry(fms);
 //
 //     free_memory(fms);
 //     return (0);
