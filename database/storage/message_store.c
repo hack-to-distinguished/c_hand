@@ -86,25 +86,19 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
 }
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
+    
     int index = *latest_entry_ptr;
-    printf("\nindex: %d\n", index);
-    printf("fms[index].ID: %d\n", fms[index].ID);
-    printf("fms->ID: %d\n", fms->ID);
     
     char* msg_by_user = malloc(START_SIZE);
     msg_by_user[0] = '\0';
     size_t mbu_len = 0, mbu_cap = START_SIZE;
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
-
     
-    while (fms[index].ID > -1 && fms[index + 1].ID > fms[index].ID)
+    while (index > 0)
     {
-        printf("ITER\n");
-        printf("index: %d\n", index);
-        printf("fms[index - i]: %d\n", fms[index-1].ID);
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'%s': '%s'}", fms[index].sender_id, fms[index].message
+            "{'%s': '%s'}, ", fms[index].sender_id, fms[index].message
         );
         
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -118,15 +112,14 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
         }
         strcat(msg_by_user, msg_construction_buffer); 
         mbu_len += msg_c_b_len;
-        
         index--;
-        printf("CAP: %zu \nLEN: %zu \n ADDING: %s", mbu_cap, mbu_len, msg_construction_buffer);
+        
+        printf("Message buffer: %s", msg_by_user);
     }
     msg_by_user[mbu_len] = '\0';
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
     
-    printf("\n --- Messages: --- \n%s", msg_by_user);
     return out;
 }
 
@@ -150,7 +143,7 @@ void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
     fms[idx].ID          = idx;
 
     *end_of_db_idx = idx;
-    printf("Successfully added %s to index %d\n\n", user_message, idx);
+    printf("Successfully added %s to index %d -ID: %d\n\n", user_message, idx, fms[idx].ID);
     return;
 
     // IMPROVEMENT:
