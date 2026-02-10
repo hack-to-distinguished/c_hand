@@ -33,7 +33,6 @@ void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx)
         // TODO: Fix the char pointer print above
         printf("Message Store send_status: %zu\n", fms[i].send_status);
         printf("Message Store recv_status: %zu\n", fms[i].recv_status);
-        // i++;
     }
     printf("Messages printed: %d\n\n", i);
 }
@@ -98,8 +97,11 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
     
-    while (fms[index - 1].ID > -1 && fms[index - 1].ID < fms[index].ID)
+    while (fms[index].ID > -1 && fms[index + 1].ID > fms[index].ID)
     {
+        printf("ITER\n");
+        printf("index: %d\n", index);
+        printf("fms[index - i]: %d\n", fms[index-1].ID);
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
             "{'%s': '%s'}", fms[index].sender_id, fms[index].message
