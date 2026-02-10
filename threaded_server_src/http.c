@@ -532,20 +532,44 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Length: %d\r\n"
-                    "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                    "<body>\r\n"
-                    "%s\r\n"
-                    "</body>\r\n",
-                    msg_res.total_len, msg_res.messages_by_user);
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Length: %d\r\n"
+                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                "<body>\r\n"
+                "%s\r\n"
+                "</body>\r\n",
+                msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(msg_res.messages_by_user);
+            
+        } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
+
+            time_t now = time(NULL);
+            char *user = "1";
+            int end_idx = ms_point_to_last_entry(fms);
+            ms_add_message(user, "all", "testmsg", &now, &now, fms, &end_idx);
+            
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            char *ptr_body;
+            int body_len;
+            ptr_body = "<body>\r\n"
+                       "Success\r\n"
+                       "</body>\r\n";
+            body_len = strlen(ptr_body);
+            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Length: %d\r\n"
+                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                "%s",
+                body_len, ptr_body);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            
         }
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+        
 
     } else {
         // printf("\nFile does not exist!");
