@@ -543,6 +543,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             free(msg_res.messages_by_user);
             
         } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
+            // TODO: Turn the Get to post
 
             time_t now = time(NULL);
             char *user = "1";

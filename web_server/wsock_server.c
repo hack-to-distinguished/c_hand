@@ -86,8 +86,6 @@ int main(int argc, char *argv[]) {
     int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
-    fms[0].ID = 999999;
-    fms[1].ID = 42;
     time_t now = time(NULL);
     int latest_entry_ptr = ms_point_to_last_entry(fms);
 

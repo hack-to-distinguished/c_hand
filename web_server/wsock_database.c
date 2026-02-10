@@ -103,8 +103,6 @@ int main(int argc, char *argv[]) {
         inet_ntop(their_addr.ss_family, &client_addr->sin_addr, client_ip, sizeof(client_ip));
         printf("New connection from %s from socket %d\n", client_ip, client_fd);
 
-
-        printf("Going to receive HTTP request on NJ code\n");
         parse_HTTP_requests(client_fd); // Freeing of the client_fd happens in parse_HTTP_requests
     }
 

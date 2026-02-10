@@ -9,7 +9,7 @@
 # define START_SIZE 32
 
 // fms is extern so it will only be declared here
-flat_message_store fms[MSG_STORE_SIZE]; 
+flat_message_store fms[MSG_STORE_SIZE];
 
 void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx)
 {
@@ -19,7 +19,7 @@ void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx)
         i = idx;
     }
     int upper_bound = i + 10;
-    
+
     for (i = i; i < upper_bound; i++) {
         printf("\nIteration num: %d\n", i);
         printf("Message Store ID: %d\n", fms[i].ID);
@@ -86,40 +86,40 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
 }
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
-    
+
     int index = *latest_entry_ptr;
-    
+
     char* msg_by_user = malloc(START_SIZE);
     msg_by_user[0] = '\0';
     size_t mbu_len = 0, mbu_cap = START_SIZE;
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
-    
+
     while (index > 0)
     {
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
             "{'%s': '%s'}, ", fms[index].sender_id, fms[index].message
         );
-        
+
         int msg_c_b_len = strlen(msg_construction_buffer);
         if (msg_c_b_len + mbu_len + 1 >= mbu_cap) {
             mbu_cap = mbu_cap * 2;
             char *tmp_ptr = realloc(msg_by_user, mbu_cap);
-            if (!tmp_ptr){ 
-                printf("Failed to reallocate memory for the messages");
+            if (!tmp_ptr) {
+                printf("Failed to reallocate memory for the messages\n");
             }
             msg_by_user = tmp_ptr;
         }
-        strcat(msg_by_user, msg_construction_buffer); 
+        strcat(msg_by_user, msg_construction_buffer);
         mbu_len += msg_c_b_len;
         index--;
-        
-        printf("Message buffer: %s", msg_by_user);
+
     }
+    printf("Message buffer: %s\n", msg_by_user);
     msg_by_user[mbu_len] = '\0';
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
-    
+
     return out;
 }
 
@@ -143,7 +143,7 @@ void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
     fms[idx].ID          = idx;
 
     *end_of_db_idx = idx;
-    printf("Successfully added %s to index %d -ID: %d\n\n", user_message, idx, fms[idx].ID);
+    printf("Successfully added %s to index %d - ID: %d\n\n", user_message, idx, fms[idx].ID);
     return;
 
     // IMPROVEMENT:
@@ -169,33 +169,6 @@ void free_memory(flat_message_store* fms)
     return;
 }
 
-
-void ms_http_message_store_endpoint(int sock, const char *body) {
-    char response[BUFFER_SIZE];
-    char escaped[BUFFER_SIZE];
-
-    // JSON escaping
-    size_t j = 0;
-    for (size_t i = 0; body[i] && j < BUFFER_SIZE - 2; i++) {
-        if (body[i] == '"' || body[i] == '\\') {
-            escaped[j++] = '\\';
-        }
-        escaped[j++] = body[i];
-    }
-    escaped[j] = '\0';
-
-    int body_len = snprintf(NULL, 0, "{\"message\": \"%s\"}", escaped);
-
-    snprintf(response, sizeof(response),
-         "HTTP/1.1 200 OK\r\n"
-         "Content-Type: application/json\r\n"
-         "Access-Control-Allow-Origin: *\r\n"
-         "Content-Length: %d\r\n"
-         "Connection: close\r\n"
-         "\r\n"
-         "{\"message\": \"%s\"}",
-         body_len, escaped);
-}
 
 // int main()
 // {
