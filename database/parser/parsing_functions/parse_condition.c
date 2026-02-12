@@ -14,26 +14,8 @@ ASTNode *parseCondition(tokenListCTX *tokenListCTX) {
     }
 
     condition->NodeType = AST_CONDITION;
+    condition->Data.Condition.orCondition = NULL;
     condition->next = NULL;
-    condition->Data.Condition.expression = NULL;
-    condition->Data.Condition.logicalOperator = NULL;
-
-    condition->Data.Condition.expression = parseExpression(tokenListCTX);
-
-    ASTNode *tail = NULL;
-
-    while (peekToken(tokenListCTX).type == TOKEN_KEYWORD_AND ||
-           peekToken(tokenListCTX).type == TOKEN_KEYWORD_OR) {
-        ASTNode *newLogicalOperator = parseLogicalOperator(tokenListCTX);
-
-        if (condition->Data.Condition.logicalOperator == NULL) {
-            condition->Data.Condition.logicalOperator = newLogicalOperator;
-            tail = newLogicalOperator;
-        } else {
-            tail->next = newLogicalOperator;
-            tail = tail->next;
-        }
-    }
 
     return condition;
 };

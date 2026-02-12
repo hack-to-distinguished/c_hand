@@ -18,9 +18,11 @@ struct ASTNode {
         AST_TABLE_LIST,
         AST_WHERE_CLAUSE,
         AST_CONDITION,
-        AST_EXPRESSION,
+        AST_OR_CONDITION,
+        AST_AND_CONDITION,
+        AST_BOOLEAN_FACTOR,
+        AST_COMPARISON,
         AST_COMPARISON_OPERATOR,
-        AST_LOGICAL_OPERATOR,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT
@@ -94,13 +96,27 @@ struct ASTNode {
         } WhereClause;
 
         struct {
-            ASTNode *expression;
-            ASTNode *logicalOperator;
+            ASTNode *orCondition;
         } Condition;
 
         struct {
-            ASTNode *expression;
-        } LogicalOperator;
+            ASTNode *andCondition;
+        } OrCondition;
+
+        struct {
+            ASTNode *booleanFactor;
+        } AndCondition;
+
+        struct {
+            ASTNode *condition;
+            ASTNode *comparison;
+        } BooleanFactor;
+
+        struct {
+            ASTNode *simpleExpressionL;
+            ASTNode *comparisonOperator;
+            ASTNode *simpleExpressionR;
+        } Comparison;
 
         struct {
             ASTNode *simpleExpressionL;

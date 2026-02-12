@@ -45,6 +45,7 @@ ASTNode *parseFactor(tokenListCTX *tokenListCTX) {
             parseSimpleExpression(tokenListCTX);
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN,
                      tokenListCTX);
+
     } else {
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),

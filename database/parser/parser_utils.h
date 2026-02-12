@@ -24,7 +24,9 @@ ASTNode *parseWhereClause(tokenListCTX *tokenListCTX);
 ASTNode *parseCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseExpression(tokenListCTX *tokenListCTX);
 ASTNode *parseComparisonOperator(tokenListCTX *tokenListCTX);
-ASTNode *parseLogicalOperator(tokenListCTX *tokenListCTX);
+ASTNode *parseOrCondition(tokenListCTX *tokenListCTX);
+ASTNode *parseAndCondition(tokenListCTX *tokenListCTX);
+ASTNode *parseBooleanFactor(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 void parse(tokenListCTX *tokenListCTX);
