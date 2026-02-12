@@ -39,7 +39,15 @@ and_condition ::= boolean_factor
 boolean_factor ::= TOKEN_LPAREN condition TOKEN_RPAREN
                  | comparison ; (CONTROLLED LOOK AHEAD REQUIRED HERE)
 
-comparison ::= simple_expr comparison_op simple_expr ;
+comparison ::= simple_expr comparison_operator simple_expr ;
+
+comparison_operator ::= TOKEN_OPERATOR_EQ
+                | TOKEN_OPERATOR_NEQ
+                | TOKEN_OPERATOR_LT
+                | TOKEN_OPERATOR_LTE
+                | TOKEN_OPERATOR_GT
+                | TOKEN_OPERATOR_GTE
+                ;
 
 -- ============================================================================
 -- EXPRESSIONS (Arithmetic with Proper Precedence)
