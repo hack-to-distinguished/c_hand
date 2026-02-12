@@ -23,26 +23,23 @@ select_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
 table_list ::= TOKEN_IDENTIFIER { TOKEN_COMMA TOKEN_IDENTIFIER } ;
 
 -- ============================================================================
--- WHERE CLAUSE (No Parentheses Around Conditions)
+-- WHERE CLAUSE (With Parentheses Support)
 -- ============================================================================
 
 where_clause ::= TOKEN_KEYWORD_WHERE condition ;
 
 condition ::= or_condition ;
 
-or_condition ::= and_condition { TOKEN_KEYWORD_OR and_condition } ;
+or_condition ::= and_condition 
+                 { TOKEN_KEYWORD_OR and_condition } ;
 
-and_condition ::= comparison { TOKEN_KEYWORD_AND comparison } ;
+and_condition ::= boolean_factor 
+                  { TOKEN_KEYWORD_AND boolean_factor } ;
+
+boolean_factor ::= TOKEN_LPAREN condition TOKEN_RPAREN
+                 | comparison ; (CONTROLLED LOOK AHEAD REQUIRED HERE)
 
 comparison ::= simple_expr comparison_op simple_expr ;
-
-comparison_op ::= TOKEN_OPERATOR_EQ
-                | TOKEN_OPERATOR_NEQ
-                | TOKEN_OPERATOR_LT
-                | TOKEN_OPERATOR_LTE
-                | TOKEN_OPERATOR_GT
-                | TOKEN_OPERATOR_GTE
-                ;
 
 -- ============================================================================
 -- EXPRESSIONS (Arithmetic with Proper Precedence)
