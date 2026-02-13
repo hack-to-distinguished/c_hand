@@ -19,6 +19,16 @@ ASTNode *parseBooleanFactor(tokenListCTX *tokenListCTX) {
     booleanFactor->Data.BooleanFactor.condition = NULL;
 
     // TODO: add look ahead function for this rule
-
+    if (containsCondition(tokenListCTX)) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_LPAREN,
+                     tokenListCTX);
+        booleanFactor->Data.BooleanFactor.condition =
+            parseCondition(tokenListCTX);
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN,
+                     tokenListCTX);
+    } else {
+        booleanFactor->Data.BooleanFactor.comparison =
+            parseComparison(tokenListCTX);
+    }
     return booleanFactor;
 };

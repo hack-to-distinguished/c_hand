@@ -17,5 +17,7 @@ ASTNode *parseCondition(tokenListCTX *tokenListCTX) {
     condition->Data.Condition.orCondition = NULL;
     condition->next = NULL;
 
+    condition->Data.Condition.orCondition = parseOrCondition(tokenListCTX);
+
     return condition;
 };

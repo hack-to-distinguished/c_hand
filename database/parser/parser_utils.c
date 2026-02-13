@@ -181,21 +181,49 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_CONDITION: {
-        destroyASTNode(node->Data.Condition.expression);
-        ASTNode *current = node->Data.Condition.logicalOperator;
-        while (current) {
-            ASTNode *next = current->next;
-            destroyASTNode(current);
-            current = next;
-        }
-
+        destroyASTNode(node->Data.Condition.orCondition);
         free(node);
         break;
     }
-    case AST_EXPRESSION: {
-        destroyASTNode(node->Data.Expression.simpleExpressionL);
-        destroyASTNode(node->Data.Expression.comparisonOperator);
-        destroyASTNode(node->Data.Expression.simpleExpressionR);
+    case AST_OR_CONDITION: {
+        destroyASTNode(node->Data.OrCondition.andCondition);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.OrCondition.andCondition);
+            free(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
+    case AST_AND_CONDITION: {
+        destroyASTNode(node->Data.AndCondition.booleanFactor);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.AndCondition.booleanFactor);
+            free(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
+    case AST_BOOLEAN_FACTOR: {
+        if (node->Data.BooleanFactor.comparison) {
+            destroyASTNode(node->Data.BooleanFactor.comparison);
+        } else if (node->Data.BooleanFactor.condition) {
+            destroyASTNode(node->Data.BooleanFactor.condition);
+        }
+        free(node);
+        break;
+    }
+    case AST_COMPARISON: {
+        destroyASTNode(node->Data.Comparison.simpleExpressionL);
+        destroyASTNode(node->Data.Comparison.comparisonOperator);
+        destroyASTNode(node->Data.Comparison.simpleExpressionR);
         free(node);
         break;
     }
@@ -203,10 +231,36 @@ void destroyASTNode(ASTNode *node) {
         free(node);
         break;
     }
-    case AST_LOGICAL_OPERATOR: {
-        destroyASTNode(node->Data.LogicalOperator.expression);
-        free(node);
-        break;
     }
+};
+
+bool containsCondition(tokenListCTX *tokenListCTX) {
+    Token *originalposition = tokenListCTX->indexPosition;
+    int depth = 0;
+
+    if (peekToken(tokenListCTX).type == TOKEN_LPAREN) {
+        depth += 1;
     }
+    advance(tokenListCTX);
+
+    while (depth > 0 && peekToken(tokenListCTX).type != TOKEN_EOF) {
+        if (peekToken(tokenListCTX).type == TOKEN_LPAREN) {
+            depth += 1;
+        } else if (peekToken(tokenListCTX).type == TOKEN_RPAREN) {
+            depth -= 1;
+        } else if (peekToken(tokenListCTX).type == TOKEN_OPERATOR_EQ ||
+                   peekToken(tokenListCTX).type == TOKEN_OPERATOR_NEQ ||
+                   peekToken(tokenListCTX).type == TOKEN_OPERATOR_LT ||
+                   peekToken(tokenListCTX).type == TOKEN_OPERATOR_LTE ||
+                   peekToken(tokenListCTX).type == TOKEN_OPERATOR_GT ||
+                   peekToken(tokenListCTX).type == TOKEN_OPERATOR_GTE ||
+                   peekToken(tokenListCTX).type == TOKEN_KEYWORD_AND ||
+                   peekToken(tokenListCTX).type == TOKEN_KEYWORD_OR) {
+            tokenListCTX->indexPosition = originalposition;
+            return true;
+        }
+        advance(tokenListCTX);
+    }
+    tokenListCTX->indexPosition = originalposition;
+    return false;
 };

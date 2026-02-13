@@ -23,6 +23,7 @@ struct ASTNode {
         AST_BOOLEAN_FACTOR,
         AST_COMPARISON,
         AST_COMPARISON_OPERATOR,
+        AST_EXPRESSION,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT

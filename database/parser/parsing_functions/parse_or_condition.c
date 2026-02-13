@@ -20,5 +20,11 @@ ASTNode *parseOrCondition(tokenListCTX *tokenListCTX) {
     orCondition->Data.OrCondition.andCondition =
         parseAndCondition(tokenListCTX);
 
+    if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_OR) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_OR,
+                     tokenListCTX);
+        orCondition->next = parseOrCondition(tokenListCTX);
+    }
+
     return orCondition;
 };

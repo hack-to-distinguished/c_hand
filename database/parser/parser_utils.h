@@ -27,8 +27,10 @@ ASTNode *parseComparisonOperator(tokenListCTX *tokenListCTX);
 ASTNode *parseOrCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseAndCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseBooleanFactor(tokenListCTX *tokenListCTX);
+ASTNode *parseComparison(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
+bool containsCondition(tokenListCTX *tokenListCTX);
 void parse(tokenListCTX *tokenListCTX);
 void syntaxError(const char *message);
 bool check(size_t tokenType, size_t tokenTypeToBeChecked);

@@ -17,5 +17,14 @@ ASTNode *parseAndCondition(tokenListCTX *tokenListCTX) {
     andCondition->next = NULL;
     andCondition->Data.AndCondition.booleanFactor = NULL;
 
+    andCondition->Data.AndCondition.booleanFactor =
+        parseBooleanFactor(tokenListCTX);
+
+    if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_AND) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_AND,
+                     tokenListCTX);
+        andCondition->next = parseAndCondition(tokenListCTX);
+    }
+
     return andCondition;
 };
