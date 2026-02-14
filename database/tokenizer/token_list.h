@@ -4,7 +4,7 @@
 
 typedef struct {
     Token *indexPosition;
-    Token *tail;
+    Token *tokenList;
     size_t maxSize;
     size_t currentSize;
 } tokenListCTX;
@@ -12,6 +12,5 @@ typedef struct {
 tokenListCTX *initialiseTokenList(size_t size);
 bool isFull(tokenListCTX *ctx);
 void appendToken(Token *token, tokenListCTX *ctx);
-void getItem(size_t index);
 void destroyTokenList(tokenListCTX *ctx);
 void printAllTokens(tokenListCTX *ctx);

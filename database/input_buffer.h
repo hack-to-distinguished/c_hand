@@ -6,12 +6,9 @@
 
 typedef struct {
     char *buffer;
-    size_t *bufferLength;
-    ssize_t *charactersReadInclEOF;
+} inputBuffer;
 
-} inputLineBuffer;
-
-inputLineBuffer *createInputLineBuffer();
-void destroyInputLineBuffer(inputLineBuffer *iPL);
-void getLineInput(inputLineBuffer *iPL);
-void processLineInput(inputLineBuffer *iPL);
+inputBuffer *createInputBuffer();
+void destroyInputBuffer(inputBuffer *inputBuffer);
+void getInput(inputBuffer *inputBuffer);
+void processInput(inputBuffer *inputBuffer);

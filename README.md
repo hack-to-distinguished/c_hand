@@ -20,6 +20,7 @@ The next major step is to develop a database management system from scratch to t
   - [Observations](#observations)
 - [Messaging System](#messaging-system)
 - [SDBMS (Simple Database Management System)](#sdbms-simple-database-management-system)
+- [SDBMS Syntax Guide](#sdbms-syntax-guide)
 - [Project Plan](#project-plan)
   - [Phase 1: TCP Echo Server](#phase-1-tcp-echo-server)
   - [Phase 2: HTTP Server](#phase-2-http-server)
@@ -39,6 +40,7 @@ A custom-built HTTP/1.1 web server written from scratch in C, designed for **hig
 **Key Features:**
 - Thread pool implementation for efficiently handling multiple simultaneous client connections.
 - Stateful HTTP request parsing using a **state machine** for precise and robust request handling.
+- Supports both GET + POST methods.
 
 ### State Machine Diagram
 
@@ -92,18 +94,174 @@ A real-time messaging platform leveraging the **WebSocket protocol** for persist
 
 A simple database management system developed from scratch in C.  
 
-Currently, a **tokenizer** has been implemented — it converts SQL commands and keywords into valid tokens that will later be passed into a parser.  
+Currently, both a tokenizer, and parser has been implemented.
 
 **Key Features:**
-- Tokenizer: Converts SQL input into structured tokens (keywords, identifiers, symbols, etc.) for the parser.  
-- Parser and Execution Engine: In development — will interpret tokens, validate syntax, and execute basic SQL-like commands.
+- Tokenizer: Converts SQL input into structured tokens (keywords, identifiers, symbols, etc.) for the parser.
+- Parser: Converts tokens into ASTs and syntactically checks user input.
+- Execution Engine: In development
 
 **Goal:**  
 To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*.
 
-<img width="821" height="937" alt="image" src="https://github.com/user-attachments/assets/bbf9ef3e-d93e-4b09-8fe3-50012835a064" />
+---
+
+## SDBMS Syntax Guide
+
+### Overview
+This guide describes the supported SQL syntax for database operations including SELECT, INSERT, UPDATE, and DELETE statements.
+
+### General Rules
+- All statements must end with a semicolon (`;`)
+- Identifiers (table and column names) **cannot contain underscores** (`_`)
+- Keywords are case-insensitive (SELECT, select, Select are equivalent)
+- String literals use single quotes: `'example'`
+
+### Statement Types
+
+#### SELECT Statement
+Retrieve data from one or more tables.
+
+```sql
+db > SELECT column1, column2 
+   > FROM table1, table2
+   > WHERE condition
+   > ORDER BY column1 ASC, column2 DESC;
+```
+
+**Components:**
+- **SELECT clause**: Specify columns or `*` for all columns
+- **FROM clause**: List one or more tables (comma-separated)
+- **WHERE clause** (optional): Filter results using conditions
+- **ORDER BY clause** (optional): Sort results by columns with ASC (ascending) or DESC (descending)
+
+**Note:** Column aliasing with AS is not currently supported.
+
+#### INSERT Statement
+Add new records to a table.
+
+```sql
+db > INSERT INTO tablename (column1, column2, column3)
+   > VALUES (value1, value2, value3);
+```
+
+#### UPDATE Statement
+Modify existing records in a table.
+
+```sql
+db > UPDATE tablename
+   > SET column1 = value1, column2 = value2
+   > WHERE condition;
+```
+
+#### DELETE Statement
+Remove records from a table.
+
+```sql
+db > DELETE FROM tablename
+   > WHERE condition;
+```
+
+### Expressions and Operators
+
+#### Arithmetic Operators
+- `+` Addition
+- `-` Subtraction
+- `*` Multiplication
+- `/` Division
+
+**Precedence:** Multiplication and division evaluate before addition and subtraction. Use parentheses to override precedence.
+
+```sql
+db > SELECT salary * 1.1 + bonus FROM employees;
+db > SELECT (salary + bonus) * 1.1 FROM employees;
+```
+
+#### Comparison Operators
+- `=` Equal to
+- `!=` Not equal to
+- `<` Less than
+- `<=` Less than or equal to
+- `>` Greater than
+- `>=` Greater than or equal to
+
+#### Logical Operators
+- `AND` Both conditions must be true
+- `OR` At least one condition must be true
+
+Use parentheses to group conditions for complex logic:
+```sql
+> WHERE (age > 18 AND status = 'active') OR role = 'admin'
+```
+
+**Note:** Pattern matching with LIKE is not currently supported.
+
+### Identifiers and Literals
+
+#### Column References
+- **Simple**: `columnname`
+- **Qualified**: `tablename.columnname`
+
+Remember: No underscores allowed in identifiers.
+
+#### Literals
+- **String**: `'text value'`
+- **Integer**: `42` or `-54`
+- **Float**: `3.14` or `-2.43`
+- **NULL**: `NULL` keyword
+
+#### Functions
+Standard function call syntax:
+```sql
+> functionname(arg1, arg2, ...)
+```
+
+### Special Commands
+
+#### EXIT
+Exit the SQL environment:
+```sql
+db > EXIT;
+```
+
+### Examples
+
+```sql
+-- Select all employees earning over 50000
+db > SELECT * FROM employees WHERE salary > 50000;
+
+-- Select with multiple conditions and logical operators
+db > SELECT name, department FROM employees
+   > WHERE (salary > 40000 AND status = 'active') OR role = 'manager'
+   > ORDER BY name ASC;
+
+-- Insert a new employee (note: no underscores in column names)
+db > INSERT INTO employees (name, salary, department)
+   > VALUES ('John Doe', 55000, 'Engineering');
+
+-- Update employee salary with arithmetic expression
+db > UPDATE employees
+   > SET salary = salary * 1.1
+   > WHERE department = 'Sales';
+
+-- Delete inactive employees
+db > DELETE FROM employees
+   > WHERE status = 'inactive';
+
+-- Complex SELECT with multiple tables and arithmetic
+db > SELECT 
+   > employees.name,
+   > employees.salary * 1.15 + bonus.amount,
+   > performance.rating
+   > FROM employees, bonus, performance
+   > WHERE employees.id = bonus.employeeid
+   > AND employees.id = performance.employeeid
+   > AND performance.rating >= 4.0
+   > ORDER BY employees.salary DESC;
+```
 
 ---
+
 ## Project Plan
 
 ### Phase 1: TCP Echo Server
@@ -127,7 +285,7 @@ To gain a deeper understanding of how databases work internally and to eventuall
 
 ### Phase 4: Database Management System (SDBMS)
 - [x] Implement tokenizer for SQL command parsing  
-- [ ] Implement parser to validate and interpret tokens  
+- [x] Implement parser to validate and interpret tokens  
 - [ ] Create execution engine for running basic SQL-like commands  
 - [ ] Integrate SDBMS as the backend database for the messaging system  
 - [ ] Integrate SDBMS with **Tank Squared** for persistent multiplayer data  

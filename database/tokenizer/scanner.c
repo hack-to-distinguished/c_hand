@@ -9,20 +9,27 @@ void scanTokens(char *buffer) {
     tokenListCTX *ctx = initialiseTokenList(8);
     char *startOfLexeme = buffer;
     char *currentPosOfLexeme = startOfLexeme;
-    int lineNumber = 1;
+    size_t lineNumber = 1;
 
     // scan the actual tokens
     while (!isAtEnd(currentPosOfLexeme)) {
         startOfLexeme = currentPosOfLexeme;
-        currentPosOfLexeme = scanToken(currentPosOfLexeme, ctx, startOfLexeme);
+        if (*startOfLexeme == '\n') {
+            lineNumber += 1;
+        }
+        currentPosOfLexeme =
+            scanToken(currentPosOfLexeme, ctx, startOfLexeme, lineNumber);
     }
+
+    addToken(ctx, TOKEN_EOF, "EOF", lineNumber);
     printAllTokens(ctx);
+    parse(ctx);
     destroyTokenList(ctx);
     return;
 }
 
-char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
-                char *bufferStart) {
+char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
+                size_t lineNumber) {
     char c = *currentPosOfLexeme;
 
     switch (c) {
@@ -34,26 +41,26 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
         break;
     // Punctuation
     case ',':
-        addToken(ctx, TOKEN_COMMA, ",");
+        addToken(ctx, TOKEN_COMMA, ",", lineNumber);
         break;
     case ';':
-        addToken(ctx, TOKEN_SEMICOLON, ";");
+        addToken(ctx, TOKEN_SEMICOLON, ";", lineNumber);
         break;
     case '(':
-        addToken(ctx, TOKEN_LPAREN, "(");
+        addToken(ctx, TOKEN_LPAREN, "(", lineNumber);
         break;
     case ')':
-        addToken(ctx, TOKEN_RPAREN, ")");
+        addToken(ctx, TOKEN_RPAREN, ")", lineNumber);
         break;
     case '.':
-        addToken(ctx, TOKEN_DOT, ".");
+        addToken(ctx, TOKEN_DOT, ".", lineNumber);
         break;
 
     // Operators
     case '!':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_NEQ, "!=");
+            addToken(ctx, TOKEN_OPERATOR_NEQ, "!=", lineNumber);
             break;
         } else {
             fprintf(stderr, "\nUnrecognised Input");
@@ -61,53 +68,67 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
             break;
         }
     case '=':
-        addToken(ctx, TOKEN_OPERATOR_EQ, "=");
+        addToken(ctx, TOKEN_OPERATOR_EQ, "=", lineNumber);
         break;
     case '<':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_LTE, "<=");
+            addToken(ctx, TOKEN_OPERATOR_LTE, "<=", lineNumber);
         } else {
-            addToken(ctx, TOKEN_OPERATOR_LT, "<");
+            addToken(ctx, TOKEN_OPERATOR_LT, "<", lineNumber);
         }
         break;
     case '>':
         if (matchChar(currentPosOfLexeme, '=')) {
             currentPosOfLexeme += 1;
-            addToken(ctx, TOKEN_OPERATOR_GTE, ">=");
+            addToken(ctx, TOKEN_OPERATOR_GTE, ">=", lineNumber);
         } else {
-            addToken(ctx, TOKEN_OPERATOR_GT, ">");
+            addToken(ctx, TOKEN_OPERATOR_GT, ">", lineNumber);
         }
         break;
     case '+':
-        addToken(ctx, TOKEN_OPERATOR_PLUS, "+");
+        addToken(ctx, TOKEN_OPERATOR_PLUS, "+", lineNumber);
         break;
     case '-':
-        addToken(ctx, TOKEN_OPERATOR_MINUS, "-");
+        if ((!isDigit(*(currentPosOfLexeme - 1)) &&
+             !isAlpha(*(currentPosOfLexeme - 1))) &&
+            isDigit(*(currentPosOfLexeme + 1))) {
+            currentPosOfLexeme = numberLiteral(currentPosOfLexeme, true);
+            char *numberLiteral =
+                getNumberLiteral(currentPosOfLexeme, bufferStart, true);
+            if (checkFloat(numberLiteral)) {
+                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral, lineNumber);
+            } else {
+                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral, lineNumber);
+            }
+            currentPosOfLexeme -= 1;
+        } else {
+            addToken(ctx, TOKEN_OPERATOR_MINUS, "-", lineNumber);
+        }
         break;
     case '*':
-        addToken(ctx, TOKEN_OPERATOR_STAR, "*");
+        addToken(ctx, TOKEN_OPERATOR_STAR, "*", lineNumber);
         break;
     case '/':
-        addToken(ctx, TOKEN_OPERATOR_SLASH, "/");
+        addToken(ctx, TOKEN_OPERATOR_SLASH, "/", lineNumber);
         break;
 
     // STRING LITERALS
     case '\'':
         currentPosOfLexeme = stringLiteral(currentPosOfLexeme);
         addToken(ctx, TOKEN_STRING_LITERAL,
-                 getStringLiteral(currentPosOfLexeme, bufferStart));
+                 getStringLiteral(currentPosOfLexeme, bufferStart), lineNumber);
         break;
     default:
         // INTEGER + FLOAT LITERALS
         if (isDigit(c)) {
-            currentPosOfLexeme = numberLiteral(currentPosOfLexeme);
+            currentPosOfLexeme = numberLiteral(currentPosOfLexeme, false);
             char *numberLiteral =
-                getNumberLiteral(currentPosOfLexeme, bufferStart);
+                getNumberLiteral(currentPosOfLexeme, bufferStart, false);
             if (checkFloat(numberLiteral)) {
-                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral);
+                addToken(ctx, TOKEN_FLOAT_LITERAL, numberLiteral, lineNumber);
             } else {
-                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral);
+                addToken(ctx, TOKEN_INTEGER_LITERAL, numberLiteral, lineNumber);
             }
             currentPosOfLexeme -= 1;
             // assuming that any identifier will begin with a character
@@ -119,16 +140,10 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
 
             capitaliseString(lexeme);
 
-            if (strcmp(lexeme, "EXIT") == 0) {
-                free(lexeme);
-                destroyTokenList(ctx);
-                exit(0);
-            }
-
             bool found = false;
             for (int i = 0; i < (sizeof(keywords) / sizeof(Keyword)); i++) {
                 if (strcmp(keywords[i].keyword, lexeme) == 0) {
-                    addToken(ctx, keywords[i].type, lexeme);
+                    addToken(ctx, keywords[i].type, lexeme, lineNumber);
                     found = true;
                     break;
                 }
@@ -138,7 +153,7 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
                 free(lexeme);
                 char *lexemeIdentifier =
                     getIdentifierLiteral(currentPosOfLexeme, bufferStart);
-                addToken(ctx, TOKEN_IDENTIFIER, lexemeIdentifier);
+                addToken(ctx, TOKEN_IDENTIFIER, lexemeIdentifier, lineNumber);
             }
             currentPosOfLexeme -= 1;
         } else {
@@ -152,17 +167,19 @@ char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx,
     return (currentPosOfLexeme + 1);
 };
 
-void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme) {
+void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme,
+              size_t lineNumber) {
     Token *token = malloc(sizeof(Token));
     token->type = tokenType;
     token->lexeme = lexeme;
     token->self = token;
+    token->line = lineNumber;
     appendToken(token, ctx);
     return;
 };
 
 bool isAtEnd(char *posInBuffer) {
-    if (*posInBuffer == '\n' || *posInBuffer == '\0' || *posInBuffer == '\r') {
+    if (*posInBuffer == '\0' || *posInBuffer == '\r') {
         return true;
     }
     return false;
@@ -211,10 +228,26 @@ bool isDigit(char c) {
     return false;
 };
 
-char *numberLiteral(char *currentPosOfLexeme) {
-    while (!isAtEnd(currentPosOfLexeme) &&
-           (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.')) {
-        currentPosOfLexeme += 1;
+char *numberLiteral(char *currentPosOfLexeme, bool isNegative) {
+    if (isNegative) {
+        int minusFreq = 0;
+        while (!isAtEnd(currentPosOfLexeme) &&
+               (isDigit(currentPosOfLexeme[0]) ||
+                currentPosOfLexeme[0] == '.' || currentPosOfLexeme[0] == '-')) {
+            if (currentPosOfLexeme[0] == '-') {
+                minusFreq += 1;
+            }
+            if (minusFreq > 1) {
+                break;
+            }
+            currentPosOfLexeme += 1;
+        }
+    } else {
+        while (
+            !isAtEnd(currentPosOfLexeme) &&
+            (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.')) {
+            currentPosOfLexeme += 1;
+        }
     }
 
     if (currentPosOfLexeme[0] == '.') {
@@ -225,20 +258,41 @@ char *numberLiteral(char *currentPosOfLexeme) {
     return currentPosOfLexeme;
 };
 
-char *getNumberLiteral(char *currentPosOfLexeme, char *startOfLexeme) {
+char *getNumberLiteral(char *currentPosOfLexeme, char *startOfLexeme,
+                       bool isNegative) {
     size_t len = (&currentPosOfLexeme[0] - startOfLexeme) + 1;
     currentPosOfLexeme -= len - 1;
     char *number = malloc(sizeof(char) * len);
     size_t index = 0;
     size_t numOfDecimals = 0;
-    while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.') {
-        if (currentPosOfLexeme[0] == '.') {
-            numOfDecimals += 1;
+    if (isNegative) {
+        int minusFreq = 0;
+        while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.' ||
+               currentPosOfLexeme[0] == '-') {
+            if (currentPosOfLexeme[0] == '-') {
+                minusFreq += 1;
+            }
+            if (minusFreq > 1) {
+                break;
+            }
+            if (currentPosOfLexeme[0] == '.') {
+                numOfDecimals += 1;
+            }
+            number[index] = currentPosOfLexeme[0];
+            currentPosOfLexeme += 1;
+            index += 1;
         }
-        number[index] = currentPosOfLexeme[0];
-        currentPosOfLexeme += 1;
-        index += 1;
+    } else {
+        while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.') {
+            if (currentPosOfLexeme[0] == '.') {
+                numOfDecimals += 1;
+            }
+            number[index] = currentPosOfLexeme[0];
+            currentPosOfLexeme += 1;
+            index += 1;
+        }
     }
+
     number[index] = '\0';
     if (numOfDecimals > 1) {
         fprintf(stderr, "\nUnrecognised number format.");

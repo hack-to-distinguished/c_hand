@@ -1,0 +1,135 @@
+sql_statement ::= select_statement
+                | insert_statement
+                | update_statement
+                | delete_statement
+                | exit_statement
+                ;
+
+exit_statement ::= TOKEN_KEYWORD_EXIT TOKEN_SEMICOLON ;
+
+-- ============================================================================
+-- SELECT STATEMENT
+-- ============================================================================
+
+select_statement ::= TOKEN_KEYWORD_SELECT (TOKEN_OPERATOR_STAR | select_list)
+                     TOKEN_KEYWORD_FROM table_list
+                     [where_clause]
+                     [order_by_clause]
+                     TOKEN_SEMICOLON
+                     ;
+
+select_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
+
+table_list ::= TOKEN_IDENTIFIER { TOKEN_COMMA TOKEN_IDENTIFIER } ;
+
+-- ============================================================================
+-- WHERE CLAUSE (With Parentheses Support)
+-- ============================================================================
+
+where_clause ::= TOKEN_KEYWORD_WHERE condition ;
+
+condition ::= or_condition ;
+
+or_condition ::= and_condition 
+                 { TOKEN_KEYWORD_OR and_condition } ;
+
+and_condition ::= boolean_factor 
+                  { TOKEN_KEYWORD_AND boolean_factor } ;
+
+boolean_factor ::= TOKEN_LPAREN condition TOKEN_RPAREN
+                 | comparison ; (CONTROLLED LOOK AHEAD REQUIRED HERE)
+
+comparison ::= simple_expr comparison_operator simple_expr ;
+
+comparison_operator ::= TOKEN_OPERATOR_EQ
+                | TOKEN_OPERATOR_NEQ
+                | TOKEN_OPERATOR_LT
+                | TOKEN_OPERATOR_LTE
+                | TOKEN_OPERATOR_GT
+                | TOKEN_OPERATOR_GTE
+                ;
+
+-- ============================================================================
+-- EXPRESSIONS (Arithmetic with Proper Precedence)
+-- ============================================================================
+
+simple_expr ::= term { additive_op term } ;
+
+term ::= factor { multiplicative_op factor } ;
+
+factor ::= qualified_identifier
+         | literal
+         | TOKEN_KEYWORD_NULL
+         | function_call
+         | TOKEN_LPAREN simple_expr TOKEN_RPAREN
+         ;
+
+additive_op ::= TOKEN_OPERATOR_PLUS
+              | TOKEN_OPERATOR_MINUS
+              ;
+
+multiplicative_op ::= TOKEN_OPERATOR_STAR
+                    | TOKEN_OPERATOR_SLASH
+                    ;
+
+-- ============================================================================
+-- BASIC ELEMENTS
+-- ============================================================================
+
+qualified_identifier ::= TOKEN_IDENTIFIER [ TOKEN_DOT TOKEN_IDENTIFIER ] ;
+
+function_call ::= TOKEN_IDENTIFIER TOKEN_LPAREN [arg_list] TOKEN_RPAREN ;
+
+arg_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
+
+literal ::= TOKEN_STRING_LITERAL
+          | TOKEN_INTEGER_LITERAL
+          | TOKEN_FLOAT_LITERAL
+          ;
+
+-- ============================================================================
+-- ORDER BY CLAUSE
+-- ============================================================================
+
+order_by_clause ::= TOKEN_KEYWORD_ORDER TOKEN_KEYWORD_BY order_list ;
+
+order_list ::= qualified_identifier [ sort_order ] 
+               { TOKEN_COMMA qualified_identifier [ sort_order ] } ;
+
+sort_order ::= TOKEN_KEYWORD_ASC | TOKEN_KEYWORD_DESC ;
+
+-- ============================================================================
+-- INSERT STATEMENT
+-- ============================================================================
+
+insert_statement ::= TOKEN_KEYWORD_INSERT TOKEN_KEYWORD_INTO TOKEN_IDENTIFIER
+                     TOKEN_LPAREN column_list TOKEN_RPAREN
+                     TOKEN_KEYWORD_VALUES TOKEN_LPAREN value_list TOKEN_RPAREN
+                     TOKEN_SEMICOLON
+                     ;
+
+column_list ::= qualified_identifier { TOKEN_COMMA qualified_identifier } ;
+
+value_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
+
+-- ============================================================================
+-- UPDATE STATEMENT
+-- ============================================================================
+
+update_statement ::= TOKEN_KEYWORD_UPDATE TOKEN_IDENTIFIER
+                     TOKEN_KEYWORD_SET set_list
+                     [where_clause]
+                     TOKEN_SEMICOLON
+                     ;
+
+set_list ::= qualified_identifier TOKEN_OPERATOR_EQ simple_expr
+             { TOKEN_COMMA qualified_identifier TOKEN_OPERATOR_EQ simple_expr } ;
+
+-- ============================================================================
+-- DELETE STATEMENT
+-- ============================================================================
+
+delete_statement ::= TOKEN_KEYWORD_DELETE TOKEN_KEYWORD_FROM TOKEN_IDENTIFIER
+                     [where_clause]
+                     TOKEN_SEMICOLON
+                     ;
