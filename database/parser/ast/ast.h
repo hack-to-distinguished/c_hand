@@ -35,6 +35,11 @@ struct ASTNode {
     } NodeType;
 
     union {
+
+        struct {
+            ASTNode *whereClause;
+        } DeleteStatement;
+
         struct {
             bool selectAll;
             ASTNode *selectList;

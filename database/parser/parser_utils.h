@@ -33,6 +33,7 @@ ASTNode *parseSortOrder(tokenListCTX *tokenListCTX);
 ASTNode *parseInsertStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseColumnList(tokenListCTX *tokenListCTX);
 ASTNode *parseValueList(tokenListCTX *tokenListCTX);
+ASTNode *parseDeleteStatement(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

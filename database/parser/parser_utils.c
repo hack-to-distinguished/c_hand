@@ -63,6 +63,11 @@ void destroyASTNode(ASTNode *node) {
         free(node);
         break;
     }
+    case AST_DELETE: {
+        destroyASTNode(node->Data.DeleteStatement.whereClause);
+        free(node);
+        break;
+    }
     case AST_INSERT: {
         destroyASTNode(node->Data.InsertStatement.columnList);
         destroyASTNode(node->Data.InsertStatement.valueList);
