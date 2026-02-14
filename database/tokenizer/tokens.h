@@ -13,6 +13,8 @@
     X(TOKEN_KEYWORD_OR)                                                        \
     X(TOKEN_KEYWORD_ORDER)                                                     \
     X(TOKEN_KEYWORD_BY)                                                        \
+    X(TOKEN_KEYWORD_ASC)                                                       \
+    X(TOKEN_KEYWORD_DESC)                                                      \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -67,5 +69,6 @@ static Keyword keywords[] = {
     {"EXIT", TOKEN_KEYWORD_EXIT},     {"NULL", TOKEN_KEYWORD_NULL},
     {"AND", TOKEN_KEYWORD_AND},       {"OR", TOKEN_KEYWORD_OR},
     {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
+    {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
 
 };

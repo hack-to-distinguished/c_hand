@@ -52,6 +52,8 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
         if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_BY) {
             consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_BY,
                          tokenListCTX);
+            selectStatement->Data.SelectStatement.orderByClause =
+                parseOrderClause(tokenListCTX);
         }
     }
 

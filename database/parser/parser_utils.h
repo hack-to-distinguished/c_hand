@@ -28,6 +28,7 @@ ASTNode *parseOrCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseAndCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseBooleanFactor(tokenListCTX *tokenListCTX);
 ASTNode *parseComparison(tokenListCTX *tokenListCTX);
+ASTNode *parseOrderClause(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

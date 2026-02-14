@@ -57,6 +57,7 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_comparison.c \
 	database/parser/parsing_functions/parse_or_condition.c \
 	database/parser/parsing_functions/parse_and_condition.c \
+	database/parser/parsing_functions/parse_order_clause.c \
 	database/parser/parsing_functions/parse_boolean_factor.c 
 SDBMS_BIN = sdbms
 
