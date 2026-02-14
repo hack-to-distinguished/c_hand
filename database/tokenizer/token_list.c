@@ -64,17 +64,29 @@ void printAllTokens(tokenListCTX *ctx) {
 };
 
 void destroyTokenList(tokenListCTX *ctx) {
-    // printf("\nDestroying token list!");
     printf("\n");
     for (size_t i = 0; i < ctx->currentSize; i++) {
-        // printf("\nDestroying Token at address %p!", ctx->tokenList[i].self);
-        if (ctx->tokenList[i].type <= 15) {
+        if (ctx->tokenList[i].type == TOKEN_KEYWORD_SELECT ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_FROM ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_WHERE ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_INSERT ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_INTO ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_VALUES ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_UPDATE ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_EXIT ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_NULL ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_ORDER ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_BY ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_ASC ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_DESC ||
+            ctx->tokenList[i].type == TOKEN_IDENTIFIER ||
+            ctx->tokenList[i].type == TOKEN_STRING_LITERAL ||
+            ctx->tokenList[i].type == TOKEN_INTEGER_LITERAL ||
+            ctx->tokenList[i].type == TOKEN_FLOAT_LITERAL) {
             free(ctx->tokenList[i].lexeme);
         }
         free(ctx->tokenList[i].self);
     }
-    // printf("\nFreeing tokenListCTX at address %p\n", ctx);
-    // printf("Freeing tokenList at address %p\n", ctx->tokenList);
     free(ctx->tokenList);
     free(ctx);
     printf("\n");
