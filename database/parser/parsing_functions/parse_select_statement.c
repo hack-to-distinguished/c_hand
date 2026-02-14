@@ -31,7 +31,6 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
                      tokenListCTX);
         selectStatement->Data.SelectStatement.selectAll = true;
     } else {
-        // TODO: Create select list parser
         selectStatement->Data.SelectStatement.selectList =
             parseSelectList(tokenListCTX);
     }
@@ -39,7 +38,6 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_FROM,
                  tokenListCTX);
 
-    // INFO: parse table list
     selectStatement->Data.SelectStatement.tableList =
         parseTableList(tokenListCTX);
 
@@ -48,8 +46,14 @@ ASTNode *parseSelectStatement(tokenListCTX *tokenListCTX) {
             parseWhereClause(tokenListCTX);
     }
 
-    // TODO: OPTIONAL statements:
-    // TODO: Create order by clause parser
+    if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_ORDER) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_ORDER,
+                     tokenListCTX);
+        if (peekToken(tokenListCTX).type == TOKEN_KEYWORD_BY) {
+            consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_BY,
+                         tokenListCTX);
+        }
+    }
 
     consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
                  tokenListCTX);
