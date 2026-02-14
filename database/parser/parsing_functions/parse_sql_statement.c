@@ -11,6 +11,7 @@ ASTNode *parseSQLStatment(tokenListCTX *tokenListCTX) {
         return parseSelectStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_INSERT:
+        return parseInsertStatement(tokenListCTX);
         break;
     case TOKEN_KEYWORD_UPDATE:
         break;

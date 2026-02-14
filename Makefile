@@ -38,6 +38,8 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_exit_statement.c \
 	database/parser/parsing_functions/parse_delete_statement.c \
 	database/parser/parsing_functions/parse_insert_statement.c \
+	database/parser/parsing_functions/parse_column_list.c \
+	database/parser/parsing_functions/parse_value_list.c \
 	database/parser/parsing_functions/parse_update_statement.c \
 	database/parser/parsing_functions/parse_select_list.c \
 	database/parser/parsing_functions/parse_simple_expression.c \

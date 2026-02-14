@@ -30,6 +30,9 @@ ASTNode *parseBooleanFactor(tokenListCTX *tokenListCTX);
 ASTNode *parseComparison(tokenListCTX *tokenListCTX);
 ASTNode *parseOrderClause(tokenListCTX *tokenListCTX);
 ASTNode *parseSortOrder(tokenListCTX *tokenListCTX);
+ASTNode *parseInsertStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnList(tokenListCTX *tokenListCTX);
+ASTNode *parseValueList(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

@@ -26,6 +26,9 @@ struct ASTNode {
         AST_EXPRESSION,
         AST_ORDER_CLAUSE,
         AST_SORT_ORDER,
+        AST_INSERT,
+        AST_VALUE_LIST,
+        AST_COLUMN_LIST,
         AST_UPDATE,
         AST_DELETE,
         AST_EXIT
@@ -139,6 +142,19 @@ struct ASTNode {
         struct {
             // INFO: Nothing required here
         } SortOrder;
+
+        struct {
+            ASTNode *columnList;
+            ASTNode *valueList;
+        } InsertStatement;
+
+        struct {
+            ASTNode *qualifiedIdentifier;
+        } ColumnList;
+
+        struct {
+            ASTNode *simpleExpression;
+        } ValueList;
 
     } Data;
     ASTNode *next;
