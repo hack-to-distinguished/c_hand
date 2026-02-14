@@ -8,6 +8,7 @@
     X(TOKEN_KEYWORD_INTO)                                                      \
     X(TOKEN_KEYWORD_VALUES)                                                    \
     X(TOKEN_KEYWORD_UPDATE)                                                    \
+    X(TOKEN_KEYWORD_SET)                                                       \
     X(TOKEN_KEYWORD_DELETE)                                                    \
     X(TOKEN_KEYWORD_EXIT)                                                      \
     X(TOKEN_KEYWORD_NULL)                                                      \
@@ -64,21 +65,15 @@ static const char *tokens[] = {
 
 const char *tokenTypeToString(TokenType s);
 
-static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
-                             {"INSERT", TOKEN_KEYWORD_INSERT},
-                             {"DELETE", TOKEN_KEYWORD_DELETE},
-                             {"FROM", TOKEN_KEYWORD_FROM},
-                             {"UPDATE", TOKEN_KEYWORD_UPDATE},
-                             {"WHERE", TOKEN_KEYWORD_WHERE},
-                             {"EXIT", TOKEN_KEYWORD_EXIT},
-                             {"NULL", TOKEN_KEYWORD_NULL},
-                             {"AND", TOKEN_KEYWORD_AND},
-                             {"OR", TOKEN_KEYWORD_OR},
-                             {"ORDER", TOKEN_KEYWORD_ORDER},
-                             {"BY", TOKEN_KEYWORD_BY},
-                             {"ASC", TOKEN_KEYWORD_ASC},
-                             {"DESC", TOKEN_KEYWORD_DESC},
-                             {"INTO", TOKEN_KEYWORD_INTO},
-                             {"VALUES", TOKEN_KEYWORD_VALUES}
+static Keyword keywords[] = {
+    {"SELECT", TOKEN_KEYWORD_SELECT}, {"INSERT", TOKEN_KEYWORD_INSERT},
+    {"DELETE", TOKEN_KEYWORD_DELETE}, {"FROM", TOKEN_KEYWORD_FROM},
+    {"UPDATE", TOKEN_KEYWORD_UPDATE}, {"WHERE", TOKEN_KEYWORD_WHERE},
+    {"EXIT", TOKEN_KEYWORD_EXIT},     {"NULL", TOKEN_KEYWORD_NULL},
+    {"AND", TOKEN_KEYWORD_AND},       {"OR", TOKEN_KEYWORD_OR},
+    {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
+    {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
+    {"INTO", TOKEN_KEYWORD_INTO},     {"VALUES", TOKEN_KEYWORD_VALUES},
+    {"SET", TOKEN_KEYWORD_SET}
 
 };

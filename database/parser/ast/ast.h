@@ -30,11 +30,22 @@ struct ASTNode {
         AST_VALUE_LIST,
         AST_COLUMN_LIST,
         AST_UPDATE,
+        AST_SET_LIST,
         AST_DELETE,
         AST_EXIT
     } NodeType;
 
     union {
+
+        struct {
+            ASTNode *setList;
+            ASTNode *whereClause;
+        } UpdateStatement;
+
+        struct {
+            ASTNode *qualifiedIdentifier;
+            ASTNode *simpleExpression;
+        } SetList;
 
         struct {
             ASTNode *whereClause;

@@ -59,6 +59,29 @@ void destroyASTNode(ASTNode *node) {
         return;
 
     switch (node->NodeType) {
+    case AST_UPDATE: {
+        destroyASTNode(node->Data.UpdateStatement.setList);
+        if (node->Data.UpdateStatement.whereClause) {
+            destroyASTNode(node->Data.UpdateStatement.whereClause);
+        }
+        free(node);
+        break;
+    }
+    case AST_SET_LIST: {
+        destroyASTNode(node->Data.SetList.qualifiedIdentifier);
+        destroyASTNode(node->Data.SetList.simpleExpression);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.SetList.qualifiedIdentifier);
+            destroyASTNode(current->Data.SetList.simpleExpression);
+            free(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
     case AST_EXIT: {
         free(node);
         break;

@@ -34,6 +34,8 @@ ASTNode *parseInsertStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseColumnList(tokenListCTX *tokenListCTX);
 ASTNode *parseValueList(tokenListCTX *tokenListCTX);
 ASTNode *parseDeleteStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseUpdateStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseSetList(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);
