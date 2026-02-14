@@ -187,9 +187,14 @@ int main(int argc, char *argv[]) {
                 // TODO: I can create another if here or within the else
                 // Search what kind of request it is and produce another outcome
             } else {
+
+                // TODO: This point here should be their first time connecting,
+                // we could make the request
+                parse_HTTP_requests(client_fd); // Freeing of the client_fd happens in parse_HTTP_requests
+
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
                 ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
-                close(client_fd);
+                // close(client_fd);
                 continue;
             }
         }
