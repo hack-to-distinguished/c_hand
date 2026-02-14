@@ -1,6 +1,3 @@
-// TODO: here I will open a new port, a new main, 
-// a new endpoint for the frontend to interact with the database
-// This file will be used for all interactions with the database
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <netdb.h>
@@ -11,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/poll.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 #include "../database/storage/message_store.h"
 #include "../threaded_server_src/http.h"
