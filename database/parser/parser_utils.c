@@ -63,6 +63,40 @@ void destroyASTNode(ASTNode *node) {
         free(node);
         break;
     }
+    case AST_INSERT: {
+        destroyASTNode(node->Data.InsertStatement.columnList);
+        destroyASTNode(node->Data.InsertStatement.valueList);
+        free(node);
+        break;
+    }
+    case AST_COLUMN_LIST: {
+        destroyASTNode(node->Data.ColumnList.qualifiedIdentifier);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.ColumnList.qualifiedIdentifier);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_VALUE_LIST: {
+        destroyASTNode(node->Data.ValueList.simpleExpression);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.ValueList.simpleExpression);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
     case AST_SELECT: {
         // INFO: only have select list done
         if (node->Data.SelectStatement.selectList) {
