@@ -230,9 +230,16 @@ bool isDigit(char c) {
 
 char *numberLiteral(char *currentPosOfLexeme, bool isNegative) {
     if (isNegative) {
+        int minusFreq = 0;
         while (!isAtEnd(currentPosOfLexeme) &&
                (isDigit(currentPosOfLexeme[0]) ||
                 currentPosOfLexeme[0] == '.' || currentPosOfLexeme[0] == '-')) {
+            if (currentPosOfLexeme[0] == '-') {
+                minusFreq += 1;
+            }
+            if (minusFreq > 1) {
+                break;
+            }
             currentPosOfLexeme += 1;
         }
     } else {
@@ -259,8 +266,15 @@ char *getNumberLiteral(char *currentPosOfLexeme, char *startOfLexeme,
     size_t index = 0;
     size_t numOfDecimals = 0;
     if (isNegative) {
+        int minusFreq = 0;
         while (isDigit(currentPosOfLexeme[0]) || currentPosOfLexeme[0] == '.' ||
                currentPosOfLexeme[0] == '-') {
+            if (currentPosOfLexeme[0] == '-') {
+                minusFreq += 1;
+            }
+            if (minusFreq > 1) {
+                break;
+            }
             if (currentPosOfLexeme[0] == '.') {
                 numOfDecimals += 1;
             }
