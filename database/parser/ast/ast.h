@@ -24,7 +24,7 @@ struct ASTNode {
         AST_COMPARISON,
         AST_COMPARISON_OPERATOR,
         AST_EXPRESSION,
-        AST_ORDER_LIST,
+        AST_ORDER_CLAUSE,
         AST_SORT_ORDER,
         AST_UPDATE,
         AST_DELETE,
@@ -134,7 +134,7 @@ struct ASTNode {
         struct {
             ASTNode *qualifiedIdentifier;
             ASTNode *sortOrder;
-        } OrderList;
+        } OrderClause;
 
         struct {
             // INFO: Nothing required here

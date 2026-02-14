@@ -77,7 +77,31 @@ void destroyASTNode(ASTNode *node) {
             destroyASTNode(node->Data.SelectStatement.whereClause);
         }
 
-        // TODO: where clause, and order by clause
+        if (node->Data.SelectStatement.orderByClause) {
+            destroyASTNode(node->Data.SelectStatement.orderByClause);
+        }
+
+        free(node);
+        break;
+    }
+    case AST_ORDER_CLAUSE: {
+        destroyASTNode(node->Data.OrderClause.qualifiedIdentifier);
+        if (node->Data.OrderClause.sortOrder) {
+            destroyASTNode(node->Data.OrderClause.sortOrder);
+        }
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.OrderClause.qualifiedIdentifier);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_SORT_ORDER: {
         free(node);
         break;
     }
