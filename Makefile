@@ -3,15 +3,15 @@ CC = gcc
 CFLAGS = -g -O1 -Wall -Wextra -pthread -fsanitize=address -fno-omit-frame-pointer
 
 # Threadpool HTTP server
-THREADPOOL_SRCS = threaded_server_src/http.c threaded_server_src/threadpool.c threaded_server_src/threadpoolserver.c
+THREADPOOL_SRCS = threaded_server_src/http.c threaded_server_src/threadpool.c threaded_server_src/threadpoolserver.c database/storage/message_store.c
 THREADPOOL_BIN = threadpoolserver
 
 # WebSocket server 
-WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_server/sha1.c database/storage/message_store.c
+WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_server/sha1.c database/storage/message_store.c threaded_server_src/http.c
 WSOCK_SERVER_BIN = wsock_server
 
 # WebSocket database
-WSOCK_DB_SRC = web_server/wsock_database.c threaded_server_src/http.c 
+WSOCK_DB_SRC = web_server/wsock_database.c threaded_server_src/http.c database/storage/message_store.c
 WSOCK_DB_BIN = wsock_database
 
 # SSH server/client

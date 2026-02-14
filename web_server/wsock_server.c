@@ -86,10 +86,8 @@ int main(int argc, char *argv[]) {
     int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
-    flat_message_store fms[MSG_STORE_SIZE];
     time_t now = time(NULL);
-    int* end_of_db_ptr = &fms[0].ID;
-    end_of_db_ptr = ms_point_to_last_entry(fms);
+    int latest_entry_ptr = ms_point_to_last_entry(fms);
 
     while (1) {
         int poll_count = poll(pfds, fd_count, -1);
@@ -189,9 +187,14 @@ int main(int argc, char *argv[]) {
                 // TODO: I can create another if here or within the else
                 // Search what kind of request it is and produce another outcome
             } else {
+
+                // TODO: This point here should be their first time connecting,
+                // we could make the request
+                parse_HTTP_requests(client_fd); // Freeing of the client_fd happens in parse_HTTP_requests
+
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
                 ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
-                close(client_fd);
+                // close(client_fd);
                 continue;
             }
         }
@@ -242,7 +245,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
-                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &end_of_db_ptr);
+                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &latest_entry_ptr);
 
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd != -1 && clients[j].is_websocket) {

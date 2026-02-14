@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAllMessages } from "../services/getMessages.tsx";
 import "./messageFeed.css";
 
 interface MessageBoxProps {
@@ -8,6 +9,7 @@ interface MessageBoxProps {
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
+
 
   useEffect(() => {
     if (!socket.current) return;
@@ -27,6 +29,18 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       }
     };
   }, [socket.current]);
+
+  // TODO: Initial request to get the messsages
+  useEffect(() => {
+    try {
+      console.log("Attempting to get all messages")
+      const message = getAllMessages();
+      console.log("Received all messages:", message);
+
+    } catch (error) {
+      console.log("Unable to get messages:", error);
+    }
+  });
 
   // const handleGetMessage = async (): Promise<void> => {
   //   let ws = new WebSocket("ws://127.0.0.1/8080");
