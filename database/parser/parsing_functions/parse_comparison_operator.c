@@ -34,6 +34,9 @@ ASTNode *parseComparisonOperator(tokenListCTX *tokenListCTX) {
     } else if (peekToken(tokenListCTX).type == TOKEN_OPERATOR_GTE) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_GTE,
                      tokenListCTX);
+    } else if (peekToken(tokenListCTX).type == TOKEN_OPERATOR_LIKE) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_OPERATOR_LIKE,
+                     tokenListCTX);
     }
 
     return comparisonOperator;

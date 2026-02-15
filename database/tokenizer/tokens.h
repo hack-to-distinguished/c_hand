@@ -32,6 +32,7 @@
     X(TOKEN_OPERATOR_MINUS)                                                    \
     X(TOKEN_OPERATOR_STAR)                                                     \
     X(TOKEN_OPERATOR_SLASH)                                                    \
+    X(TOKEN_OPERATOR_LIKE)                                                     \
     X(TOKEN_COMMA)                                                             \
     X(TOKEN_SEMICOLON)                                                         \
     X(TOKEN_LPAREN)                                                            \
@@ -74,6 +75,4 @@ static Keyword keywords[] = {
     {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
     {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
     {"INTO", TOKEN_KEYWORD_INTO},     {"VALUES", TOKEN_KEYWORD_VALUES},
-    {"SET", TOKEN_KEYWORD_SET}
-
-};
+    {"SET", TOKEN_KEYWORD_SET},       {"LIKE", TOKEN_OPERATOR_LIKE}};
