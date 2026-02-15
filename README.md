@@ -113,7 +113,7 @@ This guide describes the supported SQL syntax for database operations including 
 
 ### General Rules
 - All statements must end with a semicolon (`;`)
-- Identifiers (table and column names) **cannot contain underscores** (`_`)
+- Identifiers (table and column names) can contain letters, numbers, and underscores (`_`)
 - Keywords are case-insensitive (SELECT, select, Select are equivalent)
 - String literals use single quotes: `'example'`
 
@@ -185,6 +185,19 @@ db > SELECT (salary + bonus) * 1.1 FROM employees;
 - `>` Greater than
 - `>=` Greater than or equal to
 
+#### Pattern Matching
+- `LIKE` Match string patterns using wildcards
+  - `%` matches zero or more characters
+  - Examples:
+    - `'A%'` matches strings starting with 'A'
+    - `'%@gmail.com'` matches email addresses ending with '@gmail.com'
+    - `'%test%'` matches strings containing 'test'
+
+```sql
+db > SELECT * FROM users WHERE email LIKE '%@gmail.com';
+db > SELECT * FROM products WHERE name LIKE 'laptop%';
+```
+
 #### Logical Operators
 - `AND` Both conditions must be true
 - `OR` At least one condition must be true
@@ -192,17 +205,16 @@ db > SELECT (salary + bonus) * 1.1 FROM employees;
 Use parentheses to group conditions for complex logic:
 ```sql
 > WHERE (age > 18 AND status = 'active') OR role = 'admin'
+> WHERE (name LIKE 'A%' AND email LIKE '%@gmail.com') OR (name LIKE 'B%' AND email LIKE '%@yahoo.com')
 ```
-
-**Note:** Pattern matching with LIKE is not currently supported.
 
 ### Identifiers and Literals
 
 #### Column References
-- **Simple**: `columnname`
-- **Qualified**: `tablename.columnname`
+- **Simple**: `columnname` or `column_name`
+- **Qualified**: `tablename.columnname` or `table_name.column_name`
 
-Remember: No underscores allowed in identifiers.
+Underscores are allowed in identifiers for better readability (e.g., `user_id`, `first_name`).
 
 #### Literals
 - **String**: `'text value'`
@@ -230,23 +242,41 @@ db > EXIT;
 -- Select all employees earning over 50000
 db > SELECT * FROM employees WHERE salary > 50000;
 
+-- Select with LIKE pattern matching
+db > SELECT * FROM users WHERE email LIKE '%@company.com';
+
 -- Select with multiple conditions and logical operators
 db > SELECT name, department FROM employees
    > WHERE (salary > 40000 AND status = 'active') OR role = 'manager'
    > ORDER BY name ASC;
 
--- Insert a new employee (note: no underscores in column names)
-db > INSERT INTO employees (name, salary, department)
-   > VALUES ('John Doe', 55000, 'Engineering');
+-- Complex WHERE with LIKE and logical operators
+db > SELECT * FROM users
+   > WHERE (name LIKE 'A%' AND email LIKE '%@gmail.com')
+   >    OR (name LIKE 'B%' AND email LIKE '%@yahoo.com')
+   > ORDER BY id DESC;
+
+-- Insert a new employee (underscores allowed in column names)
+db > INSERT INTO employees (first_name, last_name, employee_id, salary, department)
+   > VALUES ('John', 'Doe', 'EMP001', 55000, 'Engineering');
 
 -- Update employee salary with arithmetic expression
 db > UPDATE employees
    > SET salary = salary * 1.1
    > WHERE department = 'Sales';
 
+-- Update with LIKE pattern
+db > UPDATE users
+   > SET status = 'inactive'
+   > WHERE email LIKE '%@oldcompany.com';
+
 -- Delete inactive employees
 db > DELETE FROM employees
    > WHERE status = 'inactive';
+
+-- Delete with LIKE pattern
+db > DELETE FROM users
+   > WHERE email LIKE '%@deactivated.com';
 
 -- Complex SELECT with multiple tables and arithmetic
 db > SELECT 
@@ -254,8 +284,8 @@ db > SELECT
    > employees.salary * 1.15 + bonus.amount,
    > performance.rating
    > FROM employees, bonus, performance
-   > WHERE employees.id = bonus.employeeid
-   > AND employees.id = performance.employeeid
+   > WHERE employees.id = bonus.employee_id
+   > AND employees.id = performance.employee_id
    > AND performance.rating >= 4.0
    > ORDER BY employees.salary DESC;
 ```
