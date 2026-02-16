@@ -346,11 +346,11 @@ make all
 # Compile
 make all
 
-# Run on default port 8080
-./web_server/server 127.0.0.1
+# Runs on port 8081
+./wsock_server
 
 # Run one or more instances of the frontend
-cd frontend
+cd frontend_httpc
 
 # Install the dependencies
 npm install
