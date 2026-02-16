@@ -152,19 +152,17 @@ int main(int argc, char *argv[]) {
 
             // TODO: Do I need to start modifying here to parse the http request?
             // Read the initial HTTP request
-            memset(buffer, 0, BUFFER_SIZE);
-            int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-            if (bytes_read <= 0) {
-                perror("Receive failed");
-                close(client_fd);
-                continue;
-            }
-            buffer[bytes_read] = '\0';
+            // memset(buffer, 0, BUFFER_SIZE);
+            // int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+            // if (bytes_read <= 0) {
+            //     perror("Receive failed");
+            //     close(client_fd);
+            //     continue;
+            // }
+            // buffer[bytes_read] = '\0';
 
-            const char *accept_key = ws_parse_websocket_http(buffer);
-            if (accept_key) {
-                ws_send_websocket_response(client_fd, accept_key);
-
+            int res = parse_HTTP_requests(client_fd);
+            if (res == 101) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
                     if (clients[i].fd == -1) {
                         clients[i].fd = client_fd;

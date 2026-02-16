@@ -1,5 +1,6 @@
 #include "http.h"
 #include "../database/storage/message_store.h"
+#include "../web_server/wsock_functions.h"
 #include <alloca.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -768,20 +769,28 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     return;
 }
 
-void parse_HTTP_requests(int new_connection_fd) {
+
+int parse_HTTP_requests(int new_connection_fd) {
     http_request_ctx *ctx = malloc(sizeof(http_request_ctx));
     char *ptr_http_client_buffer = receive_HTTP_request(new_connection_fd);
     if (ptr_http_client_buffer == NULL) {
         free(ptr_http_client_buffer);
         free(ctx);
-        return;
+        return 0;
     }
 
     ctx->new_connection_fd = new_connection_fd;
     ctx->ptr_ptr_http_client_buffer = &ptr_http_client_buffer;
-    REQUEST_LINE_STATE(ctx);
+
+    const char *accept_key = ws_parse_websocket_http(ptr_http_client_buffer);
+    if (accept_key) {
+        ws_send_websocket_response(new_connection_fd, accept_key);
+        return 101;
+    } else {
+        REQUEST_LINE_STATE(ctx);
+    }
 
     free(ctx);
     free(ptr_http_client_buffer);
-    return;
+    return 0;
 }
