@@ -150,17 +150,6 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            // TODO: Do I need to start modifying here to parse the http request?
-            // Read the initial HTTP request
-            // memset(buffer, 0, BUFFER_SIZE);
-            // int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-            // if (bytes_read <= 0) {
-            //     perror("Receive failed");
-            //     close(client_fd);
-            //     continue;
-            // }
-            // buffer[bytes_read] = '\0';
-
             int res = parse_HTTP_requests(client_fd);
             if (res == 101) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -176,15 +165,11 @@ int main(int argc, char *argv[]) {
                 pfds[fd_count].events = POLLIN;
                 pfds[fd_count].revents = 0; // Ensures that new conn starts with a clean slate
                 fd_count++;
-
                 printf("WebSocket connection established with %s on socket %d\n", client_ip, client_fd);
 
             } else {
-
-                // INFO: Not a ws_request so no accept key, must be an HTTP req
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
-                ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
-                // close(client_fd);
+                close(client_fd);
                 continue;
             } 
         }
