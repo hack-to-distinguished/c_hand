@@ -9,6 +9,7 @@ interface MessageBoxProps {
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
+  const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -30,17 +31,22 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
     };
   }, [socket.current]);
 
-  // TODO: Initial request to get the messsages
   useEffect(() => {
-    try {
-      console.log("Attempting to get all messages")
-      const message = getAllMessages();
-      console.log("Received all messages:", message);
+    const initialGetMessagesReq= async () => {
+      if (!completedInitialRequest) {
+        try {
+          console.log("Attempting to get all messages")
+          const message = await getAllMessages();
+          console.log("Received all messages:", message);
+          setCompletedInitialRequest(true);
 
-    } catch (error) {
-      console.log("Unable to get messages:", error);
-    }
-  });
+        } catch (error) {
+          console.log("Unable to get messages:", error);
+        }
+      }
+    };
+    initialGetMessagesReq();
+  }, [completedInitialRequest]);
 
   // const handleGetMessage = async (): Promise<void> => {
   //   let ws = new WebSocket("ws://127.0.0.1/8080");
