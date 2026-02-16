@@ -82,8 +82,14 @@ void destroyTokenList(tokenListCTX *ctx) {
             ctx->tokenList[i].type == TOKEN_IDENTIFIER ||
             ctx->tokenList[i].type == TOKEN_STRING_LITERAL ||
             ctx->tokenList[i].type == TOKEN_INTEGER_LITERAL ||
-            ctx->tokenList[i].type == TOKEN_FLOAT_LITERAL) {
-            free(ctx->tokenList[i].lexeme);
+            ctx->tokenList[i].type == TOKEN_FLOAT_LITERAL ||
+            ctx->tokenList[i].type == TOKEN_OPERATOR_LIKE ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_SET ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_EXIT ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_AND ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_OR ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_DELETE) {
+            free((void *)ctx->tokenList[i].lexeme);
         }
         free(ctx->tokenList[i].self);
     }

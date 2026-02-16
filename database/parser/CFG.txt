@@ -46,7 +46,8 @@ comparison_operator ::= TOKEN_OPERATOR_EQ
                 | TOKEN_OPERATOR_LT
                 | TOKEN_OPERATOR_LTE
                 | TOKEN_OPERATOR_GT
-                | TOKEN_OPERATOR_GTE
+                | TOKEN_OPERATOR_GTE 
+                | TOKEN_OPERATOR_LIKE
                 ;
 
 -- ============================================================================
