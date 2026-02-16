@@ -2,7 +2,8 @@ import axios from "axios";
 
 export const getAllMessages = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:8081/messages");  
+    // const response = await axios.get("http://127.0.0.1:8081/messages");  
+    const response = await axios.get("http://127.0.0.1:8081/health");  
     console.log("Response:", response);
 
     return response;

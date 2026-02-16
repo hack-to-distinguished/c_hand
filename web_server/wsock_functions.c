@@ -100,8 +100,6 @@ ssize_t ws_recv_frame(int sock, char *out, size_t max_len) {
 void ws_send_frame(int sock, const char *msg) {
     size_t len = strlen(msg);
 
-    printf("Sending to client %d: %s\n", sock, msg);
-
     // Prepare header (assuming len < 65536)
     unsigned char header[10] = {0};
     header[0] = 0x81; // Text frame, FIN bit set
@@ -135,6 +133,8 @@ void ws_send_frame(int sock, const char *msg) {
     if (send(sock, msg, len, 0) < (ssize_t)len) {
         perror("Failed to send WebSocket payload");
     }
+    printf("Sending: ''%s'' from client %d\n", msg, sock);
+
 }
 
 void ws_close_websocket_http_response(int sock, const char *body) {
