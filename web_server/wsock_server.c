@@ -150,6 +150,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
+            // TODO: Do I need to start modifying here to parse the http request?
             // Read the initial HTTP request
             memset(buffer, 0, BUFFER_SIZE);
             int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
@@ -180,23 +181,14 @@ int main(int argc, char *argv[]) {
 
                 printf("WebSocket connection established with %s on socket %d\n", client_ip, client_fd);
 
-                // TODO:
-                // This is where the databse read should happend
-                // because at this point, the connection is valid
-
-                // TODO: I can create another if here or within the else
-                // Search what kind of request it is and produce another outcome
             } else {
 
-                // TODO: This point here should be their first time connecting,
-                // we could make the request
-                parse_HTTP_requests(client_fd); // Freeing of the client_fd happens in parse_HTTP_requests
-
+                // INFO: Not a ws_request so no accept key, must be an HTTP req
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
                 ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
                 // close(client_fd);
                 continue;
-            }
+            } 
         }
 
         // Check existing connections for data

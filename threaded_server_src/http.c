@@ -518,11 +518,14 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                        "</body>\r\n";
             body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                     "HTTP/1.1 200 OK\r\n"
-                     "Content-Length: %d\r\n"
-                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                     "%s",
-                     body_len, ptr_body);
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Content-Length: %d\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                    "%s",
+                    body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
