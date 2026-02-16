@@ -4,16 +4,18 @@ CC = gcc
 CFLAGS = -g -O1 -Wall -Wextra -pthread -fsanitize=address -fno-omit-frame-pointer
 
 # Threadpool HTTP server
-THREADPOOL_SRCS = threaded_server_src/http.c threaded_server_src/threadpool.c threaded_server_src/threadpoolserver.c database/storage/message_store.c
+THREADPOOL_SRCS = \
+	threaded_server_src/http.c \
+	threaded_server_src/threadpool.c \
+	threaded_server_src/threadpoolserver.c \
+	database/storage/message_store.c \
+	web_server/wsock_functions.c \
+	web_server/sha1.c \
 THREADPOOL_BIN = threadpoolserver
 
 # WebSocket server 
 WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_server/sha1.c database/storage/message_store.c threaded_server_src/http.c
 WSOCK_SERVER_BIN = wsock_server
-
-# WebSocket database
-WSOCK_DB_SRC = web_server/wsock_database.c threaded_server_src/http.c database/storage/message_store.c
-WSOCK_DB_BIN = wsock_database
 
 # SSH server/client
 SSH_SERVER_SRCS = ssh_server/server.c
@@ -74,9 +76,6 @@ $(THREADPOOL_BIN): $(THREADPOOL_SRCS)
 $(WSOCK_SERVER_BIN): $(WSOCK_SERVER_SRC)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(WSOCK_DB_BIN): $(WSOCK_DB_SRC)
-	$(CC) $(CFLAGS) -o $@ $^
-
 $(SSH_SERVER_BIN): $(SSH_SERVER_SRCS)
 	$(CC) $(CFLAGS) -o $@ $^
 
@@ -90,6 +89,6 @@ $(SDBMS_BIN): $(SDBMS_SRCS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(THREADPOOL_BIN) $(WSOCK_SERVER_BIN) $(SSH_SERVER_BIN) $(SSH_CLIENT_BIN) $(CLIENT_BIN) $(SDBMS_BIN) $(WSOCK_DB_BIN)
+	rm -f $(THREADPOOL_BIN) $(WSOCK_SERVER_BIN) $(SSH_SERVER_BIN) $(SSH_CLIENT_BIN) $(CLIENT_BIN) $(SDBMS_BIN)
 
 .PHONY: all clean
