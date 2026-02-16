@@ -535,8 +535,10 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                 "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
                 "Content-Length: %d\r\n"
-                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                "Connection: close\r\n"
                 "<body>\r\n"
                 "%s\r\n"
                 "</body>\r\n",

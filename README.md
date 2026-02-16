@@ -51,6 +51,7 @@ A custom-built HTTP/1.1 web server written from scratch in C, designed for **hig
 ## Benchmarking Results
 
 We evaluated the server using [`wrk`](https://github.com/wg/wrk), a modern HTTP benchmarking tool. All tests were run locally on `127.0.0.1:8080` over 30-second durations.  
+Specific command: `wrk -t8 -c100 http://localhost:8080/static/index.html`
 
 ### Test Parameters
 - **Endpoint tested:** `/static/index.html`  

@@ -12,7 +12,7 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   useEffect(() => {
-    const initialGetMessagesReq= async () => {
+    const initialGetMessagesReq = async () => {
       if (!completedInitialRequest) {
         try {
           console.log("Attempting to get all messages")
