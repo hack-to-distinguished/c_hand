@@ -18,9 +18,13 @@ select_statement ::= TOKEN_KEYWORD_SELECT (TOKEN_OPERATOR_STAR | select_list)
                      TOKEN_SEMICOLON
                      ;
 
-select_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
+select_list ::= aliased_expr { TOKEN_COMMA aliased_expr } ;
 
-table_list ::= TOKEN_IDENTIFIER { TOKEN_COMMA TOKEN_IDENTIFIER } ;
+aliased_expr ::= simple_expr [ TOKEN_KEYWORD_AS TOKEN_IDENTIFIER ] ;
+
+table_list ::= aliased_table { TOKEN_COMMA aliased_table } ;
+
+aliased_table ::= TOKEN_IDENTIFIER [ TOKEN_KEYWORD_AS TOKEN_IDENTIFIER ] ;
 
 -- ============================================================================
 -- WHERE CLAUSE (With Parentheses Support)
