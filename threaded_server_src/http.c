@@ -1,5 +1,6 @@
 #include "http.h"
 #include "../database/storage/message_store.h"
+#include "../web_server/wsock_functions.h"
 #include <alloca.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -13,6 +14,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 1024
+#define START_SIZE 32
 
 const mime_type mime_types[] = {
     {"txt", "text/plain", "text"},       {"html", "text/html", "text"},
@@ -27,6 +29,7 @@ const mime_type mime_types[] = {
     {"avi", "video/x-msvideo", "video"}, {"flv", "video/x-flv", "video"}};
 
 const size_t mime_types_len = sizeof(mime_types) / sizeof(mime_types[0]);
+
 
 char *receive_HTTP_request(int new_connection_fd) {
     size_t allocated_size = BUFFER_SIZE + 1;
@@ -514,36 +517,64 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                        "</body>\r\n";
             body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                     "HTTP/1.1 200 OK\r\n"
-                     "Content-Length: %d\r\n"
-                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                     "%s",
-                     body_len, ptr_body);
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Content-Length: %d\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                    "%s",
+                    body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            // INFO: The below will be used in my next PR
-            // flat_message_store fms[MSG_STORE_SIZE];
-            // time_t now = time(NULL);
-            // int* end_of_db_ptr = &fms[0].ID;
+            int end_idx = ms_point_to_last_entry(fms);
+            msg_buffer msg_res = ms_get_all_messages_desc(fms, &end_idx);
+
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            char *ptr_body = "<body>\r\n"
-                             "[{'id':1,'text':'dummy'}]\r\n"
-                             "</body>\r\n";
-            int body_len = strlen(ptr_body);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                     "HTTP/1.1 200 OK\r\n"
-                     "Content-Length: %d\r\n"
-                     "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                     "%s",
-                     body_len, ptr_body);
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: %d\r\n"
+                "Connection: close\r\n"
+                "<body>\r\n"
+                "%s\r\n"
+                "</body>\r\n",
+                msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            free(msg_res.messages_by_user);
+            
+        } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
+            // TODO: Turn the Get to post
+
+            time_t now = time(NULL);
+            char *user = "1";
+            int end_idx = ms_point_to_last_entry(fms);
+            ms_add_message(user, "all", "testmsg", &now, &now, fms, &end_idx);
+            
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            char *ptr_body;
+            int body_len;
+            ptr_body = "<body>\r\n"
+                       "Success\r\n"
+                       "</body>\r\n";
+            body_len = strlen(ptr_body);
+            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Length: %d\r\n"
+                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+                "%s",
+                body_len, ptr_body);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            
         }
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
+        
 
     } else {
         // printf("\nFile does not exist!");
@@ -738,20 +769,28 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     return;
 }
 
-void parse_HTTP_requests(int new_connection_fd) {
+
+int parse_HTTP_requests(int new_connection_fd) {
     http_request_ctx *ctx = malloc(sizeof(http_request_ctx));
     char *ptr_http_client_buffer = receive_HTTP_request(new_connection_fd);
     if (ptr_http_client_buffer == NULL) {
         free(ptr_http_client_buffer);
         free(ctx);
-        return;
+        return 0;
     }
 
     ctx->new_connection_fd = new_connection_fd;
     ctx->ptr_ptr_http_client_buffer = &ptr_http_client_buffer;
-    REQUEST_LINE_STATE(ctx);
+
+    const char *accept_key = ws_parse_websocket_http(ptr_http_client_buffer);
+    if (accept_key) {
+        ws_send_websocket_response(new_connection_fd, accept_key);
+        return 101;
+    } else {
+        REQUEST_LINE_STATE(ctx);
+    }
 
     free(ctx);
     free(ptr_http_client_buffer);
-    return;
+    return 0;
 }

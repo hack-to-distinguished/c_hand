@@ -86,10 +86,8 @@ int main(int argc, char *argv[]) {
     int fd_count = 1;
     char buffer[BUFFER_SIZE];
 
-    flat_message_store fms[MSG_STORE_SIZE];
     time_t now = time(NULL);
-    int* end_of_db_ptr = &fms[0].ID;
-    end_of_db_ptr = ms_point_to_last_entry(fms);
+    int latest_entry_ptr = ms_point_to_last_entry(fms);
 
     while (1) {
         int poll_count = poll(pfds, fd_count, -1);
@@ -152,20 +150,8 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            // Read the initial HTTP request
-            memset(buffer, 0, BUFFER_SIZE);
-            int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-            if (bytes_read <= 0) {
-                perror("Receive failed");
-                close(client_fd);
-                continue;
-            }
-            buffer[bytes_read] = '\0';
-
-            const char *accept_key = ws_parse_websocket_http(buffer);
-            if (accept_key) {
-                ws_send_websocket_response(client_fd, accept_key);
-
+            int res = parse_HTTP_requests(client_fd);
+            if (res == 101) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
                     if (clients[i].fd == -1) {
                         clients[i].fd = client_fd;
@@ -179,21 +165,13 @@ int main(int argc, char *argv[]) {
                 pfds[fd_count].events = POLLIN;
                 pfds[fd_count].revents = 0; // Ensures that new conn starts with a clean slate
                 fd_count++;
-
                 printf("WebSocket connection established with %s on socket %d\n", client_ip, client_fd);
 
-                // TODO:
-                // This is where the databse read should happend
-                // because at this point, the connection is valid
-
-                // TODO: I can create another if here or within the else
-                // Search what kind of request it is and produce another outcome
             } else {
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
-                ws_close_websocket_http_response(client_fd, "This server only accepts WebSocket connections\n");
                 close(client_fd);
                 continue;
-            }
+            } 
         }
 
         // Check existing connections for data
@@ -242,7 +220,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
-                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &end_of_db_ptr);
+                ms_add_message(clients[client_idx].ip, "all", buffer, &now, &now, fms, &latest_entry_ptr);
 
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd != -1 && clients[j].is_websocket) {

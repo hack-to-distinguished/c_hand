@@ -29,7 +29,7 @@ void ERROR_STATE_400(http_request_ctx *ctx);
 void ERROR_STATE_404(http_request_ctx *ctx);
 void REQUEST_LINE_STATE(http_request_ctx *ctx);
 void END_OF_HEADERS_STATE(http_request_ctx *ctx);
-void parse_HTTP_requests(int new_connection_fd);
+int parse_HTTP_requests(int new_connection_fd);
 char *receive_HTTP_request(int new_connection_fd);
 void send_http_response(int new_connection_fd, char *ptr_packet_buffer);
 size_t get_size_of_file(FILE *fp);
