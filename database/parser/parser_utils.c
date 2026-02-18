@@ -172,12 +172,12 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_SELECT_LIST: {
-        destroyASTNode(node->Data.SelectList.simpleExpression);
+        destroyASTNode(node->Data.SelectList.aliasedExpression);
 
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current->Data.SelectList.simpleExpression);
+            destroyASTNode(current->Data.SelectList.aliasedExpression);
             free(current);
             current = next;
         }

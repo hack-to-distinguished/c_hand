@@ -16,9 +16,9 @@ ASTNode *parseSelectList(tokenListCTX *tokenListCTX) {
 
     selectList->NodeType = AST_SELECT_LIST;
     selectList->next = NULL;
-    selectList->Data.SelectList.simpleExpression = NULL;
-    selectList->Data.SelectList.simpleExpression =
-        parseSimpleExpression(tokenListCTX);
+    selectList->Data.SelectList.aliasedExpression = NULL;
+    selectList->Data.SelectList.aliasedExpression =
+        parseAliasedExpression(tokenListCTX);
 
     if (peekToken(tokenListCTX).type == TOKEN_COMMA) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_COMMA,

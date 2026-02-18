@@ -22,7 +22,6 @@ ASTNode *parseArgList(tokenListCTX *tokenListCTX);
 ASTNode *parseTableList(tokenListCTX *tokenListCTX);
 ASTNode *parseWhereClause(tokenListCTX *tokenListCTX);
 ASTNode *parseCondition(tokenListCTX *tokenListCTX);
-ASTNode *parseExpression(tokenListCTX *tokenListCTX);
 ASTNode *parseComparisonOperator(tokenListCTX *tokenListCTX);
 ASTNode *parseOrCondition(tokenListCTX *tokenListCTX);
 ASTNode *parseAndCondition(tokenListCTX *tokenListCTX);
@@ -36,6 +35,7 @@ ASTNode *parseValueList(tokenListCTX *tokenListCTX);
 ASTNode *parseDeleteStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseUpdateStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseSetList(tokenListCTX *tokenListCTX);
+ASTNode *parseAliasedExpression(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

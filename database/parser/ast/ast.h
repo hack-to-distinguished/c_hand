@@ -23,12 +23,12 @@ struct ASTNode {
         AST_BOOLEAN_FACTOR,
         AST_COMPARISON,
         AST_COMPARISON_OPERATOR,
-        AST_EXPRESSION,
         AST_ORDER_CLAUSE,
         AST_SORT_ORDER,
         AST_INSERT,
         AST_VALUE_LIST,
         AST_COLUMN_LIST,
+        AST_ALIASED_EXPRESSION,
         AST_UPDATE,
         AST_SET_LIST,
         AST_DELETE,
@@ -60,7 +60,7 @@ struct ASTNode {
         } SelectStatement;
 
         struct {
-            ASTNode *simpleExpression;
+            ASTNode *aliasedExpression;
         } SelectList;
 
         struct {
@@ -141,12 +141,6 @@ struct ASTNode {
         } Comparison;
 
         struct {
-            ASTNode *simpleExpressionL;
-            ASTNode *simpleExpressionR;
-            ASTNode *comparisonOperator;
-        } Expression;
-
-        struct {
             // INFO: Nothing required here
         } ComparisonOperator;
 
@@ -171,6 +165,10 @@ struct ASTNode {
         struct {
             ASTNode *simpleExpression;
         } ValueList;
+
+        struct {
+            ASTNode *simpleExpression;
+        } AliasedExpression;
 
     } Data;
     ASTNode *next;
