@@ -18,11 +18,18 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
           console.log("Attempting to get all messages")
           const message = await getAllMessages();
           console.log("message data:", message?.data);
-          console.log("message data type:", typeof(JSON.parse(message?.data)));
-          setCompletedInitialRequest(true);
+          const messagesString = message?.data;
+          let newString = "";
+          for (let i = 0; i < messagesString.length; i++) {
+            const c = messagesString[i];
+            newString += c === "'" ? '"' : c;
+          }
+          console.log("message data type:", JSON.parse(newString));
         
-          // setMessages((prevMessages) => [...prevMessages, message?.data.values()])
+          const savedMessages = JSON.parse(newString);
+          // setMessages((prevMessages) => [...prevMessages, savedMessages.values()])
 
+          setCompletedInitialRequest(true);
         } catch (error) {
           console.log("Unable to get messages:", error);
         }
