@@ -531,8 +531,6 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
             int end_idx = ms_point_to_last_entry(fms);
             msg_buffer msg_res = ms_get_all_messages_desc(fms, &end_idx);
-            printf("Message recv: %s\n", msg_res.messages_by_user);
-            printf("Message len: %d\n", msg_res.total_len);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,

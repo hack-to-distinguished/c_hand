@@ -18,9 +18,8 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       if (messages) {
         console.log("All messages:", messages);
 
-        const userMessage = messages.map((filObj) =>filObj.message);
-        setMessages((prevMessages) => [...prevMessages, ...userMessage]);
-        // setCompletedInitialRequest(true);
+        const userMessage = messages.reverse().map((filObj) =>filObj.message);
+        setMessages(userMessage)
       } 
 
     } catch (error) {
