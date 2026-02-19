@@ -184,6 +184,11 @@ void destroyASTNode(ASTNode *node) {
         free(node);
         break;
     }
+    case AST_ALIASED_EXPRESSION: {
+        destroyASTNode(node->Data.AliasedExpression.simpleExpression);
+        free(node);
+        break;
+    }
     case AST_SIMPLE_EXPRESSION: {
         destroyASTNode(node->Data.SimpleExpression.term);
 

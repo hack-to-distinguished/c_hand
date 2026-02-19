@@ -4,8 +4,6 @@
 #include <stdlib.h>
 
 void parse(tokenListCTX *tokenListCTX) {
-    // reset position of indexPosition pointer
-
     tokenListCTX->indexPosition = tokenListCTX->tokenList;
     ASTNode *sqlStatement = parseSQLStatment(tokenListCTX);
     if (sqlStatement) {
@@ -14,7 +12,6 @@ void parse(tokenListCTX *tokenListCTX) {
             destroyASTNode(sqlStatement);
             exit(EXIT_SUCCESS);
         }
-        // TODO: free AST
         destroyASTNode(sqlStatement);
     }
 };
