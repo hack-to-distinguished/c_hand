@@ -29,6 +29,7 @@ struct ASTNode {
         AST_VALUE_LIST,
         AST_COLUMN_LIST,
         AST_ALIASED_EXPRESSION,
+        AST_ALIASED_TABLE,
         AST_UPDATE,
         AST_SET_LIST,
         AST_DELETE,
@@ -110,7 +111,7 @@ struct ASTNode {
         } ExitStatement;
 
         struct {
-            // INFO: Nothing required here
+            ASTNode *aliasedTable;
         } TableList;
 
         struct {
@@ -169,6 +170,10 @@ struct ASTNode {
         struct {
             ASTNode *simpleExpression;
         } AliasedExpression;
+
+        struct {
+            // INFO: Nothing required here
+        } AliasedTable;
 
     } Data;
     ASTNode *next;

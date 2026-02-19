@@ -168,6 +168,20 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_TABLE_LIST: {
+        destroyASTNode(node->Data.TableList.aliasedTable);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.TableList.aliasedTable);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_ALIASED_TABLE: {
         free(node);
         break;
     }
