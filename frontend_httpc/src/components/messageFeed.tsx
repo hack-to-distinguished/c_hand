@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import { getAllMessages } from "../services/getMessages.tsx";
 import "./messageFeed.css";
 
@@ -11,31 +11,28 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
-  useEffect(() => {
-    const initialGetMessagesReq = async () => {
-      if (!completedInitialRequest) {
-        try {
-          console.log("Attempting to get all messages")
-          const message = await getAllMessages();
-          console.log("message data:", message?.data);
-          const messagesString = message?.data;
-          let newString = "";
-          for (let i = 0; i < messagesString.length; i++) {
-            const c = messagesString[i];
-            newString += c === "'" ? '"' : c;
-          }
-          console.log("message data type:", JSON.parse(newString));
-        
-          const savedMessages = JSON.parse(newString);
-          // setMessages((prevMessages) => [...prevMessages, savedMessages.values()])
+  const initialGetMessagesReq = async () => {
+    try {
+      console.log("Attempting to get all messages")
+      const messages = await getAllMessages();
+      if (messages) {
+        console.log("All messages:", messages);
 
-          setCompletedInitialRequest(true);
-        } catch (error) {
-          console.log("Unable to get messages:", error);
-        }
-      }
-    };
+        const userMessage = messages.map((filObj) =>filObj.message);
+        setMessages((prevMessages) => [...prevMessages, ...userMessage]);
+        // setCompletedInitialRequest(true);
+      } 
+
+    } catch (error) {
+      console.log("Unable to get messages:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (completedInitialRequest) return;
+    console.log("request not done", completedInitialRequest);
     initialGetMessagesReq();
+    setCompletedInitialRequest(true);
   }, [completedInitialRequest]);
 
   useEffect(() => {

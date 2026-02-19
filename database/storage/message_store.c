@@ -100,7 +100,7 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     {
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'%s': '%s'}", fms[index].sender_id, fms[index].message
+            "{'sender_id': '%s', 'message': '%s'}", fms[index].sender_id, fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
