@@ -103,7 +103,7 @@ Currently, both a tokenizer, and parser has been implemented.
 - Execution Engine: In development
 
 **Goal:**  
-To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*.
+To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*. It is also to explore how languages work on a lower level.
 
 ---
 
