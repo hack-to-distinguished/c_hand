@@ -35,12 +35,12 @@ The next major step is to develop a database management system from scratch to t
 
 ## Simple HTTP_C Web Server  
 
-A custom-built HTTP/1.1 web server written from scratch in C, designed for **high performance and scalability**.  
+A custom-built HTTP web server written from scratch in C, designed for **high performance and scalability**.  
 
 **Key Features:**
 - Thread pool implementation for efficiently handling multiple simultaneous client connections.
 - Stateful HTTP request parsing using a **state machine** for precise and robust request handling.
-- Supports both GET + POST methods.
+- Supports both GET + POST + HEAD methods.
 
 ### State Machine Diagram
 
@@ -103,7 +103,7 @@ Currently, both a tokenizer, and parser has been implemented.
 - Execution Engine: In development
 
 **Goal:**  
-To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*.
+To gain a deeper understanding of how databases work internally and to eventually implement SDBMS as the main database used for the network backend in conjunction with *Tank Squared* and the *Messaging System*. It is also to explore how languages work on a lower level.
 
 ---
 
@@ -131,12 +131,21 @@ db > SELECT column1, column2
 ```
 
 **Components:**
-- **SELECT clause**: Specify columns or `*` for all columns
-- **FROM clause**: List one or more tables (comma-separated)
+- **SELECT clause**: Specify columns or `*` for all columns. Columns can be aliased using `AS`.
+- **FROM clause**: List one or more tables (comma-separated). Tables can be aliased using `AS`.
 - **WHERE clause** (optional): Filter results using conditions
 - **ORDER BY clause** (optional): Sort results by columns with ASC (ascending) or DESC (descending)
 
-**Note:** Column aliasing with AS is not currently supported.
+#### Column and Table Aliasing
+Use the `AS` keyword to assign an alias to a column expression or table name.
+
+```sql
+db > SELECT salary * 1.1 AS adjusted_salary, department AS dept
+   > FROM employees AS e
+   > WHERE e.salary > 50000;
+```
+
+Aliases can be used to rename columns in the result set or to shorten table references within the query.
 
 #### INSERT Statement
 Add new records to a table.
@@ -243,6 +252,11 @@ db > EXIT;
 -- Select all employees earning over 50000
 db > SELECT * FROM employees WHERE salary > 50000;
 
+-- Select with column aliasing
+db > SELECT first_name AS name, salary * 1.1 AS adjusted_salary
+   > FROM employees AS e
+   > WHERE e.salary > 50000;
+
 -- Select with LIKE pattern matching
 db > SELECT * FROM users WHERE email LIKE '%@company.com';
 
@@ -279,11 +293,11 @@ db > DELETE FROM employees
 db > DELETE FROM users
    > WHERE email LIKE '%@deactivated.com';
 
--- Complex SELECT with multiple tables and arithmetic
+-- Complex SELECT with multiple tables, arithmetic, and aliasing
 db > SELECT 
-   > employees.name,
-   > employees.salary * 1.15 + bonus.amount,
-   > performance.rating
+   > employees.name AS employee_name,
+   > employees.salary * 1.15 + bonus.amount AS total_compensation,
+   > performance.rating AS perf_rating
    > FROM employees, bonus, performance
    > WHERE employees.id = bonus.employee_id
    > AND employees.id = performance.employee_id

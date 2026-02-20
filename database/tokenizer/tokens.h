@@ -18,6 +18,7 @@
     X(TOKEN_KEYWORD_BY)                                                        \
     X(TOKEN_KEYWORD_ASC)                                                       \
     X(TOKEN_KEYWORD_DESC)                                                      \
+    X(TOKEN_KEYWORD_AS)                                                        \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -75,4 +76,5 @@ static Keyword keywords[] = {
     {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
     {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
     {"INTO", TOKEN_KEYWORD_INTO},     {"VALUES", TOKEN_KEYWORD_VALUES},
-    {"SET", TOKEN_KEYWORD_SET},       {"LIKE", TOKEN_OPERATOR_LIKE}};
+    {"SET", TOKEN_KEYWORD_SET},       {"LIKE", TOKEN_OPERATOR_LIKE},
+    {"AS", TOKEN_KEYWORD_AS}};

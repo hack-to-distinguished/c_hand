@@ -16,16 +16,14 @@ ASTNode *parseTableList(tokenListCTX *tokenListCTX) {
 
     tableList->next = NULL;
     tableList->NodeType = AST_TABLE_LIST;
+    tableList->Data.TableList.aliasedTable = NULL;
 
-    consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
-                 tokenListCTX);
+    tableList->Data.TableList.aliasedTable = parseAliasedTable(tokenListCTX);
 
-    while (peekToken(tokenListCTX).type == TOKEN_COMMA) {
+    if (peekToken(tokenListCTX).type == TOKEN_COMMA) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_COMMA,
                      tokenListCTX);
-
-        consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
-                     tokenListCTX);
+        tableList->next = parseTableList(tokenListCTX);
     }
 
     return tableList;

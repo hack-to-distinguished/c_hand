@@ -68,6 +68,7 @@ void destroyTokenList(tokenListCTX *ctx) {
     for (size_t i = 0; i < ctx->currentSize; i++) {
         if (ctx->tokenList[i].type == TOKEN_KEYWORD_SELECT ||
             ctx->tokenList[i].type == TOKEN_KEYWORD_FROM ||
+            ctx->tokenList[i].type == TOKEN_KEYWORD_AS ||
             ctx->tokenList[i].type == TOKEN_KEYWORD_WHERE ||
             ctx->tokenList[i].type == TOKEN_KEYWORD_INSERT ||
             ctx->tokenList[i].type == TOKEN_KEYWORD_INTO ||

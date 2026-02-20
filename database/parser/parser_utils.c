@@ -168,19 +168,38 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_TABLE_LIST: {
-        free(node);
-        break;
-    }
-    case AST_SELECT_LIST: {
-        destroyASTNode(node->Data.SelectList.simpleExpression);
+        destroyASTNode(node->Data.TableList.aliasedTable);
 
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current->Data.SelectList.simpleExpression);
+            destroyASTNode(current->Data.TableList.aliasedTable);
             free(current);
             current = next;
         }
+
+        free(node);
+        break;
+    }
+    case AST_ALIASED_TABLE: {
+        free(node);
+        break;
+    }
+    case AST_SELECT_LIST: {
+        destroyASTNode(node->Data.SelectList.aliasedExpression);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.SelectList.aliasedExpression);
+            free(current);
+            current = next;
+        }
+        free(node);
+        break;
+    }
+    case AST_ALIASED_EXPRESSION: {
+        destroyASTNode(node->Data.AliasedExpression.simpleExpression);
         free(node);
         break;
     }
