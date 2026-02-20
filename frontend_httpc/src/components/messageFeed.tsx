@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import { getAllMessages } from "../services/getMessages.tsx";
 import "./messageFeed.css";
 
@@ -11,21 +11,27 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
-  useEffect(() => {
-    const initialGetMessagesReq = async () => {
-      if (!completedInitialRequest) {
-        try {
-          console.log("Attempting to get all messages")
-          const message = await getAllMessages();
-          console.log("Received all messages:", message);
-          setCompletedInitialRequest(true);
+  const initialGetMessagesReq = async () => {
+    try {
+      console.log("Attempting to get all messages")
+      const messages = await getAllMessages();
+      if (messages) {
+        console.log("All messages:", messages);
 
-        } catch (error) {
-          console.log("Unable to get messages:", error);
-        }
-      }
-    };
+        const userMessage = messages.reverse().map((filObj) =>filObj.message);
+        setMessages(userMessage)
+      } 
+
+    } catch (error) {
+      console.log("Unable to get messages:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (completedInitialRequest) return;
+    console.log("request not done", completedInitialRequest);
     initialGetMessagesReq();
+    setCompletedInitialRequest(true);
   }, [completedInitialRequest]);
 
   useEffect(() => {
@@ -47,35 +53,8 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
     };
   }, [socket.current]);
 
-
-  // const handleGetMessage = async (): Promise<void> => {
-  //   let ws = new WebSocket("ws://127.0.0.1/8080");
-  //   console.log("Button Pressed - ws used:", ws);
-  //   try {
-  //     ws.onopen = () => {
-  //       console.log("Connected to ws");
-  //       ws.send("connected");
-  //     }
-  //
-  //     // const response = await fetch(ws);
-  //     // const newMessages = await response.json();
-  //     // setMessages[(prevMessages => [...prevMessages, newMessages])];
-  //     // console.log("Results returned", newMessages);
-  //
-  //   } catch (error) {
-  //
-  //     console.error("Unable to read data")
-  //
-  //   }
-  // }
-
   return (
     <div className="messages-display">
-      {/* <button */}
-      {/*   onPress={handleGetMessage()} */}
-      {/* > */}
-      {/*   Get messages */}
-      {/* </button> */}
       <div className="message-header">HTTP_C Chat</div>
       <ul className="messages-list">
         {messages.length === 0 ? (
