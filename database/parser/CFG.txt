@@ -1,3 +1,6 @@
+NEED TO IMPLEMENT DDL STATEMENTS: CREATE, ALTER, DROP, TRUNCATE, COMMENT, RENAME
+
+
 sql_statement ::= select_statement
                 | insert_statement
                 | update_statement
