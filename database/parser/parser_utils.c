@@ -98,12 +98,10 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_COLUMN_LIST: {
-        destroyASTNode(node->Data.ColumnList.qualifiedIdentifier);
 
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current->Data.ColumnList.qualifiedIdentifier);
             free(current);
             current = next;
         }

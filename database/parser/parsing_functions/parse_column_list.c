@@ -15,10 +15,9 @@ ASTNode *parseColumnList(tokenListCTX *tokenListCTX) {
 
     columnList->NodeType = AST_COLUMN_LIST;
     columnList->next = NULL;
-    columnList->Data.ColumnList.qualifiedIdentifier = NULL;
 
-    columnList->Data.ColumnList.qualifiedIdentifier =
-        parseQualifiedIdentifier(tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
+                 tokenListCTX);
 
     if (peekToken(tokenListCTX).type == TOKEN_COMMA) {
         consumeToken(tokenListCTX->indexPosition->type, TOKEN_COMMA,

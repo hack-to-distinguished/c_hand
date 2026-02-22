@@ -160,7 +160,6 @@ struct ASTNode {
         } InsertStatement;
 
         struct {
-            ASTNode *qualifiedIdentifier;
         } ColumnList;
 
         struct {
