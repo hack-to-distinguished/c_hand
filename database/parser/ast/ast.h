@@ -33,6 +33,16 @@ struct ASTNode {
         AST_UPDATE,
         AST_SET_LIST,
         AST_DELETE,
+        AST_CREATE,
+        AST_CREATE_BODY,
+        AST_CREATE_TABLE,
+        AST_TABLE_ELEMENT_LIST,
+        AST_TABLE_ELEMENT,
+        AST_COLUMN_DEFINITION,
+        AST_TABLE_CONSTRAINT,
+        AST_TABLE_CONSTRAINT_TYPE,
+        AST_DATA_TYPE,
+        AST_COLUMN_CONTRAINT,
         AST_EXIT
     } NodeType;
 
@@ -173,6 +183,53 @@ struct ASTNode {
         struct {
             // INFO: Nothing required here
         } AliasedTable;
+
+        struct {
+            ASTNode *createBody;
+        } CreateStatement;
+
+        struct {
+            ASTNode *createTableStatement;
+            ASTNode *createIndexStatement;
+        } CreateBody;
+
+        struct {
+            ASTNode *tableElementList;
+        } CreateTableStatement;
+
+        struct {
+            ASTNode *tableElement;
+        } TableElementList;
+
+        struct {
+            ASTNode *columnDefinition;
+            ASTNode *tableConstraint;
+        } TableElement;
+
+        struct {
+            ASTNode *dataType;
+            ASTNode *columnConstraintList;
+        } ColumnDefinition;
+
+        struct {
+            ASTNode *tableConstraintType;
+        } TableConstraint;
+
+        struct {
+            ASTNode *condition;
+        } TableConstraintType;
+
+        struct {
+            // INFO: nothing required here
+        } DataType;
+
+        struct {
+            ASTNode *columnConstraint;
+        } ColumnConstraintList;
+
+        struct {
+            ASTNode *simpleExpression;
+        } ColumnConstraint;
 
     } Data;
     ASTNode *next;

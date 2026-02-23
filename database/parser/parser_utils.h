@@ -37,6 +37,7 @@ ASTNode *parseUpdateStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseSetList(tokenListCTX *tokenListCTX);
 ASTNode *parseAliasedExpression(tokenListCTX *tokenListCTX);
 ASTNode *parseAliasedTable(tokenListCTX *tokenListCTX);
+ASTNode *parseCreateStatement(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);
