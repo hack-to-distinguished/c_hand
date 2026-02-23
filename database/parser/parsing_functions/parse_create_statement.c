@@ -13,5 +13,15 @@ ASTNode *parseCreateStatement(tokenListCTX *tokenListCTX) {
         return NULL;
     }
 
+    createStatement->NodeType = AST_CREATE;
+    createStatement->next = NULL;
+    createStatement->Data.CreateStatement.createBody = NULL;
+
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_CREATE,
+                 tokenListCTX);
+
+    createStatement->Data.CreateStatement.createBody =
+        parseCreateBody(tokenListCTX);
+
     return createStatement;
 };
