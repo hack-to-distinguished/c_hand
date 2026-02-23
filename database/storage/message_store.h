@@ -36,4 +36,5 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
                                   char* sender_id);
 void ms_show_latest_msg();
 void free_memory(flat_message_store* fms);
+msg_buffer ms_get_all_messages(flat_message_store* fms);
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_idx);

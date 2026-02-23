@@ -85,6 +85,55 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
     return;
 }
 
+
+msg_buffer ms_get_all_messages(flat_message_store* fms) {
+
+    int index = 1;
+
+    char* msg_by_user = malloc(START_SIZE);
+    msg_by_user[0] = '\0';
+    strcat(msg_by_user, "[");
+    size_t mbu_len = 2; // this is 2 because of the "[" above
+    size_t mbu_cap = START_SIZE;
+    char* msg_construction_buffer = malloc(BUFFER_SIZE);
+
+    while (fms[index].message != NULL)
+    {
+        // time_t send_time = time(&fms[index].send_time);
+        // "{'sender_id': '%s', 'send_time': '%s' 'message': '%s'}", fms[index].sender_id, ctime(send_time), fms[index].message
+        snprintf(
+            msg_construction_buffer, BUFFER_SIZE,
+            "{'sender_id': '%s', 'message': '%s'}", fms[index].sender_id, fms[index].message
+        );
+
+        int msg_c_b_len = strlen(msg_construction_buffer);
+        if (msg_c_b_len + mbu_len + 1 >= mbu_cap) {
+            mbu_cap = mbu_cap * 2;
+            char *tmp_ptr = realloc(msg_by_user, mbu_cap);
+            if (!tmp_ptr) {
+                printf("Failed to reallocate memory for the messages\n");
+            }
+            msg_by_user = tmp_ptr;
+        }
+        strcat(msg_by_user, msg_construction_buffer);
+        mbu_len += msg_c_b_len;
+        index++;
+
+        if (fms[index].message != NULL) {
+            // We only add the comma if there is more data to append
+            strcat(msg_by_user, ", ");
+            mbu_len += 2;
+        }
+
+    }
+    strcat(msg_by_user, "]");
+    printf("Message buffer: %s\n", msg_by_user);
+    free(msg_construction_buffer);
+    msg_buffer out = {mbu_len, msg_by_user};
+
+    return out;
+}
+
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
 
     int index = *latest_entry_ptr;
