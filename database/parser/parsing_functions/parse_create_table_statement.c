@@ -17,5 +17,16 @@ ASTNode *parseCreateTableStatement(tokenListCTX *tokenListCTX) {
     createTableStatement->Data.CreateTableStatement.tableElementList = NULL;
     createTableStatement->next = NULL;
 
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_KEYWORD_TABLE,
+                 tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
+                 tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_LPAREN, tokenListCTX);
+    createTableStatement->Data.CreateTableStatement.tableElementList =
+        parseTableElementList(tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN, tokenListCTX);
+    consumeToken(tokenListCTX->indexPosition->type, TOKEN_SEMICOLON,
+                 tokenListCTX);
+
     return createTableStatement;
 };
