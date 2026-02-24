@@ -99,9 +99,11 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
 
     while (fms[index].message != NULL)
     {
+        char send_date_time[64];
+        strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, ctime(&fms[index].send_time), fms[index].message
+            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, send_date_time, fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -120,12 +122,12 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         if (fms[index].message != NULL) {
             // We only add the comma if there is more data to append
             strcat(msg_by_user, ", ");
-            mbu_len += 2;
+            mbu_len += strlen(", ");
         }
 
     }
     strcat(msg_by_user, "]");
-    printf("Message buffer: %s\n", msg_by_user);
+    mbu_len += strlen("]");
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
 
