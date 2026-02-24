@@ -18,5 +18,14 @@ ASTNode *parseTableElement(tokenListCTX *tokenListCTX) {
     tableElement->Data.TableElement.columnDefinition = NULL;
     tableElement->next = NULL;
 
+    if (peekToken(tokenListCTX).type == TOKEN_IDENTIFIER) {
+        tableElement->Data.TableElement.columnDefinition =
+            parseColumnDefinition(tokenListCTX);
+    } else {
+        // INFO: make this else case more specific
+        tableElement->Data.TableElement.tableConstraint =
+            parseTableConstraint(tokenListCTX);
+    }
+
     return tableElement;
 };

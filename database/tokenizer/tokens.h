@@ -23,6 +23,17 @@
     X(TOKEN_KEYWORD_TABLE)                                                     \
     X(TOKEN_KEYWORD_UNIQUE)                                                    \
     X(TOKEN_KEYWORD_INDEX)                                                     \
+    X(TOKEN_KEYWORD_CONSTRAINT)                                                \
+    X(TOKEN_KEYWORD_INT)                                                       \
+    X(TOKEN_KEYWORD_INTEGER)                                                   \
+    X(TOKEN_KEYWORD_FLOAT)                                                     \
+    X(TOKEN_KEYWORD_DOUBLE)                                                    \
+    X(TOKEN_KEYWORD_BOOLEAN)                                                   \
+    X(TOKEN_KEYWORD_DATE)                                                      \
+    X(TOKEN_KEYWORD_TEXT)                                                      \
+    X(TOKEN_KEYWORD_VARCHAR)                                                   \
+    X(TOKEN_KEYWORD_CHAR)                                                      \
+    X(TOKEN_KEYWORD_DECIMAL)                                                   \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -71,16 +82,37 @@ static const char *tokens[] = {
 
 const char *tokenTypeToString(TokenType s);
 
-static Keyword keywords[] = {
-    {"SELECT", TOKEN_KEYWORD_SELECT}, {"INSERT", TOKEN_KEYWORD_INSERT},
-    {"DELETE", TOKEN_KEYWORD_DELETE}, {"FROM", TOKEN_KEYWORD_FROM},
-    {"UPDATE", TOKEN_KEYWORD_UPDATE}, {"WHERE", TOKEN_KEYWORD_WHERE},
-    {"EXIT", TOKEN_KEYWORD_EXIT},     {"NULL", TOKEN_KEYWORD_NULL},
-    {"AND", TOKEN_KEYWORD_AND},       {"OR", TOKEN_KEYWORD_OR},
-    {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
-    {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
-    {"INTO", TOKEN_KEYWORD_INTO},     {"VALUES", TOKEN_KEYWORD_VALUES},
-    {"SET", TOKEN_KEYWORD_SET},       {"LIKE", TOKEN_OPERATOR_LIKE},
-    {"TABLE", TOKEN_KEYWORD_TABLE},   {"AS", TOKEN_KEYWORD_AS},
-    {"UNIQUE", TOKEN_KEYWORD_UNIQUE}, {"INDEX", TOKEN_KEYWORD_INDEX},
-    {"CREATE", TOKEN_KEYWORD_CREATE}};
+static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
+                             {"INSERT", TOKEN_KEYWORD_INSERT},
+                             {"DELETE", TOKEN_KEYWORD_DELETE},
+                             {"FROM", TOKEN_KEYWORD_FROM},
+                             {"UPDATE", TOKEN_KEYWORD_UPDATE},
+                             {"WHERE", TOKEN_KEYWORD_WHERE},
+                             {"EXIT", TOKEN_KEYWORD_EXIT},
+                             {"NULL", TOKEN_KEYWORD_NULL},
+                             {"AND", TOKEN_KEYWORD_AND},
+                             {"OR", TOKEN_KEYWORD_OR},
+                             {"ORDER", TOKEN_KEYWORD_ORDER},
+                             {"BY", TOKEN_KEYWORD_BY},
+                             {"ASC", TOKEN_KEYWORD_ASC},
+                             {"DESC", TOKEN_KEYWORD_DESC},
+                             {"INTO", TOKEN_KEYWORD_INTO},
+                             {"VALUES", TOKEN_KEYWORD_VALUES},
+                             {"SET", TOKEN_KEYWORD_SET},
+                             {"LIKE", TOKEN_OPERATOR_LIKE},
+                             {"TABLE", TOKEN_KEYWORD_TABLE},
+                             {"AS", TOKEN_KEYWORD_AS},
+                             {"UNIQUE", TOKEN_KEYWORD_UNIQUE},
+                             {"INDEX", TOKEN_KEYWORD_INDEX},
+                             {"CONSTRAINT", TOKEN_KEYWORD_CONSTRAINT},
+                             {"CREATE", TOKEN_KEYWORD_CREATE},
+                             {"INT", TOKEN_KEYWORD_INT},
+                             {"INTEGER", TOKEN_KEYWORD_INTEGER},
+                             {"FLOAT", TOKEN_KEYWORD_FLOAT},
+                             {"DOUBLE", TOKEN_KEYWORD_DOUBLE},
+                             {"BOOLEAN", TOKEN_KEYWORD_BOOLEAN},
+                             {"DATE", TOKEN_KEYWORD_DATE},
+                             {"TEXT", TOKEN_KEYWORD_TEXT},
+                             {"VARCHAR", TOKEN_KEYWORD_VARCHAR},
+                             {"CHAR", TOKEN_KEYWORD_CHAR},
+                             {"DECIMAL", TOKEN_KEYWORD_DECIMAL}};
