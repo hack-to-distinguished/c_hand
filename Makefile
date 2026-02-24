@@ -68,6 +68,9 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_create_statement.c \
 	database/parser/parsing_functions/parse_create_body.c \
 	database/parser/parsing_functions/parse_create_table_statement.c \
+	database/parser/parsing_functions/parse_table_element.c \
+	database/parser/parsing_functions/parse_table_constraint.c \
+	database/parser/parsing_functions/parse_column_definition.c \
 	database/parser/parsing_functions/parse_boolean_factor.c 
 SDBMS_BIN = sdbms
 

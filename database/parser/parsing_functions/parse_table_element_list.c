@@ -15,7 +15,14 @@ ASTNode *parseTableElementList(tokenListCTX *tokenListCTX) {
 
     tableElementList->NodeType = AST_TABLE_ELEMENT_LIST;
     tableElementList->next = NULL;
-    tableElementList->Data.TableElementList.tableElement = NULL;
+    tableElementList->Data.TableElementList.tableElement =
+        parseTableElement(tokenListCTX);
+
+    if (peekToken(tokenListCTX).type == TOKEN_COMMA) {
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_COMMA,
+                     tokenListCTX);
+        tableElementList->next = parseTableElementList(tokenListCTX);
+    }
 
     return tableElementList;
 };
