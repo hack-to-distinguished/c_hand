@@ -6,7 +6,7 @@
 #include "message_store.h"
 
 # define BUFFER_SIZE 2048
-# define START_SIZE 32
+# define START_SIZE 1024
 
 // fms is extern so it will only be declared here
 flat_message_store fms[MSG_STORE_SIZE];
@@ -93,17 +93,15 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
     char* msg_by_user = malloc(START_SIZE);
     msg_by_user[0] = '\0';
     strcat(msg_by_user, "[");
-    size_t mbu_len = 2; // this is 2 because of the "[" above
-    size_t mbu_cap = START_SIZE;
+    size_t mbu_len = strlen(msg_by_user);
+    size_t mbu_cap = START_SIZE; // cap size needs to be big enough to include the first snprintf
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 
     while (fms[index].message != NULL)
     {
-        // time_t send_time = time(&fms[index].send_time);
-        // "{'sender_id': '%s', 'send_time': '%s' 'message': '%s'}", fms[index].sender_id, ctime(send_time), fms[index].message
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'message': '%s'}", fms[index].sender_id, fms[index].message
+            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, ctime(&fms[index].send_time), fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -131,7 +129,7 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
 
-    return out;
+    return out; // msg_by_use needs to be freed after use
 }
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
@@ -141,7 +139,7 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     char* msg_by_user = malloc(START_SIZE);
     msg_by_user[0] = '\0';
     strcat(msg_by_user, "[");
-    size_t mbu_len = 2; // this is 2 because of the "[" above
+    size_t mbu_len = strlen(msg_by_user);
     size_t mbu_cap = START_SIZE;
     char* msg_construction_buffer = malloc(BUFFER_SIZE);
 

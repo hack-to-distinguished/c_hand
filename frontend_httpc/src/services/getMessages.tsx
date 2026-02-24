@@ -4,13 +4,14 @@ export const getAllMessages = async () => {
   try {
     const response = await axios.get("http://127.0.0.1:8081/messages");
     const msgData = response.data;
-    // console.log("message data", msgData);
+    console.log("message data", msgData);
 
     let msgString = "";
     for (let i = 0; i < msgData.length; i++) {
       const c = msgData[i];
       msgString += c === "'" ? '"' : c;
     }
+    console.log("reconstructed string:", msgString);
     return JSON.parse(msgString);
 
   } catch (error) {
