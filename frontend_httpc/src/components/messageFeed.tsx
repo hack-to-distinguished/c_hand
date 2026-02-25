@@ -15,10 +15,9 @@ interface SavedMessages {
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [messagesObject, setMessagesObject] = useState<SavedMessages>({
+  const [messagesObject, setMessagesObject] = useState<[SavedMessages]>([{
     message: "default", sendTime: "default", senderId: "default"
-  });
-  // const [messagesObject, setMessagesObject] = useState<[SavedMessages]>();
+  }]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   const initialGetMessagesReq = async () => {
@@ -30,10 +29,15 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
 
         const userMessages = messages.map((userObj) => userObj.message);
 
-        setMessagesObject(messagesObject => ({
-          ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
-          message: messages[0].message, sendTime: messages[0].send_time, senderId: messages[0].sender_id
-        }));
+        const messageCount = Object.keys(messages).length;
+        console.log(`There are ${messageCount} messages`);
+        for (let i = 0; i < messageCount; i++){
+          setMessagesObject(messagesObject => ({
+            ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
+            message: messages[i].message, sendTime: messages[i].send_time, senderId: messages[i].sender_id
+          }));
+
+        }
 
         setMessages(userMessages)
         setCompletedInitialRequest(true);
