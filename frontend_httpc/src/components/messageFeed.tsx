@@ -7,8 +7,18 @@ interface MessageBoxProps {
   connectionStatus: string;
 }
 
+interface SavedMessages {
+  message?: string;
+  sendTime?: string;
+  senderId?: string;
+}
+
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
+  const [messagesObject, setMessagesObject] = useState<SavedMessages>({
+    message: "default", sendTime: "default", senderId: "default"
+  });
+  // const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   const initialGetMessagesReq = async () => {
@@ -18,8 +28,13 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       if (messages) {
         console.log("All messages:", messages);
 
-        const userMessage = messages.map((filObj) =>filObj.message);
-        setMessages(userMessage)
+        const userMessages = messages.map((filObj) =>filObj.message);
+        setMessagesObject({
+          message: "message", sendTime: "send time", senderId: "sender ID"
+        });
+        console.log("message object", messagesObject);
+
+        setMessages(userMessages)
       } 
 
     } catch (error) {
