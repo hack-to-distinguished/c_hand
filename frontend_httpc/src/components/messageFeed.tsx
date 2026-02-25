@@ -18,7 +18,7 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messagesObject, setMessagesObject] = useState<SavedMessages>({
     message: "default", sendTime: "default", senderId: "default"
   });
-  // const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
+  // const [messagesObject, setMessagesObject] = useState<[SavedMessages]>();
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   const initialGetMessagesReq = async () => {
@@ -28,13 +28,15 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       if (messages) {
         console.log("All messages:", messages);
 
-        const userMessages = messages.map((filObj) =>filObj.message);
-        setMessagesObject({
-          message: "message", sendTime: "send time", senderId: "sender ID"
-        });
-        console.log("message object", messagesObject);
+        const userMessages = messages.map((userObj) => userObj.message);
+
+        setMessagesObject(messagesObject => ({
+          ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
+          message: messages[0].message, sendTime: messages[0].send_time, senderId: messages[0].sender_id
+        }));
 
         setMessages(userMessages)
+        setCompletedInitialRequest(true);
       } 
 
     } catch (error) {
@@ -46,8 +48,11 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
     if (completedInitialRequest) return;
     console.log("request not done", completedInitialRequest);
     initialGetMessagesReq();
-    setCompletedInitialRequest(true);
   }, [completedInitialRequest]);
+
+  useEffect(() => { // Only used for logging whenever messageObject changes
+    console.log("message object", messagesObject);
+  }, [messagesObject]);
 
   useEffect(() => {
     if (!socket.current) return;
