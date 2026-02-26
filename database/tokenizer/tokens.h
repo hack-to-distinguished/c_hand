@@ -34,6 +34,11 @@
     X(TOKEN_KEYWORD_VARCHAR)                                                   \
     X(TOKEN_KEYWORD_CHAR)                                                      \
     X(TOKEN_KEYWORD_DECIMAL)                                                   \
+    X(TOKEN_KEYWORD_NOT)                                                       \
+    X(TOKEN_KEYWORD_PRIMARY)                                                   \
+    X(TOKEN_KEYWORD_DEFAULT)                                                   \
+    X(TOKEN_KEYWORD_REFERENCES)                                                \
+    X(TOKEN_KEYWORD_KEY)                                                       \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -115,4 +120,9 @@ static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
                              {"TEXT", TOKEN_KEYWORD_TEXT},
                              {"VARCHAR", TOKEN_KEYWORD_VARCHAR},
                              {"CHAR", TOKEN_KEYWORD_CHAR},
-                             {"DECIMAL", TOKEN_KEYWORD_DECIMAL}};
+                             {"DECIMAL", TOKEN_KEYWORD_DECIMAL},
+                             {"NOT", TOKEN_KEYWORD_NOT},
+                             {"PRIMARY", TOKEN_KEYWORD_PRIMARY},
+                             {"DEFAULT", TOKEN_KEYWORD_DEFAULT},
+                             {"REFERENCES", TOKEN_KEYWORD_REFERENCES},
+                             {"KEY", TOKEN_KEYWORD_KEY}};

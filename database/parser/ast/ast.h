@@ -43,6 +43,7 @@ struct ASTNode {
         AST_TABLE_CONSTRAINT_TYPE,
         AST_DATA_TYPE,
         AST_COLUMN_CONTRAINT,
+        AST_COLUMN_CONTRAINT_LIST,
         AST_EXIT
     } NodeType;
 

@@ -3,4 +3,4 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ASTNode *parseTableConstraint(tokenListCTX *tokenListCTX);
+ASTNode *parseTableConstraint(tokenListCTX *tokenListCTX) { return NULL; };

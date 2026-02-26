@@ -46,6 +46,8 @@ ASTNode *parseTableElement(tokenListCTX *tokenListCTX);
 ASTNode *parseTableConstraint(tokenListCTX *tokenListCTX);
 ASTNode *parseColumnDefinition(tokenListCTX *tokenListCTX);
 ASTNode *parseDataType(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnConstraintList(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnConstraint(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

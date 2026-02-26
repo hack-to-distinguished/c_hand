@@ -23,7 +23,19 @@ ASTNode *parseColumnDefinition(tokenListCTX *tokenListCTX) {
     columnDefinition->Data.ColumnDefinition.dataType =
         parseDataType(tokenListCTX);
 
-    // INFO: Do 0 or 1 of 'column_constraint_list'
+    Token nextToken = peekToken(tokenListCTX);
+
+    if ((columnDefinition->Data.ColumnDefinition.columnConstraintList ==
+         NULL) &&
+        (nextToken.type == TOKEN_KEYWORD_NOT ||
+         nextToken.type == TOKEN_KEYWORD_NULL ||
+         nextToken.type == TOKEN_KEYWORD_PRIMARY ||
+         nextToken.type == TOKEN_KEYWORD_UNIQUE ||
+         nextToken.type == TOKEN_KEYWORD_DEFAULT ||
+         nextToken.type == TOKEN_KEYWORD_REFERENCES)) {
+        columnDefinition->Data.ColumnDefinition.columnConstraintList =
+            parseColumnConstraintList(tokenListCTX);
+    }
 
     return columnDefinition;
 };
