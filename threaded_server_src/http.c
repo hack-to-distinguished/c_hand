@@ -539,9 +539,8 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 "Access-Control-Allow-Origin: *\r\n"
                 "Content-Length: %d\r\n"
                 "Connection: close\r\n"
-                "<body>\r\n"
-                "%s\r\n"
-                "</body>\r\n",
+                "\r\n"
+                "%s",
                 msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(msg_res.messages_by_user);
