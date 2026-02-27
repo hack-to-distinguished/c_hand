@@ -9,15 +9,13 @@ interface MessageBoxProps {
 
 interface SavedMessages {
   message?: string;
-  sendTime?: string;
-  senderId?: string;
+  send_time?: string;
+  sender_id?: string;
 }
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [messagesObject, setMessagesObject] = useState<[SavedMessages]>([{
-    message: "default", sendTime: "default", senderId: "default"
-  }]);
+  const [messagesObject, setMessagesObject] = useState<[SavedMessages]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   const initialGetMessagesReq = async () => {
@@ -31,13 +29,8 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
 
         const messageCount = Object.keys(messages).length;
         console.log(`There are ${messageCount} messages`);
-        for (let i = 0; i < messageCount; i++){
-          setMessagesObject(messagesObject => ({
-            ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
-            message: messages[i].message, sendTime: messages[i].send_time, senderId: messages[i].sender_id
-          }));
-
-        }
+        const mapped = messages.map((messages: SavedMessages) => messages);
+        setMessagesObject(mapped);
 
         setMessages(userMessages)
         setCompletedInitialRequest(true);
@@ -81,18 +74,19 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
     <div className="messages-display">
       <div className="message-header">HTTP_C Chat</div>
       <ul className="messages-list">
-        {messages.length === 0 ? (
-          <li className="empty-message">No messages yet.</li>
-        ) : (
-          messages.map((msg, i) => (
+        {Object.keys(messagesObject).length === 0 ? (
+          <li className="empty-message">No messages yet</li>
+          ) : (
+            messagesObject.map((message, i) => (
             <li key={i}>
-              <span style={{ color: "#003366", fontWeight: "bold" }}>
-                {new Date().toLocaleTimeString()} - Message {i + 1}:
+              <span style= {{ color: "#003366", fontWeight: "bold" }}>
+                {message.send_time} - From { message.sender_id }: 
               </span>{" "}
-              {msg}
+                {message.message}
             </li>
-          ))
-        )}
+            ))
+          )
+        }
       </ul>
     </div>
   );
