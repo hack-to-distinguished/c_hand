@@ -15,7 +15,7 @@ interface SavedMessages {
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [messagesObject, setMessagesObject] = useState<[SavedMessages]>([]);
+  const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
   const initialGetMessagesReq = async () => {
@@ -58,7 +58,19 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       const receivedMessage = event.data;
       console.log("Event", socket.current);
       console.log("Message from server:", receivedMessage);
-      setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+      const now = new Date();
+      const send_time = `${now.toLocaleString("en-US", {
+        month: "short",
+        day: "2-digit"
+      })} ${now
+        .toTimeString()
+        .split(" ")[0]
+        .replace(/:/g, "-")} ${now.getFullYear()}`;
+
+      setMessagesObject(messagesObject => [
+        ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
+        {message: receivedMessage, send_time: send_time, sender_id: "you"}
+      ]);
     };
 
     socket.current.onmessage = handleMessage;
