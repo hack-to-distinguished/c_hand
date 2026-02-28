@@ -218,6 +218,8 @@ struct ASTNode {
 
         struct {
             ASTNode *condition;
+            ASTNode *columnListL;
+            ASTNode *columnListR;
         } TableConstraintType;
 
         struct {

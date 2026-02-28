@@ -43,6 +43,16 @@ ASTNode *parseColumnConstraint(tokenListCTX *tokenListCTX) {
     } else if (nextToken.type == TOKEN_KEYWORD_REFERENCES) {
         consumeToken(tokenListCTX->indexPosition->type,
                      TOKEN_KEYWORD_REFERENCES, tokenListCTX);
+        consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
+                     tokenListCTX);
+        if (peekToken(tokenListCTX).type == TOKEN_LPAREN) {
+            consumeToken(tokenListCTX->indexPosition->type, TOKEN_LPAREN,
+                         tokenListCTX);
+            consumeToken(tokenListCTX->indexPosition->type, TOKEN_IDENTIFIER,
+                         tokenListCTX);
+            consumeToken(tokenListCTX->indexPosition->type, TOKEN_RPAREN,
+                         tokenListCTX);
+        }
     } else {
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
