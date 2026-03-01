@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 
 #define TOKEN_LIST                                                             \
@@ -74,6 +75,7 @@ typedef struct Token {
     const char *lexeme;
     size_t line;
     struct Token *self;
+    bool allocatedMem;
 } Token;
 
 typedef struct {

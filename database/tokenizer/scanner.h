@@ -6,7 +6,7 @@ void scanTokens(char *buffer);
 char *scanToken(char *currentPosOfLexeme, tokenListCTX *ctx, char *bufferStart,
                 size_t lineNumber);
 void addToken(tokenListCTX *ctx, TokenType tokenType, char *lexeme,
-              size_t lineNumber);
+              size_t lineNumber, bool allocatedMem);
 bool isAtEnd(char *posInBuffer);
 bool matchChar(char *currentPosOfLexeme, char expectedChar);
 char *stringLiteral(char *currentPosOfLexeme);

@@ -62,40 +62,14 @@ void printAllTokens(tokenListCTX *ctx) {
     }
     return;
 };
-
 void destroyTokenList(tokenListCTX *ctx) {
-    printf("\n");
     for (size_t i = 0; i < ctx->currentSize; i++) {
-        if (ctx->tokenList[i].type == TOKEN_KEYWORD_SELECT ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_FROM ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_AS ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_WHERE ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_INSERT ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_INTO ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_VALUES ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_UPDATE ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_EXIT ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_NULL ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_ORDER ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_BY ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_ASC ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_DESC ||
-            ctx->tokenList[i].type == TOKEN_IDENTIFIER ||
-            ctx->tokenList[i].type == TOKEN_STRING_LITERAL ||
-            ctx->tokenList[i].type == TOKEN_INTEGER_LITERAL ||
-            ctx->tokenList[i].type == TOKEN_FLOAT_LITERAL ||
-            ctx->tokenList[i].type == TOKEN_OPERATOR_LIKE ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_SET ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_EXIT ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_AND ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_OR ||
-            ctx->tokenList[i].type == TOKEN_KEYWORD_DELETE) {
+        if (ctx->tokenList[i].allocatedMem) {
             free((void *)ctx->tokenList[i].lexeme);
         }
         free(ctx->tokenList[i].self);
     }
     free(ctx->tokenList);
     free(ctx);
-    printf("\n");
     return;
-};
+}
