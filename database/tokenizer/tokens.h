@@ -44,6 +44,12 @@
     X(TOKEN_KEYWORD_CHECK)                                                     \
     X(TOKEN_KEYWORD_ON)                                                        \
     X(TOKEN_KEYWORD_ALTER)                                                     \
+    X(TOKEN_KEYWORD_ADD)                                                       \
+    X(TOKEN_KEYWORD_COLUMN)                                                    \
+    X(TOKEN_KEYWORD_DROP)                                                      \
+    X(TOKEN_KEYWORD_MODIFY)                                                    \
+    X(TOKEN_KEYWORD_RENAME)                                                    \
+    X(TOKEN_KEYWORD_TO)                                                        \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -135,4 +141,10 @@ static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
                              {"FOREIGN", TOKEN_KEYWORD_FOREIGN},
                              {"CHECK", TOKEN_KEYWORD_CHECK},
                              {"ON", TOKEN_KEYWORD_ON},
-                             {"ALTER", TOKEN_KEYWORD_ALTER}};
+                             {"ALTER", TOKEN_KEYWORD_ALTER},
+                             {"ADD", TOKEN_KEYWORD_ADD},
+                             {"COLUMN", TOKEN_KEYWORD_COLUMN},
+                             {"DROP", TOKEN_KEYWORD_DROP},
+                             {"MODIFY", TOKEN_KEYWORD_MODIFY},
+                             {"RENAME", TOKEN_KEYWORD_RENAME},
+                             {"TO", TOKEN_KEYWORD_TO}};

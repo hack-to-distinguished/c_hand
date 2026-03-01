@@ -50,6 +50,9 @@ ASTNode *parseDataType(tokenListCTX *tokenListCTX);
 ASTNode *parseColumnConstraintList(tokenListCTX *tokenListCTX);
 ASTNode *parseColumnConstraint(tokenListCTX *tokenListCTX);
 ASTNode *parseAlterStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterAction(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterAddBody(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterDropBody(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

@@ -78,6 +78,9 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_create_index_statement.c \
 	database/parser/parsing_functions/parse_table_constraint_type.c \
 	database/parser/parsing_functions/parse_alter_statement.c \
+	database/parser/parsing_functions/parse_alter_action.c \
+	database/parser/parsing_functions/parse_alter_add_body.c \
+	database/parser/parsing_functions/parse_alter_drop_body.c \
 	database/parser/parsing_functions/parse_boolean_factor.c 
 SDBMS_BIN = sdbms
 

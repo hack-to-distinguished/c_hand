@@ -45,6 +45,10 @@ struct ASTNode {
         AST_COLUMN_CONTRAINT,
         AST_COLUMN_CONTRAINT_LIST,
         AST_CREATE_INDEX,
+        AST_ALTER,
+        AST_ALTER_ACTION,
+        AST_ALTER_ADD_BODY,
+        AST_ALTER_DROP_BODY,
         AST_EXIT
     } NodeType;
 
@@ -238,6 +242,25 @@ struct ASTNode {
         struct {
             ASTNode *simpleExpression;
         } ColumnConstraint;
+
+        struct {
+            ASTNode *alterAction;
+        } AlterStatement;
+
+        struct {
+            ASTNode *alterAddBody;
+            ASTNode *alterDropBody;
+            ASTNode *columnDefinition;
+        } AlterAction;
+
+        struct {
+            ASTNode *columnDefinition;
+            ASTNode *tableConstraint;
+        } AlterAddBody;
+
+        struct {
+            // INFO: nothing needed here
+        } AlterDropBody;
 
     } Data;
     ASTNode *next;
