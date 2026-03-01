@@ -55,8 +55,9 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
 }
 
 void destroyASTNode(ASTNode *node) {
-    if (!node)
+    if (!node) {
         return;
+    }
 
     switch (node->NodeType) {
     case AST_CREATE: {
@@ -86,7 +87,7 @@ void destroyASTNode(ASTNode *node) {
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(next->Data.TableElementList.tableElement);
+            destroyASTNode(current->Data.TableElementList.tableElement);
             free(current);
             current = next;
         }
@@ -140,7 +141,7 @@ void destroyASTNode(ASTNode *node) {
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(next->Data.ColumnConstraintList.columnConstraint);
+            destroyASTNode(current->Data.ColumnConstraintList.columnConstraint);
             free(current);
             current = next;
         }
