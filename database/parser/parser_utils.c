@@ -60,6 +60,35 @@ void destroyASTNode(ASTNode *node) {
     }
 
     switch (node->NodeType) {
+    case AST_ALTER: {
+        destroyASTNode(node->Data.AlterStatement.alterAction);
+        free(node);
+        break;
+    }
+    case AST_ALTER_ACTION: {
+        if (node->Data.AlterAction.alterAddBody) {
+            destroyASTNode(node->Data.AlterAction.alterAddBody);
+        } else if (node->Data.AlterAction.alterDropBody) {
+            destroyASTNode(node->Data.AlterAction.alterDropBody);
+        } else if (node->Data.AlterAction.columnDefinition) {
+            destroyASTNode(node->Data.AlterAction.columnDefinition);
+        }
+        free(node);
+        break;
+    }
+    case AST_ALTER_ADD_BODY: {
+        if (node->Data.AlterAddBody.columnDefinition) {
+            destroyASTNode(node->Data.AlterAddBody.columnDefinition);
+        } else if (node->Data.AlterAddBody.tableConstraint) {
+            destroyASTNode(node->Data.AlterAddBody.tableConstraint);
+        }
+        free(node);
+        break;
+    }
+    case AST_ALTER_DROP_BODY: {
+        free(node);
+        break;
+    }
     case AST_CREATE: {
         destroyASTNode(node->Data.CreateStatement.createBody);
         free(node);
