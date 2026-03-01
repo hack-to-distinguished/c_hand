@@ -69,10 +69,13 @@ void destroyASTNode(ASTNode *node) {
         if (node->Data.CreateBody.createTableStatement) {
             destroyASTNode(node->Data.CreateBody.createTableStatement);
         } else if (node->Data.CreateBody.createIndexStatement) {
-            // INFO: finish parsing funcs + destruction of create index
-            // production rule
             destroyASTNode(node->Data.CreateBody.createIndexStatement);
         }
+        free(node);
+        break;
+    }
+    case AST_CREATE_INDEX: {
+        destroyASTNode(node->Data.CreateIndexStatement.columnList);
         free(node);
         break;
     }

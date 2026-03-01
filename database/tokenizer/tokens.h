@@ -42,6 +42,7 @@
     X(TOKEN_KEYWORD_KEY)                                                       \
     X(TOKEN_KEYWORD_FOREIGN)                                                   \
     X(TOKEN_KEYWORD_CHECK)                                                     \
+    X(TOKEN_KEYWORD_ON)                                                        \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -131,4 +132,5 @@ static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
                              {"REFERENCES", TOKEN_KEYWORD_REFERENCES},
                              {"KEY", TOKEN_KEYWORD_KEY},
                              {"FOREIGN", TOKEN_KEYWORD_FOREIGN},
-                             {"CHECK", TOKEN_KEYWORD_CHECK}};
+                             {"CHECK", TOKEN_KEYWORD_CHECK},
+                             {"ON", TOKEN_KEYWORD_ON}};

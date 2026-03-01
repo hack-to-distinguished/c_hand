@@ -44,6 +44,7 @@ struct ASTNode {
         AST_DATA_TYPE,
         AST_COLUMN_CONTRAINT,
         AST_COLUMN_CONTRAINT_LIST,
+        AST_CREATE_INDEX,
         AST_EXIT
     } NodeType;
 
@@ -193,6 +194,10 @@ struct ASTNode {
             ASTNode *createTableStatement;
             ASTNode *createIndexStatement;
         } CreateBody;
+
+        struct {
+            ASTNode *columnList;
+        } CreateIndexStatement;
 
         struct {
             ASTNode *tableElementList;
