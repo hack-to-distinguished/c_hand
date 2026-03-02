@@ -55,10 +55,156 @@ void consumeToken(size_t tokenType, size_t tokenTypeToBeChecked,
 }
 
 void destroyASTNode(ASTNode *node) {
-    if (!node)
+    if (!node) {
         return;
+    }
 
     switch (node->NodeType) {
+    case AST_RENAME: {
+        free(node);
+        break;
+    }
+    case AST_TRUNCATE: {
+        free(node);
+        break;
+    }
+    case AST_DROP: {
+        destroyASTNode(node->Data.DropStatement.dropBody);
+        free(node);
+        break;
+    }
+    case AST_DROP_BODY: {
+        free(node);
+        break;
+    }
+    case AST_ALTER: {
+        destroyASTNode(node->Data.AlterStatement.alterAction);
+        free(node);
+        break;
+    }
+    case AST_ALTER_ACTION: {
+        if (node->Data.AlterAction.alterAddBody) {
+            destroyASTNode(node->Data.AlterAction.alterAddBody);
+        } else if (node->Data.AlterAction.alterDropBody) {
+            destroyASTNode(node->Data.AlterAction.alterDropBody);
+        } else if (node->Data.AlterAction.columnDefinition) {
+            destroyASTNode(node->Data.AlterAction.columnDefinition);
+        }
+        free(node);
+        break;
+    }
+    case AST_ALTER_ADD_BODY: {
+        if (node->Data.AlterAddBody.columnDefinition) {
+            destroyASTNode(node->Data.AlterAddBody.columnDefinition);
+        } else if (node->Data.AlterAddBody.tableConstraint) {
+            destroyASTNode(node->Data.AlterAddBody.tableConstraint);
+        }
+        free(node);
+        break;
+    }
+    case AST_ALTER_DROP_BODY: {
+        free(node);
+        break;
+    }
+    case AST_CREATE: {
+        destroyASTNode(node->Data.CreateStatement.createBody);
+        free(node);
+        break;
+    }
+    case AST_CREATE_BODY: {
+        if (node->Data.CreateBody.createTableStatement) {
+            destroyASTNode(node->Data.CreateBody.createTableStatement);
+        } else if (node->Data.CreateBody.createIndexStatement) {
+            destroyASTNode(node->Data.CreateBody.createIndexStatement);
+        }
+        free(node);
+        break;
+    }
+    case AST_CREATE_INDEX: {
+        destroyASTNode(node->Data.CreateIndexStatement.columnList);
+        free(node);
+        break;
+    }
+    case AST_CREATE_TABLE: {
+        destroyASTNode(node->Data.CreateTableStatement.tableElementList);
+        free(node);
+        break;
+    }
+    case AST_TABLE_ELEMENT_LIST: {
+        destroyASTNode(node->Data.TableElementList.tableElement);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.TableElementList.tableElement);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_TABLE_ELEMENT: {
+        if (node->Data.TableElement.columnDefinition) {
+            destroyASTNode(node->Data.TableElement.columnDefinition);
+        } else if (node->Data.TableElement.tableConstraint) {
+            destroyASTNode(node->Data.TableElement.tableConstraint);
+        }
+        free(node);
+        break;
+    }
+    case AST_TABLE_CONSTRAINT: {
+        destroyASTNode(node->Data.TableConstraint.tableConstraintType);
+        free(node);
+        break;
+    }
+    case AST_TABLE_CONSTRAINT_TYPE: {
+        if (node->Data.TableConstraintType.columnListL &&
+            node->Data.TableConstraintType.columnListR) {
+            destroyASTNode(node->Data.TableConstraintType.columnListL);
+            destroyASTNode(node->Data.TableConstraintType.columnListR);
+        } else if (node->Data.TableConstraintType.columnListL &&
+                   !node->Data.TableConstraintType.columnListR) {
+            destroyASTNode(node->Data.TableConstraintType.columnListL);
+        } else if (node->Data.TableConstraintType.condition) {
+            destroyASTNode(node->Data.TableConstraintType.condition);
+        }
+        free(node);
+        break;
+    }
+    case AST_COLUMN_DEFINITION: {
+        destroyASTNode(node->Data.ColumnDefinition.dataType);
+        if (node->Data.ColumnDefinition.columnConstraintList) {
+            destroyASTNode(node->Data.ColumnDefinition.columnConstraintList);
+        }
+        free(node);
+        break;
+    }
+    case AST_DATA_TYPE: {
+        free(node);
+        break;
+    }
+    case AST_COLUMN_CONTRAINT_LIST: {
+        destroyASTNode(node->Data.ColumnConstraintList.columnConstraint);
+
+        ASTNode *current = node->next;
+        while (current) {
+            ASTNode *next = current->next;
+            destroyASTNode(current->Data.ColumnConstraintList.columnConstraint);
+            free(current);
+            current = next;
+        }
+
+        free(node);
+        break;
+    }
+    case AST_COLUMN_CONTRAINT: {
+        if (node->Data.ColumnConstraint.simpleExpression) {
+            destroyASTNode(node->Data.ColumnConstraint.simpleExpression);
+        }
+        free(node);
+        break;
+    }
     case AST_UPDATE: {
         destroyASTNode(node->Data.UpdateStatement.setList);
         if (node->Data.UpdateStatement.whereClause) {
@@ -98,12 +244,10 @@ void destroyASTNode(ASTNode *node) {
         break;
     }
     case AST_COLUMN_LIST: {
-        destroyASTNode(node->Data.ColumnList.qualifiedIdentifier);
 
         ASTNode *current = node->next;
         while (current) {
             ASTNode *next = current->next;
-            destroyASTNode(current->Data.ColumnList.qualifiedIdentifier);
             free(current);
             current = next;
         }

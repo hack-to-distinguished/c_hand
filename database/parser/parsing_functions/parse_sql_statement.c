@@ -22,10 +22,26 @@ ASTNode *parseSQLStatment(tokenListCTX *tokenListCTX) {
     case TOKEN_KEYWORD_EXIT:
         return parseExitStatement(tokenListCTX);
         break;
+    case TOKEN_KEYWORD_CREATE:
+        return parseCreateStatement(tokenListCTX);
+        break;
+    case TOKEN_KEYWORD_ALTER:
+        return parseAlterStatement(tokenListCTX);
+        break;
+    case TOKEN_KEYWORD_DROP:
+        return parseDropStatement(tokenListCTX);
+        break;
+    case TOKEN_KEYWORD_TRUNCATE:
+        return parseTruncateStatement(tokenListCTX);
+        break;
+    case TOKEN_KEYWORD_RENAME:
+        return parseRenameStatement(tokenListCTX);
+        break;
     default: {
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
-                 "\nERROR:\n  Expected SELECT, INSERT, UPDATE, DELETE, or "
+                 "\nERROR:\n  Expected SELECT, INSERT, UPDATE, DELETE, RENAME, "
+                 "CREATE, TRUNCATE, DROP or "
                  "EXIT\n  On line %ld",
                  tokenListCTX->indexPosition->line);
         syntaxError(error_msg);

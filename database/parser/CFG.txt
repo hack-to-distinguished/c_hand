@@ -3,6 +3,11 @@ sql_statement ::= select_statement
                 | update_statement
                 | delete_statement
                 | exit_statement
+                | create_statement
+                | alter_statement
+                | drop_statement
+                | truncate_statement
+                | rename_statement
                 ;
 
 exit_statement ::= TOKEN_KEYWORD_EXIT TOKEN_SEMICOLON ;
@@ -41,7 +46,7 @@ and_condition ::= boolean_factor
                   { TOKEN_KEYWORD_AND boolean_factor } ;
 
 boolean_factor ::= TOKEN_LPAREN condition TOKEN_RPAREN
-                 | comparison ; (CONTROLLED LOOK AHEAD REQUIRED HERE)
+                 | comparison ;
 
 comparison ::= simple_expr comparison_operator simple_expr ;
 
@@ -113,7 +118,7 @@ insert_statement ::= TOKEN_KEYWORD_INSERT TOKEN_KEYWORD_INTO TOKEN_IDENTIFIER
                      TOKEN_SEMICOLON
                      ;
 
-column_list ::= qualified_identifier { TOKEN_COMMA qualified_identifier } ;
+column_list ::= TOKEN_IDENTIFIER { TOKEN_COMMA TOKEN_IDENTIFIER } ;
 
 value_list ::= simple_expr { TOKEN_COMMA simple_expr } ;
 
@@ -136,5 +141,121 @@ set_list ::= qualified_identifier TOKEN_OPERATOR_EQ simple_expr
 
 delete_statement ::= TOKEN_KEYWORD_DELETE TOKEN_KEYWORD_FROM TOKEN_IDENTIFIER
                      [where_clause]
+                     TOKEN_SEMICOLON
+                     ;
+
+-- ============================================================================
+-- CREATE STATEMENT
+-- ============================================================================
+
+create_statement ::= TOKEN_KEYWORD_CREATE create_body ;
+
+create_body ::= create_table_statement
+              | create_index_statement
+              ;
+
+create_table_statement ::= TOKEN_KEYWORD_TABLE TOKEN_IDENTIFIER
+                           TOKEN_LPAREN table_element_list TOKEN_RPAREN
+                           TOKEN_SEMICOLON
+                           ;
+
+table_element_list ::= table_element { TOKEN_COMMA table_element } ;
+
+table_element ::= column_definition
+                | table_constraint
+                ;
+
+column_definition ::= TOKEN_IDENTIFIER data_type [ column_constraint_list ] ;
+
+column_constraint_list ::= column_constraint { column_constraint } ;
+
+column_constraint ::= TOKEN_KEYWORD_NOT TOKEN_KEYWORD_NULL
+                    | TOKEN_KEYWORD_NULL
+                    | TOKEN_KEYWORD_PRIMARY TOKEN_KEYWORD_KEY
+                    | TOKEN_KEYWORD_UNIQUE
+                    | TOKEN_KEYWORD_DEFAULT simple_expr
+                    | TOKEN_KEYWORD_REFERENCES TOKEN_IDENTIFIER
+                      [ TOKEN_LPAREN TOKEN_IDENTIFIER TOKEN_RPAREN ]
+                    ;
+
+table_constraint ::= [ TOKEN_KEYWORD_CONSTRAINT TOKEN_IDENTIFIER ] table_constraint_type ;
+
+table_constraint_type ::= TOKEN_KEYWORD_PRIMARY TOKEN_KEYWORD_KEY
+                          TOKEN_LPAREN column_list TOKEN_RPAREN
+                        | TOKEN_KEYWORD_UNIQUE
+                          TOKEN_LPAREN column_list TOKEN_RPAREN
+                        | TOKEN_KEYWORD_FOREIGN TOKEN_KEYWORD_KEY
+                          TOKEN_LPAREN column_list TOKEN_RPAREN
+                          TOKEN_KEYWORD_REFERENCES TOKEN_IDENTIFIER
+                          TOKEN_LPAREN column_list TOKEN_RPAREN
+                        | TOKEN_KEYWORD_CHECK TOKEN_LPAREN condition TOKEN_RPAREN
+                        ;
+
+data_type ::= TOKEN_KEYWORD_INT
+            | TOKEN_KEYWORD_INTEGER
+            | TOKEN_KEYWORD_FLOAT
+            | TOKEN_KEYWORD_DOUBLE
+            | TOKEN_KEYWORD_BOOLEAN
+            | TOKEN_KEYWORD_DATE
+            | TOKEN_KEYWORD_TEXT
+            | TOKEN_KEYWORD_VARCHAR TOKEN_LPAREN TOKEN_INTEGER_LITERAL TOKEN_RPAREN
+            | TOKEN_KEYWORD_CHAR    TOKEN_LPAREN TOKEN_INTEGER_LITERAL TOKEN_RPAREN
+            | TOKEN_KEYWORD_DECIMAL TOKEN_LPAREN TOKEN_INTEGER_LITERAL TOKEN_COMMA TOKEN_INTEGER_LITERAL TOKEN_RPAREN
+            ;
+
+create_index_statement ::= [ TOKEN_KEYWORD_UNIQUE ] TOKEN_KEYWORD_INDEX TOKEN_IDENTIFIER
+                           TOKEN_KEYWORD_ON TOKEN_IDENTIFIER
+                           TOKEN_LPAREN column_list TOKEN_RPAREN
+                           TOKEN_SEMICOLON
+                           ;
+
+-- ============================================================================
+-- ALTER STATEMENT
+-- ============================================================================
+
+alter_statement ::= TOKEN_KEYWORD_ALTER TOKEN_KEYWORD_TABLE TOKEN_IDENTIFIER
+                    alter_action
+                    TOKEN_SEMICOLON
+                    ;
+
+alter_action ::= TOKEN_KEYWORD_ADD    alter_add_body
+               | TOKEN_KEYWORD_DROP   alter_drop_body
+               | TOKEN_KEYWORD_MODIFY column_definition
+               | TOKEN_KEYWORD_RENAME TOKEN_KEYWORD_COLUMN TOKEN_IDENTIFIER
+                 TOKEN_KEYWORD_TO TOKEN_IDENTIFIER
+               ;
+
+alter_add_body ::= TOKEN_KEYWORD_COLUMN column_definition
+                 | table_constraint
+                 ;
+
+alter_drop_body ::= TOKEN_KEYWORD_COLUMN TOKEN_IDENTIFIER
+                  | TOKEN_KEYWORD_CONSTRAINT TOKEN_IDENTIFIER
+                  ;
+
+-- ============================================================================
+-- DROP STATEMENT
+-- ============================================================================
+
+drop_statement ::= TOKEN_KEYWORD_DROP drop_body TOKEN_SEMICOLON ;
+
+drop_body ::= TOKEN_KEYWORD_TABLE [ TOKEN_KEYWORD_IF TOKEN_KEYWORD_EXISTS ] TOKEN_IDENTIFIER
+            | TOKEN_KEYWORD_INDEX [ TOKEN_KEYWORD_IF TOKEN_KEYWORD_EXISTS ] TOKEN_IDENTIFIER
+            ;
+
+-- ============================================================================
+-- TRUNCATE STATEMENT
+-- ============================================================================
+
+truncate_statement ::= TOKEN_KEYWORD_TRUNCATE TOKEN_KEYWORD_TABLE TOKEN_IDENTIFIER
+                       TOKEN_SEMICOLON
+                       ;
+
+-- ============================================================================
+-- RENAME STATEMENT
+-- ============================================================================
+
+rename_statement ::= TOKEN_KEYWORD_RENAME TOKEN_KEYWORD_TABLE
+                     TOKEN_IDENTIFIER TOKEN_KEYWORD_TO TOKEN_IDENTIFIER
                      TOKEN_SEMICOLON
                      ;

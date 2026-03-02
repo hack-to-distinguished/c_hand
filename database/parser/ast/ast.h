@@ -33,6 +33,26 @@ struct ASTNode {
         AST_UPDATE,
         AST_SET_LIST,
         AST_DELETE,
+        AST_CREATE,
+        AST_CREATE_BODY,
+        AST_CREATE_TABLE,
+        AST_TABLE_ELEMENT_LIST,
+        AST_TABLE_ELEMENT,
+        AST_COLUMN_DEFINITION,
+        AST_TABLE_CONSTRAINT,
+        AST_TABLE_CONSTRAINT_TYPE,
+        AST_DATA_TYPE,
+        AST_COLUMN_CONTRAINT,
+        AST_COLUMN_CONTRAINT_LIST,
+        AST_CREATE_INDEX,
+        AST_ALTER,
+        AST_ALTER_ACTION,
+        AST_ALTER_ADD_BODY,
+        AST_ALTER_DROP_BODY,
+        AST_DROP,
+        AST_DROP_BODY,
+        AST_TRUNCATE,
+        AST_RENAME,
         AST_EXIT
     } NodeType;
 
@@ -160,7 +180,6 @@ struct ASTNode {
         } InsertStatement;
 
         struct {
-            ASTNode *qualifiedIdentifier;
         } ColumnList;
 
         struct {
@@ -174,6 +193,94 @@ struct ASTNode {
         struct {
             // INFO: Nothing required here
         } AliasedTable;
+
+        struct {
+            ASTNode *createBody;
+        } CreateStatement;
+
+        struct {
+            ASTNode *createTableStatement;
+            ASTNode *createIndexStatement;
+        } CreateBody;
+
+        struct {
+            ASTNode *columnList;
+        } CreateIndexStatement;
+
+        struct {
+            ASTNode *tableElementList;
+        } CreateTableStatement;
+
+        struct {
+            ASTNode *tableElement;
+        } TableElementList;
+
+        struct {
+            ASTNode *columnDefinition;
+            ASTNode *tableConstraint;
+        } TableElement;
+
+        struct {
+            ASTNode *dataType;
+            ASTNode *columnConstraintList;
+        } ColumnDefinition;
+
+        struct {
+            ASTNode *tableConstraintType;
+        } TableConstraint;
+
+        struct {
+            ASTNode *condition;
+            ASTNode *columnListL;
+            ASTNode *columnListR;
+        } TableConstraintType;
+
+        struct {
+            // INFO: nothing required here
+        } DataType;
+
+        struct {
+            ASTNode *columnConstraint;
+        } ColumnConstraintList;
+
+        struct {
+            ASTNode *simpleExpression;
+        } ColumnConstraint;
+
+        struct {
+            ASTNode *alterAction;
+        } AlterStatement;
+
+        struct {
+            ASTNode *alterAddBody;
+            ASTNode *alterDropBody;
+            ASTNode *columnDefinition;
+        } AlterAction;
+
+        struct {
+            ASTNode *columnDefinition;
+            ASTNode *tableConstraint;
+        } AlterAddBody;
+
+        struct {
+            // INFO: nothing needed here
+        } AlterDropBody;
+
+        struct {
+            ASTNode *dropBody;
+        } DropStatement;
+
+        struct {
+            // INFO: nothing needed here
+        } DropBody;
+
+        struct {
+            // INFO: nothing needed here
+        } TruncateStatement;
+
+        struct {
+            // INFO: nothing needed here
+        } RenameStatement;
 
     } Data;
     ASTNode *next;

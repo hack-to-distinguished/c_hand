@@ -110,7 +110,7 @@ To gain a deeper understanding of how databases work internally and to eventuall
 ## SDBMS Syntax Guide
 
 ### Overview
-This guide describes the supported SQL syntax for database operations including SELECT, INSERT, UPDATE, and DELETE statements.
+This guide describes the supported SQL syntax for database operations including DDL (Data Definition Language) statements for defining schema, and DML (Data Manipulation Language) statements for manipulating data.
 
 ### General Rules
 - All statements must end with a semicolon (`;`)
@@ -118,7 +118,109 @@ This guide describes the supported SQL syntax for database operations including 
 - Keywords are case-insensitive (SELECT, select, Select are equivalent)
 - String literals use single quotes: `'example'`
 
-### Statement Types
+---
+
+### DDL Statement Types
+
+DDL statements define and manage the structure of the database schema.
+
+#### CREATE TABLE Statement
+Define a new table with typed columns and optional constraints.
+
+```sql
+db > CREATE TABLE tablename (
+   >     column1 datatype [constraints],
+   >     column2 datatype [constraints],
+   >     ...
+   > );
+```
+
+**Supported Data Types:**
+- `INT` – Integer values
+- `FLOAT` – Floating-point values
+- `TEXT` – Variable-length string
+- `BOOL` – Boolean (`TRUE` / `FALSE`)
+
+**Supported Constraints:**
+- `NOT NULL` – Column must have a value
+- `UNIQUE` – All values in the column must be distinct
+- `PRIMARY KEY` – Uniquely identifies each row (implies `NOT NULL` and `UNIQUE`)
+- `DEFAULT value` – Fallback value when none is provided
+
+```sql
+db > CREATE TABLE employees (
+   >     id          INT PRIMARY KEY,
+   >     first_name  TEXT NOT NULL,
+   >     last_name   TEXT NOT NULL,
+   >     department  TEXT DEFAULT 'Unassigned',
+   >     salary      FLOAT NOT NULL,
+   >     active      BOOL DEFAULT TRUE
+   > );
+```
+
+#### DROP TABLE Statement
+Remove a table and all its data permanently.
+
+```sql
+db > DROP TABLE tablename;
+```
+
+Use `IF EXISTS` to avoid an error if the table does not exist:
+
+```sql
+db > DROP TABLE IF EXISTS tablename;
+```
+
+#### ALTER TABLE Statement
+Modify the structure of an existing table.
+
+**Add a column:**
+```sql
+db > ALTER TABLE tablename
+   > ADD COLUMN columnname datatype [constraints];
+```
+
+**Drop a column:**
+```sql
+db > ALTER TABLE tablename
+   > DROP COLUMN columnname;
+```
+
+**Rename a column:**
+```sql
+db > ALTER TABLE tablename
+   > RENAME COLUMN old_name TO new_name;
+```
+
+**Rename the table:**
+```sql
+db > ALTER TABLE old_tablename
+   > RENAME TO new_tablename;
+```
+
+```sql
+-- Add a bonus column to employees
+db > ALTER TABLE employees
+   > ADD COLUMN bonus FLOAT DEFAULT 0.0;
+
+-- Remove a column no longer needed
+db > ALTER TABLE employees
+   > DROP COLUMN active;
+
+-- Rename a column for clarity
+db > ALTER TABLE employees
+   > RENAME COLUMN first_name TO fname;
+
+-- Rename the table itself
+db > ALTER TABLE employees
+   > RENAME TO staff;
+```
+
+---
+
+### DML Statement Types
+
+DML statements read and manipulate the data stored within tables.
 
 #### SELECT Statement
 Retrieve data from one or more tables.
@@ -172,6 +274,8 @@ db > DELETE FROM tablename
    > WHERE condition;
 ```
 
+---
+
 ### Expressions and Operators
 
 #### Arithmetic Operators
@@ -218,6 +322,8 @@ Use parentheses to group conditions for complex logic:
 > WHERE (name LIKE 'A%' AND email LIKE '%@gmail.com') OR (name LIKE 'B%' AND email LIKE '%@yahoo.com')
 ```
 
+---
+
 ### Identifiers and Literals
 
 #### Column References
@@ -230,6 +336,7 @@ Underscores are allowed in identifiers for better readability (e.g., `user_id`, 
 - **String**: `'text value'`
 - **Integer**: `42` or `-54`
 - **Float**: `3.14` or `-2.43`
+- **Boolean**: `TRUE` or `FALSE`
 - **NULL**: `NULL` keyword
 
 #### Functions
@@ -237,6 +344,8 @@ Standard function call syntax:
 ```sql
 > functionname(arg1, arg2, ...)
 ```
+
+---
 
 ### Special Commands
 
@@ -246,9 +355,31 @@ Exit the SQL environment:
 db > EXIT;
 ```
 
+---
+
 ### Examples
 
 ```sql
+-- Create a new table
+db > CREATE TABLE employees (
+   >     id          INT PRIMARY KEY,
+   >     first_name  TEXT NOT NULL,
+   >     last_name   TEXT NOT NULL,
+   >     department  TEXT DEFAULT 'Unassigned',
+   >     salary      FLOAT NOT NULL
+   > );
+
+-- Add a column to an existing table
+db > ALTER TABLE employees
+   > ADD COLUMN bonus FLOAT DEFAULT 0.0;
+
+-- Rename a column
+db > ALTER TABLE employees
+   > RENAME COLUMN first_name TO fname;
+
+-- Drop a table safely
+db > DROP TABLE IF EXISTS temp_employees;
+
 -- Select all employees earning over 50000
 db > SELECT * FROM employees WHERE salary > 50000;
 
@@ -271,7 +402,7 @@ db > SELECT * FROM users
    >    OR (name LIKE 'B%' AND email LIKE '%@yahoo.com')
    > ORDER BY id DESC;
 
--- Insert a new employee (underscores allowed in column names)
+-- Insert a new employee
 db > INSERT INTO employees (first_name, last_name, employee_id, salary, department)
    > VALUES ('John', 'Doe', 'EMP001', 55000, 'Engineering');
 

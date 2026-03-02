@@ -37,6 +37,26 @@ ASTNode *parseUpdateStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseSetList(tokenListCTX *tokenListCTX);
 ASTNode *parseAliasedExpression(tokenListCTX *tokenListCTX);
 ASTNode *parseAliasedTable(tokenListCTX *tokenListCTX);
+ASTNode *parseCreateStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseCreateBody(tokenListCTX *tokenListCTX);
+ASTNode *parseCreateTableStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseCreateIndexStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseTableElementList(tokenListCTX *tokenListCTX);
+ASTNode *parseTableElement(tokenListCTX *tokenListCTX);
+ASTNode *parseTableConstraint(tokenListCTX *tokenListCTX);
+ASTNode *parseTableConstraintType(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnDefinition(tokenListCTX *tokenListCTX);
+ASTNode *parseDataType(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnConstraintList(tokenListCTX *tokenListCTX);
+ASTNode *parseColumnConstraint(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterAction(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterAddBody(tokenListCTX *tokenListCTX);
+ASTNode *parseAlterDropBody(tokenListCTX *tokenListCTX);
+ASTNode *parseDropStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseDropBody(tokenListCTX *tokenListCTX);
+ASTNode *parseTruncateStatement(tokenListCTX *tokenListCTX);
+ASTNode *parseRenameStatement(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);

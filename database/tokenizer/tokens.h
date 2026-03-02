@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 
 #define TOKEN_LIST                                                             \
@@ -19,6 +20,39 @@
     X(TOKEN_KEYWORD_ASC)                                                       \
     X(TOKEN_KEYWORD_DESC)                                                      \
     X(TOKEN_KEYWORD_AS)                                                        \
+    X(TOKEN_KEYWORD_CREATE)                                                    \
+    X(TOKEN_KEYWORD_TABLE)                                                     \
+    X(TOKEN_KEYWORD_UNIQUE)                                                    \
+    X(TOKEN_KEYWORD_INDEX)                                                     \
+    X(TOKEN_KEYWORD_CONSTRAINT)                                                \
+    X(TOKEN_KEYWORD_INT)                                                       \
+    X(TOKEN_KEYWORD_INTEGER)                                                   \
+    X(TOKEN_KEYWORD_FLOAT)                                                     \
+    X(TOKEN_KEYWORD_DOUBLE)                                                    \
+    X(TOKEN_KEYWORD_BOOLEAN)                                                   \
+    X(TOKEN_KEYWORD_DATE)                                                      \
+    X(TOKEN_KEYWORD_TEXT)                                                      \
+    X(TOKEN_KEYWORD_VARCHAR)                                                   \
+    X(TOKEN_KEYWORD_CHAR)                                                      \
+    X(TOKEN_KEYWORD_DECIMAL)                                                   \
+    X(TOKEN_KEYWORD_NOT)                                                       \
+    X(TOKEN_KEYWORD_PRIMARY)                                                   \
+    X(TOKEN_KEYWORD_DEFAULT)                                                   \
+    X(TOKEN_KEYWORD_REFERENCES)                                                \
+    X(TOKEN_KEYWORD_KEY)                                                       \
+    X(TOKEN_KEYWORD_FOREIGN)                                                   \
+    X(TOKEN_KEYWORD_CHECK)                                                     \
+    X(TOKEN_KEYWORD_ON)                                                        \
+    X(TOKEN_KEYWORD_ALTER)                                                     \
+    X(TOKEN_KEYWORD_ADD)                                                       \
+    X(TOKEN_KEYWORD_COLUMN)                                                    \
+    X(TOKEN_KEYWORD_DROP)                                                      \
+    X(TOKEN_KEYWORD_MODIFY)                                                    \
+    X(TOKEN_KEYWORD_RENAME)                                                    \
+    X(TOKEN_KEYWORD_TO)                                                        \
+    X(TOKEN_KEYWORD_IF)                                                        \
+    X(TOKEN_KEYWORD_EXISTS)                                                    \
+    X(TOKEN_KEYWORD_TRUNCATE)                                                  \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -52,6 +86,7 @@ typedef struct Token {
     const char *lexeme;
     size_t line;
     struct Token *self;
+    bool allocatedMem;
 } Token;
 
 typedef struct {
@@ -67,14 +102,55 @@ static const char *tokens[] = {
 
 const char *tokenTypeToString(TokenType s);
 
-static Keyword keywords[] = {
-    {"SELECT", TOKEN_KEYWORD_SELECT}, {"INSERT", TOKEN_KEYWORD_INSERT},
-    {"DELETE", TOKEN_KEYWORD_DELETE}, {"FROM", TOKEN_KEYWORD_FROM},
-    {"UPDATE", TOKEN_KEYWORD_UPDATE}, {"WHERE", TOKEN_KEYWORD_WHERE},
-    {"EXIT", TOKEN_KEYWORD_EXIT},     {"NULL", TOKEN_KEYWORD_NULL},
-    {"AND", TOKEN_KEYWORD_AND},       {"OR", TOKEN_KEYWORD_OR},
-    {"ORDER", TOKEN_KEYWORD_ORDER},   {"BY", TOKEN_KEYWORD_BY},
-    {"ASC", TOKEN_KEYWORD_ASC},       {"DESC", TOKEN_KEYWORD_DESC},
-    {"INTO", TOKEN_KEYWORD_INTO},     {"VALUES", TOKEN_KEYWORD_VALUES},
-    {"SET", TOKEN_KEYWORD_SET},       {"LIKE", TOKEN_OPERATOR_LIKE},
-    {"AS", TOKEN_KEYWORD_AS}};
+static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
+                             {"INSERT", TOKEN_KEYWORD_INSERT},
+                             {"DELETE", TOKEN_KEYWORD_DELETE},
+                             {"FROM", TOKEN_KEYWORD_FROM},
+                             {"UPDATE", TOKEN_KEYWORD_UPDATE},
+                             {"WHERE", TOKEN_KEYWORD_WHERE},
+                             {"EXIT", TOKEN_KEYWORD_EXIT},
+                             {"NULL", TOKEN_KEYWORD_NULL},
+                             {"AND", TOKEN_KEYWORD_AND},
+                             {"OR", TOKEN_KEYWORD_OR},
+                             {"ORDER", TOKEN_KEYWORD_ORDER},
+                             {"BY", TOKEN_KEYWORD_BY},
+                             {"ASC", TOKEN_KEYWORD_ASC},
+                             {"DESC", TOKEN_KEYWORD_DESC},
+                             {"INTO", TOKEN_KEYWORD_INTO},
+                             {"VALUES", TOKEN_KEYWORD_VALUES},
+                             {"SET", TOKEN_KEYWORD_SET},
+                             {"LIKE", TOKEN_OPERATOR_LIKE},
+                             {"TABLE", TOKEN_KEYWORD_TABLE},
+                             {"AS", TOKEN_KEYWORD_AS},
+                             {"UNIQUE", TOKEN_KEYWORD_UNIQUE},
+                             {"INDEX", TOKEN_KEYWORD_INDEX},
+                             {"CONSTRAINT", TOKEN_KEYWORD_CONSTRAINT},
+                             {"CREATE", TOKEN_KEYWORD_CREATE},
+                             {"INT", TOKEN_KEYWORD_INT},
+                             {"INTEGER", TOKEN_KEYWORD_INTEGER},
+                             {"FLOAT", TOKEN_KEYWORD_FLOAT},
+                             {"DOUBLE", TOKEN_KEYWORD_DOUBLE},
+                             {"BOOLEAN", TOKEN_KEYWORD_BOOLEAN},
+                             {"DATE", TOKEN_KEYWORD_DATE},
+                             {"TEXT", TOKEN_KEYWORD_TEXT},
+                             {"VARCHAR", TOKEN_KEYWORD_VARCHAR},
+                             {"CHAR", TOKEN_KEYWORD_CHAR},
+                             {"DECIMAL", TOKEN_KEYWORD_DECIMAL},
+                             {"NOT", TOKEN_KEYWORD_NOT},
+                             {"PRIMARY", TOKEN_KEYWORD_PRIMARY},
+                             {"DEFAULT", TOKEN_KEYWORD_DEFAULT},
+                             {"REFERENCES", TOKEN_KEYWORD_REFERENCES},
+                             {"KEY", TOKEN_KEYWORD_KEY},
+                             {"FOREIGN", TOKEN_KEYWORD_FOREIGN},
+                             {"CHECK", TOKEN_KEYWORD_CHECK},
+                             {"ON", TOKEN_KEYWORD_ON},
+                             {"ALTER", TOKEN_KEYWORD_ALTER},
+                             {"ADD", TOKEN_KEYWORD_ADD},
+                             {"COLUMN", TOKEN_KEYWORD_COLUMN},
+                             {"DROP", TOKEN_KEYWORD_DROP},
+                             {"MODIFY", TOKEN_KEYWORD_MODIFY},
+                             {"RENAME", TOKEN_KEYWORD_RENAME},
+                             {"TO", TOKEN_KEYWORD_TO},
+                             {"IF", TOKEN_KEYWORD_IF},
+                             {"EXISTS", TOKEN_KEYWORD_EXISTS},
+                             {"TRUNCATE", TOKEN_KEYWORD_TRUNCATE}};
