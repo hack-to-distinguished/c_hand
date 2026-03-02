@@ -60,6 +60,15 @@ void destroyASTNode(ASTNode *node) {
     }
 
     switch (node->NodeType) {
+    case AST_DROP: {
+        destroyASTNode(node->Data.DropStatement.dropBody);
+        free(node);
+        break;
+    }
+    case AST_DROP_BODY: {
+        free(node);
+        break;
+    }
     case AST_ALTER: {
         destroyASTNode(node->Data.AlterStatement.alterAction);
         free(node);
