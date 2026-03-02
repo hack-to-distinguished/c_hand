@@ -60,6 +60,10 @@ void destroyASTNode(ASTNode *node) {
     }
 
     switch (node->NodeType) {
+    case AST_RENAME: {
+        free(node);
+        break;
+    }
     case AST_TRUNCATE: {
         free(node);
         break;
