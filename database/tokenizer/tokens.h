@@ -50,6 +50,8 @@
     X(TOKEN_KEYWORD_MODIFY)                                                    \
     X(TOKEN_KEYWORD_RENAME)                                                    \
     X(TOKEN_KEYWORD_TO)                                                        \
+    X(TOKEN_KEYWORD_IF)                                                        \
+    X(TOKEN_KEYWORD_EXISTS)                                                    \
     X(TOKEN_IDENTIFIER)                                                        \
     X(TOKEN_STRING_LITERAL)                                                    \
     X(TOKEN_INTEGER_LITERAL)                                                   \
@@ -147,4 +149,6 @@ static Keyword keywords[] = {{"SELECT", TOKEN_KEYWORD_SELECT},
                              {"DROP", TOKEN_KEYWORD_DROP},
                              {"MODIFY", TOKEN_KEYWORD_MODIFY},
                              {"RENAME", TOKEN_KEYWORD_RENAME},
-                             {"TO", TOKEN_KEYWORD_TO}};
+                             {"TO", TOKEN_KEYWORD_TO},
+                             {"IF", TOKEN_KEYWORD_IF},
+                             {"EXISTS", TOKEN_KEYWORD_EXISTS}};

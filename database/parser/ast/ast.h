@@ -49,6 +49,8 @@ struct ASTNode {
         AST_ALTER_ACTION,
         AST_ALTER_ADD_BODY,
         AST_ALTER_DROP_BODY,
+        AST_DROP,
+        AST_DROP_BODY,
         AST_EXIT
     } NodeType;
 
@@ -261,6 +263,14 @@ struct ASTNode {
         struct {
             // INFO: nothing needed here
         } AlterDropBody;
+
+        struct {
+            ASTNode *dropBody;
+        } DropStatement;
+
+        struct {
+            // INFO: nothing needed here
+        } DropBody;
 
     } Data;
     ASTNode *next;

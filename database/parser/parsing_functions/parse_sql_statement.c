@@ -28,6 +28,9 @@ ASTNode *parseSQLStatment(tokenListCTX *tokenListCTX) {
     case TOKEN_KEYWORD_ALTER:
         return parseAlterStatement(tokenListCTX);
         break;
+    case TOKEN_KEYWORD_DROP:
+        return parseDropStatement(tokenListCTX);
+        break;
     default: {
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
