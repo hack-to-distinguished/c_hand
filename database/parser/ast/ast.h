@@ -51,6 +51,7 @@ struct ASTNode {
         AST_ALTER_DROP_BODY,
         AST_DROP,
         AST_DROP_BODY,
+        AST_TRUNCATE,
         AST_EXIT
     } NodeType;
 
@@ -271,6 +272,10 @@ struct ASTNode {
         struct {
             // INFO: nothing needed here
         } DropBody;
+
+        struct {
+            // INFO: nothing needed here
+        } TruncateStatement;
 
     } Data;
     ASTNode *next;

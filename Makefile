@@ -83,6 +83,7 @@ SDBMS_SRCS = \
 	database/parser/parsing_functions/parse_alter_drop_body.c \
 	database/parser/parsing_functions/parse_drop_statement.c \
 	database/parser/parsing_functions/parse_drop_body.c \
+	database/parser/parsing_functions/parse_truncate_statement.c \
 	database/parser/parsing_functions/parse_boolean_factor.c 
 SDBMS_BIN = sdbms
 

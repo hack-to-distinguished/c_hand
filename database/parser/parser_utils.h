@@ -55,6 +55,7 @@ ASTNode *parseAlterAddBody(tokenListCTX *tokenListCTX);
 ASTNode *parseAlterDropBody(tokenListCTX *tokenListCTX);
 ASTNode *parseDropStatement(tokenListCTX *tokenListCTX);
 ASTNode *parseDropBody(tokenListCTX *tokenListCTX);
+ASTNode *parseTruncateStatement(tokenListCTX *tokenListCTX);
 
 // UTIL FUNCS
 bool containsCondition(tokenListCTX *tokenListCTX);
