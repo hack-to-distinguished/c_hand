@@ -15,7 +15,7 @@ sdbms
 msg*
 
 # rust stuff
-./database/hello_rust/target/
+database/hello_rust/target/
 
 # Random
 .DS_Store
