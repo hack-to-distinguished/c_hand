@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAllMessages } from "../services/getMessages.tsx";
 import "./messageFeed.css";
 
@@ -14,9 +14,10 @@ interface SavedMessages {
 }
 
 const MessageFeed = ({ socket }: MessageBoxProps) => {
-  const [messages, setMessages] = useState<string[]>([]);
   const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
+  const listRef = useRef(null);
+
 
   const initialGetMessagesReq = async () => {
     try {
@@ -25,14 +26,11 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       if (messages) {
         console.log("All messages:", messages);
 
-        const userMessages = messages.map((userObj) => userObj.message);
-
         const messageCount = Object.keys(messages).length;
         console.log(`There are ${messageCount} messages`);
         const mapped = messages.map((messages: SavedMessages) => messages);
         setMessagesObject(mapped);
 
-        setMessages(userMessages)
         setCompletedInitialRequest(true);
       } 
 
@@ -47,9 +45,9 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
     initialGetMessagesReq();
   }, [completedInitialRequest]);
 
-  useEffect(() => { // Only used for logging whenever messageObject changes
-    console.log("message object", messagesObject);
-  }, [messagesObject]);
+  useEffect(() => {
+    listRef.current?.lastElementChild?.scrollIntoView();
+  }, [messagesObject])
 
   useEffect(() => {
     if (!socket.current) return;
@@ -84,8 +82,8 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
 
   return (
     <div className="messages-display">
-      <div className="message-header">HTTP_C Chat</div>
-      <ul className="messages-list">
+      <div className="message-header">Corpo Chat</div>
+      <ul className="messages-list" ref={listRef}>
         {Object.keys(messagesObject).length === 0 ? (
           <li className="empty-message">No messages yet</li>
           ) : (
