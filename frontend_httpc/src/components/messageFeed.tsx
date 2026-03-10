@@ -57,13 +57,13 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
       console.log("Event", socket.current);
       console.log("Message from server:", receivedMessage);
       const now = new Date();
-      const send_time = `${now.toLocaleString("en-US", {
-        month: "short",
-        day: "2-digit"
-      })} ${now
-        .toTimeString()
-        .split(" ")[0]
-        .replace(/:/g, "-")} ${now.getFullYear()}`;
+
+      const month = now.toLocaleString('en-UK', { month: 'short' });
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      const time = now.toTimeString().split(' ')[0];
+
+      const send_time = `${month} ${day} ${time} ${year}`;
 
       setMessagesObject(messagesObject => [
         ...messagesObject, // (spread operator) needed to make sure we don't overwrite all the values our object
