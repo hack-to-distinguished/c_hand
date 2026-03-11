@@ -529,11 +529,11 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 
-            int end_idx = ms_point_to_last_entry(fms);
-            msg_buffer msg_res = ms_get_all_messages_desc(fms, &end_idx);
+            msg_buffer msg_res = ms_get_all_messages(fms);
 
-            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+            size_t total_buffer = 200 + msg_res.total_len;
+            char *ptr_packet_buffer = malloc(total_buffer);
+            snprintf(ptr_packet_buffer, total_buffer,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: application/json\r\n"
                 "Access-Control-Allow-Origin: *\r\n"
