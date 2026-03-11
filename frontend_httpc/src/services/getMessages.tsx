@@ -9,7 +9,11 @@ export const getAllMessages = async () => {
     let msgString = "";
     for (let i = 0; i < msgData.length; i++) {
       const c = msgData[i];
-      msgString += c === "'" ? '"' : c;
+      if (msgData[i - 1] === " " || msgData[i - 1] === ":" || msgData[i - 1] === "{" || msgData[i + 1] === "}" || msgData[i + 1] === ":" || msgData[i + 1] === ","){
+        msgString += c === "'" ? '"' : c;
+      } else {
+        msgString += c;
+      }
     }
     console.log("reconstructed string:", msgString);
     return JSON.parse(msgString);
