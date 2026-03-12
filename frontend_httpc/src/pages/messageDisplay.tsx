@@ -2,6 +2,7 @@ import { useWebSocket } from "../services/network.tsx";
 import NetworkStatus from "../components/networkStatus.tsx";
 import MessageBox from "../components/messageBox.tsx";
 import MessageFeed from "../components/messageFeed.tsx";
+import UserSelection from "../components/userSelection.tsx";
 import "./messageDisplay.css";
 
 function MessageDisplay() {
@@ -10,6 +11,7 @@ function MessageDisplay() {
 
   return (
     <>
+      <UserSelection/>
       <NetworkStatus connectionStatus={connectionStatus} />
       <MessageFeed socket={socket} connectionStatus={connectionStatus} />
       <MessageBox socket={socket} connectionStatus={connectionStatus} />
