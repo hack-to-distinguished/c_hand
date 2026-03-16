@@ -1,22 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { sendMessage } from "../services/recv_send.tsx";
 import "./messageBox.css";
 
 interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
+  userName: string;
 }
 
-const MessageBox = ({ socket, connectionStatus }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      await sendMessage({ socket, currentMessage });
+      if (!currentMessage.trim()) return;
+
+      const messageToSend = `sender_id: ${userName}, message: ${currentMessage.trim()}`;
+      await sendMessage({ socket, currentMessage: messageToSend });
       setCurrentMessage("");
-    } catch (e) {
-      console.log(`Error in sendMessage function: ${e}`);
+    } catch (err) {
+      console.log(`Error in sendMessage function: ${err}`);
     }
   };
 

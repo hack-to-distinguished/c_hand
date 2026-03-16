@@ -1,27 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { generateId } from "../services/generateRandom";
+import React from "react";
 import { setInLocalStorage } from "../services/browserStorage";
 import "./userSelection.css";
 
-const UserSelection = () => {
-  const [userName, setUserName] = useState("");
+interface UserSelectionProps {
+  userName: string;
+  setUserName: (name: string) => void;
+}
 
-  useEffect(() => {
-    if (userName) return;
-
-    let username = localStorage.getItem("username");
-    if (!username) {
-      username = generateId(5);
-      setInLocalStorage("username", username);
-    }
-    setUserName(username || "");
-  }, [userName]);
-
+const UserSelection = ({ userName, setUserName }: UserSelectionProps) => {
   const handleChangeName = () => {
     const newName = window.prompt("Enter a new display name:", userName);
     if (newName && newName.trim() !== "") {
-      setUserName(newName.trim());
-      setInLocalStorage("username", newName.trim());
+      const trimmed = newName.trim();
+      setUserName(trimmed);
+      setInLocalStorage("username", trimmed);
     }
   };
 
