@@ -1,0 +1,49 @@
+.user-selection {
+    position: fixed;
+    top: 2vh;
+    left: 1vw;
+    padding: 6px 10px;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    background-color: #d4d0c8;
+    color: #000000;
+    font-family: "Tahoma", "Arial", sans-serif;
+    font-size: 11px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.user-selection-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-selection strong {
+    color: #003366;
+    margin-right: 2px;
+}
+
+/* Clickable name styling */
+.user-name {
+    font-weight: bold;
+    color: #003366;
+    cursor: pointer;
+    text-decoration: underline;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.user-name:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.user-name:focus {
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}
