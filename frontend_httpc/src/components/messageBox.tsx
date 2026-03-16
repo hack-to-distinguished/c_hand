@@ -14,10 +14,18 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
   const handleSendMessage = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      if (!currentMessage.trim()) return;
+      const trimmed = currentMessage.trim();
+      if (!trimmed) return;
 
-      const messageToSend = `sender_id: ${userName}, message: ${currentMessage.trim()}`;
-      await sendMessage({ socket, currentMessage: messageToSend });
+      // Structured message object
+      const messageObj = {
+        sender_id: userName || "unknown",
+        message: trimmed,
+        // include client-side timestamp (ISO) — server can overwrite/augment if needed
+        send_time: new Date().toISOString(),
+      };
+
+      await sendMessage({ socket, message: messageObj });
       setCurrentMessage("");
     } catch (err) {
       console.log(`Error in sendMessage function: ${err}`);
