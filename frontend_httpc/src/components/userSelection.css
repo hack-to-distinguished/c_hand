@@ -47,3 +47,22 @@
 .user-name:focus {
     box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
 }
+
+/* Input for inline editing */
+.user-name-input {
+    font-weight: bold;
+    color: #003366;
+    font-family: "Tahoma", "Arial", sans-serif;
+    font-size: 11px;
+    padding: 2px 6px;
+    border: 1px solid #808080;
+    border-radius: 2px;
+    background: #ffffff;
+    outline: none;
+    min-width: 80px;
+    box-sizing: border-box;
+}
+
+.user-name-input:focus {
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}

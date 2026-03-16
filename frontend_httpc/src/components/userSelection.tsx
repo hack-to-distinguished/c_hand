@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { setInLocalStorage } from "../services/browserStorage";
 import "./userSelection.css";
 
@@ -8,19 +8,51 @@ interface UserSelectionProps {
 }
 
 const UserSelection = ({ userName, setUserName }: UserSelectionProps) => {
-  const handleChangeName = () => {
-    const newName = window.prompt("Enter a new display name:", userName);
-    if (newName && newName.trim() !== "") {
-      const trimmed = newName.trim();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(userName);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setEditValue(userName);
+  }, [userName]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      // place cursor at end
+      const len = inputRef.current?.value.length ?? 0;
+      inputRef.current?.setSelectionRange(len, len);
+    }
+  }, [isEditing]);
+
+  const save = () => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== userName) {
       setUserName(trimmed);
       setInLocalStorage("username", trimmed);
     }
+    setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
+  const cancel = () => {
+    setEditValue(userName);
+    setIsEditing(false);
+  };
+
+  const onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      save();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancel();
+    }
+  };
+
+  const onNameKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      handleChangeName();
+      setIsEditing(true);
     }
   };
 
@@ -28,17 +60,30 @@ const UserSelection = ({ userName, setUserName }: UserSelectionProps) => {
     <div className="user-selection">
       <div className="user-selection-row">
         <strong>User:</strong>
-        <span
-          className="user-name"
-          role="button"
-          tabIndex={0}
-          onClick={handleChangeName}
-          onKeyDown={handleKeyDown}
-          aria-label="Change display name"
-          title="Click or press Enter to change name"
-        >
-          {userName}
-        </span>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            className="user-name-input"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={save}
+            onKeyDown={onInputKeyDown}
+            aria-label="Edit display name"
+            title="Type a new name then press Enter to save or Escape to cancel"
+          />
+        ) : (
+          <span
+            className="user-name"
+            role="button"
+            tabIndex={0}
+            onClick={() => setIsEditing(true)}
+            onKeyDown={onNameKeyDown}
+            aria-label="Change display name"
+            title="Click or press Enter to change name"
+          >
+            {userName}
+          </span>
+        )}
       </div>
     </div>
   );
