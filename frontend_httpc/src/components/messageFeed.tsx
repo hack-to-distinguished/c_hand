@@ -9,9 +9,9 @@ interface MessageBoxProps {
 }
 
 interface SavedMessages {
-  message?: string;
   send_time?: string;
   sender_id?: string;
+  user_message?: string;
   [key: string]: any;
 }
 
@@ -75,7 +75,7 @@ const MessageFeed = ({ socket }: MessageBoxProps) => {
               <span style= {{ color: "#003366", fontWeight: "bold" }}>
                 {message.send_time} - From { message.sender_id }: 
               </span>{" "}
-              {message.message}
+              {message.user_message}
             </li>
           ))
         )}

@@ -10,6 +10,12 @@ interface MessageBoxProps {
 
 const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
+  
+  const flashQuoteWarning = () => {
+    setShowQuoteWarning(true);
+    window.setTimeout(() => setShowQuoteWarning(false), 2000);
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     try {
@@ -17,12 +23,11 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
       const trimmed = currentMessage.trim();
       if (!trimmed) return;
 
-      // Structured message object
       const messageObj = {
         sender_id: userName || "unknown",
-        message: trimmed,
-        // include client-side timestamp (ISO) — server can overwrite/augment if needed
         send_time: new Date().toISOString(),
+        // include client-side timestamp (ISO) — server can overwrite/augment if needed
+        user_message: trimmed,
       };
 
       await sendMessage({ socket, message: messageObj });
@@ -31,6 +36,29 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
       console.log(`Error in sendMessage function: ${err}`);
     }
   };
+  
+  // Blocking chars
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+     if (e.key === '"') {
+       e.preventDefault();
+       flashQuoteWarning();
+     }
+   };
+  const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const paste = e.clipboardData.getData("text");
+     if (paste.includes('"')) {
+       e.preventDefault();
+       flashQuoteWarning();
+     }
+   };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val.includes('"')) {
+      flashQuoteWarning();
+      return;
+    }
+    setCurrentMessage(val);
+  }
 
   return (
     <div className="send-msg-container">
@@ -41,7 +69,9 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
           type="text"
           value={currentMessage}
           placeholder="Type a message..."
-          onChange={(e) => setCurrentMessage(e.target.value)}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          onPaste={onPaste}
         />
         <button
           type="submit"
@@ -57,7 +87,9 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
             fontSize: "10px",
             color: "#666",
           }}
-        ></div>
+        >
+          {showQuoteWarning ? 'Double-quote (") characters are not allowed.' : ""}
+        </div>
       </form>
     </div>
   );

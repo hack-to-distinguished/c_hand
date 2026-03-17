@@ -1,8 +1,8 @@
 type SocketRef = React.RefObject<WebSocket | null>;
 type MessageObject = {
   sender_id?: string;
-  message?: string;
   send_time?: string; // ISO string preferred
+  user_message?: string;
   [key: string]: any;
 };
 
@@ -36,8 +36,8 @@ export const handleMessage = ({
 
   const messageObj: MessageObject = {
     sender_id: parsed.sender_id ?? "unknown",
-    message: parsed.message ?? "",
     send_time: parsed.send_time ?? formattedNow,
+    user_message: parsed.message ?? "",
     ...parsed,
   };
 
