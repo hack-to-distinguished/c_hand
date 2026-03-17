@@ -44,7 +44,6 @@ export const handleMessage = ({
   setMessages((prevMessages) => [...prevMessages, messageObj]);
 };
 
-// Send a structured message object over the websocket (JSON-stringified)
 export const sendMessage = async ({
   socket,
   message,

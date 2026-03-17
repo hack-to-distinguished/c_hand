@@ -180,27 +180,71 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     return out;
 }
 
-void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
+void ms_add_message(char* sender_id, char* recipient_id, char* message,
                     time_t* sent_time, time_t* recieved_time,
                     flat_message_store* fms, int *end_of_db_idx)
 {
     int idx = *end_of_db_idx;
     idx++;
     printf("Inserting data at index %d\n", idx);
+    
+    time_t now = time(NULL);
+    
+    // get sent_time
+    // get user id
+    // get messag
+    // size_t message_len = strlen(message);
+    // size_t message_len_cap= START_SIZE;
+    // char* message_construction_buffer = malloc(BUFFER_SIZE);
+    // int idx = 0;
+    // while (message[idx] != '}' && message[idx] != '\0') {
+        
+    // }
+    
+    
+    if (strstr(message, "user_message") == NULL) {
+        printf("No message submitted by user\n");
+        return;
+    }
+    char *message_copy = strdup(message);
+    if (!message_copy) {
+        printf("Failed to allocate memory to copy message\n");
+        return;
+    }
+    
+    
+    char* user_message = NULL;
+    const char *msg_needle = "user_message";
+    char *line = strtok(message_copy, ",");
+    // char *line = strtok(message_copy, "\r\n");
+    while (line != NULL) {
+        printf("Line found: %s\n", line);
+        if (strncmp(line, msg_needle, strlen(msg_needle)) == 0) {
+            printf("Comparing line: %s to msg_needle: %s\n", line, msg_needle);
+            const char *value_start = line + strlen(msg_needle);
+            while (*value_start == ' ') value_start++;
+            user_message = strdup(value_start);
+            break;
+        }
+        line = strtok(NULL, ",");
+    }
+    free(message_copy);
+    
+    
 
     strcpy(fms[idx].sender_id, sender_id);
     strcpy(fms[idx].recipient_id, recipient_id);
-    fms[idx].msg_len = strlen(user_message);
+    fms[idx].msg_len = strlen(message);
     fms[idx].message = malloc(fms[idx].msg_len + 1);
-    strcpy(fms[idx].message, user_message);
-    fms[idx].send_time   = time(sent_time);
-    fms[idx].recv_time   = time(recieved_time);
+    strcpy(fms[idx].message, message);
+    fms[idx].send_time   = time(&now);
+    fms[idx].recv_time   = time(&now);
     fms[idx].send_status = 1;
     fms[idx].recv_status = 1;
     fms[idx].ID          = idx;
 
     *end_of_db_idx = idx;
-    printf("Successfully added %s to index %d - ID: %d\n\n", user_message, idx, fms[idx].ID);
+    printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
     return;
 
     // IMPROVEMENT:
