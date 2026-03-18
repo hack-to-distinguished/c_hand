@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "message_store.h"
+#include "cJSON.h"
 
 # define BUFFER_SIZE 2048
 # define START_SIZE 1024
@@ -187,50 +188,22 @@ void ms_add_message(char* sender_id, char* recipient_id, char* message,
     int idx = *end_of_db_idx;
     idx++;
     printf("Inserting data at index %d\n", idx);
-    
     time_t now = time(NULL);
     
-    // get sent_time
-    // get user id
-    // get messag
-    // size_t message_len = strlen(message);
-    // size_t message_len_cap= START_SIZE;
-    // char* message_construction_buffer = malloc(BUFFER_SIZE);
-    // int idx = 0;
-    // while (message[idx] != '}' && message[idx] != '\0') {
-        
-    // }
-    
-    
-    if (strstr(message, "user_message") == NULL) {
-        printf("No message submitted by user\n");
-        return;
-    }
     char *message_copy = strdup(message);
-    if (!message_copy) {
-        printf("Failed to allocate memory to copy message\n");
-        return;
-    }
-    
-    
-    char* user_message = NULL;
-    const char *msg_needle = "user_message";
-    char *line = strtok(message_copy, ",");
-    // char *line = strtok(message_copy, "\r\n");
-    while (line != NULL) {
-        printf("Line found: %s\n", line);
-        if (strncmp(line, msg_needle, strlen(msg_needle)) == 0) {
-            printf("Comparing line: %s to msg_needle: %s\n", line, msg_needle);
-            const char *value_start = line + strlen(msg_needle);
-            while (*value_start == ' ') value_start++;
-            user_message = strdup(value_start);
-            break;
-        }
-        line = strtok(NULL, ",");
-    }
-    free(message_copy);
-    
-    
+
+    cJSON *json = cJSON_Parse(message);
+    char *string = cJSON_Print(json);
+    printf("cJSON string: %s\n", string);
+    free(string);
+    cJSON_GetStringValue(json);
+    free(json);
+
+    cJSON *user_message = NULL;
+    cJSON *s_id = NULL;
+    cJSON *s_time = NULL;
+    printf("Mate it was parsed\n");
+
 
     strcpy(fms[idx].sender_id, sender_id);
     strcpy(fms[idx].recipient_id, recipient_id);
