@@ -14,7 +14,13 @@ THREADPOOL_SRCS = \
 THREADPOOL_BIN = threadpoolserver
 
 # WebSocket server 
-WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_server/sha1.c database/storage/message_store.c threaded_server_src/http.c
+WSOCK_SERVER_SRC = \
+	web_server/wsock_server.c \
+	web_server/wsock_functions.c \
+	web_server/sha1.c \
+	database/storage/message_store.c \
+	threaded_server_src/http.c \
+	utils/JSON/cJSON.c \
 WSOCK_SERVER_BIN = wsock_server
 
 # SSH server/client
