@@ -27,7 +27,7 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
         sender_id: userName || "unknown",
         send_time: new Date().toISOString(),
         // include client-side timestamp (ISO) — server can overwrite/augment if needed
-        user_message: trimmed,
+        message: trimmed,
       };
 
       await sendMessage({ socket, message: messageObj });
