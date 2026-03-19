@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
-                ms_add_message(fd_string, "all", buffer, &now, &now, fms, &latest_entry_ptr);
+                ms_add_message("all", buffer, fms, &latest_entry_ptr);
 
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd != -1 && clients[j].is_websocket) {

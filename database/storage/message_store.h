@@ -26,10 +26,9 @@ typedef struct {
 extern int* end_of_db_idx;
 
 int ms_point_to_last_entry(flat_message_store* fms);
-void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx);
+void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx, int limit);
 void ms_resize_store();
-void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
-                    time_t* sent_time, time_t* recieved_time,
+void ms_add_message(char* recipient_id, char* user_message,
                     flat_message_store* fms, int *end_of_db_idx);
 void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_idx);
 void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
