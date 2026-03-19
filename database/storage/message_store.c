@@ -190,14 +190,18 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
     printf("Inserting data at index %d\n", idx);
     time_t now = time(NULL);
 
-
     cJSON *json = cJSON_Parse(message);
     char *string = cJSON_Print(json);
     printf("cJSON string: %s\n", string);
     free(string);
 
 
-    cJSON *jsonUserMessage = cJSON_GetObjectItem(json, "user_message");
+    cJSON *jsonUserMessage = cJSON_GetObjectItem(json, "message");
+    if (!cJSON_IsString(jsonUserMessage)) {
+        perror("Message isn't a string");
+        return;
+    }
+
     cJSON *jsonSenderID = cJSON_GetObjectItem(json, "sender_id");
     cJSON *jsonSendTime = cJSON_GetObjectItem(json, "send_time");
 
@@ -213,10 +217,7 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
     fms[idx].recv_status = 1;
     fms[idx].ID          = idx;
 
-    free(json);
-    free(jsonUserMessage);
-    free(jsonSendTime);
-    free(jsonSenderID);
+    cJSON_Delete(json);
 
     *end_of_db_idx = idx;
     printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
