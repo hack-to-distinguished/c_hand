@@ -1,7 +1,26 @@
 # Compiler and flags
 CC = gcc
-# CFLAGS = -g -O1 -pthread -fsanitize=address -fno-omit-frame-pointer
+
+# INCLUDES = \
+# 	-Idatabase \
+# 	-Idatabase/storage \
+# 	-Idatabase/parser \
+# 	-Idatabase/parser/parsing_functions \
+# 	-Idatabase/tokenizer \
+# 	-Iweb_server \
+# 	-Iutils/JSON
+INCLUDES = -Iutils/JSON # replace this includes with the one above so you can just do #includes "fileName" instead of writing the full path
 CFLAGS = -g -O1 -Wall -Wextra -pthread -fsanitize=address -fno-omit-frame-pointer
+CFLAGS += $(INCLUDES)
+
+
+CORE_SRCS = \
+	threaded_server_src/http.c \
+	web_server/wsock_functions.c \
+	web_server/sha1.c
+
+UTIL_SRCS = \
+	utils/JSON/cJSON.c
 
 # Threadpool HTTP server
 THREADPOOL_SRCS = \
@@ -14,7 +33,11 @@ THREADPOOL_SRCS = \
 THREADPOOL_BIN = threadpoolserver
 
 # WebSocket server 
-WSOCK_SERVER_SRC = web_server/wsock_server.c web_server/wsock_functions.c web_server/sha1.c database/storage/message_store.c threaded_server_src/http.c
+WSOCK_SERVER_SRC = \
+	web_server/wsock_server.c \
+	database/storage/message_store.c \
+	$(CORE_SRCS) \
+	$(UTIL_SRCS)
 WSOCK_SERVER_BIN = wsock_server
 
 # SSH server/client
