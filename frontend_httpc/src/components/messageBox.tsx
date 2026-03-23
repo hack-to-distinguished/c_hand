@@ -1,24 +1,75 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { sendMessage } from "../services/recv_send.tsx";
 import "./messageBox.css";
 
 interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
+  userName: string;
+  send_time?: string;
+  sender_id?: string;
+  message?: string;
+  [key: string]: any;
 }
 
-const MessageBox = ({ socket, connectionStatus }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
+  
+  const flashQuoteWarning = () => {
+    setShowQuoteWarning(true);
+    window.setTimeout(() => setShowQuoteWarning(false), 2000);
+  };
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      await sendMessage({ socket, currentMessage });
+      const trimmed = currentMessage.trim();
+      if (!trimmed) return;
+    
+      const now = new Date();
+      const month = now.toLocaleString('en-UK', { month: 'short' });
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      const time = now.toTimeString().split(' ')[0];
+
+      const formattedNow = `${month} ${day} ${time} ${year}`;
+
+      const messageObj = {
+        sender_id: userName || "unknown",
+        send_time: formattedNow,
+        message: trimmed,
+      };
+
+      await sendMessage({ socket, message: messageObj, setMessages: setMessagesObject });
       setCurrentMessage("");
-    } catch (e) {
-      console.log(`Error in sendMessage function: ${e}`);
+    } catch (err) {
+      console.log(`Error in sendMessage function: ${err}`);
     }
   };
+  
+  // Blocking chars
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+     if (e.key === '"') {
+       e.preventDefault();
+       flashQuoteWarning();
+     }
+   };
+  const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const paste = e.clipboardData.getData("text");
+     if (paste.includes('"')) {
+       e.preventDefault();
+       flashQuoteWarning();
+     }
+   };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val.includes('"')) {
+      flashQuoteWarning();
+      return;
+    }
+    setCurrentMessage(val);
+  }
 
   return (
     <div className="send-msg-container">
@@ -29,7 +80,9 @@ const MessageBox = ({ socket, connectionStatus }: MessageBoxProps) => {
           type="text"
           value={currentMessage}
           placeholder="Type a message..."
-          onChange={(e) => setCurrentMessage(e.target.value)}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          onPaste={onPaste}
         />
         <button
           type="submit"
@@ -45,7 +98,9 @@ const MessageBox = ({ socket, connectionStatus }: MessageBoxProps) => {
             fontSize: "10px",
             color: "#666",
           }}
-        ></div>
+        >
+          {showQuoteWarning ? 'Double-quote (") characters are not allowed.' : ""}
+        </div>
       </form>
     </div>
   );

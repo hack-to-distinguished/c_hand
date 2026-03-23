@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "message_store.h"
+#include "../../utils/JSON/cJSON.h"
 
 # define BUFFER_SIZE 2048
 # define START_SIZE 1024
@@ -11,28 +12,30 @@
 // fms is extern so it will only be declared here
 flat_message_store fms[MSG_STORE_SIZE];
 
-void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx)
+void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx, int limit)
 {
+    if (limit == 0) {
+        limit = 10;
+    }
+    printf("Searching the last %d entries\n", limit);
+
     int idx = *end_of_db_idx;
     int i = 0;
-    if (idx - 10 > i) {
-        i = idx;
+    if (idx - limit > i) {
+        i = idx - 1;
     }
-    int upper_bound = i + 10;
+    int upper_bound = i + limit;
 
     for (i = i; i < upper_bound; i++) {
-        printf("\nIteration num: %d\n", i);
-        printf("Message Store ID: %d\n", fms[i].ID);
-        printf("Message Store sender_id: %s\n", fms[i].sender_id);
-        printf("Message Store recipient_id: %s\n", fms[i].recipient_id);
-        printf("Message Store msg_len: %zu\n", fms[i].msg_len);
-        printf("Message Store message: %s\n", fms[i].message);
-        printf("Message Store send_time: %jd\n", fms[i].send_time);
-        printf("Message Store recv_time: %jd\n", fms[i].recv_time);
-        printf("Message Store msg_type: %c\n", fms[i].msg_type);
-        // TODO: Fix the char pointer print above
-        printf("Message Store send_status: %zu\n", fms[i].send_status);
-        printf("Message Store recv_status: %zu\n", fms[i].recv_status);
+        if (fms[i].message != NULL) {
+            printf("\nIteration num: %d\n", i);
+            printf("Message Store ID: %d\n", fms[i].ID);
+            printf("Message Store sender_id: %s\n", fms[i].sender_id);
+            printf("Message Store recipient_id: %s\n", fms[i].recipient_id);
+            printf("Message Store message: %s\n", fms[i].message);
+            printf("Message Store send_time: %jd\n", fms[i].send_time);
+            printf("Message Store recv_time: %jd\n", fms[i].recv_time);
+        }
     }
     printf("Messages printed: %d\n\n", i);
 }
@@ -180,27 +183,45 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     return out;
 }
 
-void ms_add_message(char* sender_id, char* recipient_id, char* user_message,
-                    time_t* sent_time, time_t* recieved_time,
-                    flat_message_store* fms, int *end_of_db_idx)
+void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, int *end_of_db_idx)
 {
     int idx = *end_of_db_idx;
     idx++;
     printf("Inserting data at index %d\n", idx);
+    time_t now = time(NULL);
 
-    strcpy(fms[idx].sender_id, sender_id);
+    cJSON *json = cJSON_Parse(message);
+    char *string = cJSON_Print(json);
+    printf("cJSON string: %s\n", string);
+    free(string);
+
+
+    cJSON *jsonUserMessage = cJSON_GetObjectItem(json, "message");
+    if (!cJSON_IsString(jsonUserMessage)) {
+        perror("Message isn't a string");
+        return;
+    }
+
+    cJSON *jsonSenderID = cJSON_GetObjectItem(json, "sender_id");
+    cJSON *jsonSendTime = cJSON_GetObjectItem(json, "send_time");
+
+
+    strcpy(fms[idx].sender_id, jsonSenderID->valuestring);
     strcpy(fms[idx].recipient_id, recipient_id);
-    fms[idx].msg_len = strlen(user_message);
+    fms[idx].msg_len = strlen(jsonUserMessage->valuestring);
     fms[idx].message = malloc(fms[idx].msg_len + 1);
-    strcpy(fms[idx].message, user_message);
-    fms[idx].send_time   = time(sent_time);
-    fms[idx].recv_time   = time(recieved_time);
+    strcpy(fms[idx].message, jsonUserMessage->valuestring);
+    fms[idx].send_time   = time(&now);
+    fms[idx].recv_time   = time(&now);
     fms[idx].send_status = 1;
     fms[idx].recv_status = 1;
     fms[idx].ID          = idx;
 
+    cJSON_Delete(json);
+
     *end_of_db_idx = idx;
-    printf("Successfully added %s to index %d - ID: %d\n\n", user_message, idx, fms[idx].ID);
+    printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
+    ms_view_all_entries(fms, end_of_db_idx,        2);
     return;
 
     // IMPROVEMENT:
