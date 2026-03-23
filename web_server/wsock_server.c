@@ -218,8 +218,7 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
 
-                // TODO: The buffer needs to be parsed to check for identification and other info
-                printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
+                // printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);

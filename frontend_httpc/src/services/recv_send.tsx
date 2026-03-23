@@ -48,11 +48,9 @@ export const handleMessage = ({
 export const sendMessage = async ({
   socket,
   message,
-  setMessages
 }: {
   socket: SocketRef;
   message: MessageObject;
-  setMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
 }) => {
   if (!socket?.current) {
     console.log("Cannot send message. No socket available.");
@@ -66,7 +64,6 @@ export const sendMessage = async ({
       socket.current.send(payload);
       console.log("Sent JSON message:", payload);
 
-      setMessages((prevMessages) => [...prevMessages, message]);
     } catch (err) {
       console.log("Error stringifying/sending message:", err);
     }

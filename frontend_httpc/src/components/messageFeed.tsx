@@ -13,7 +13,6 @@ interface MessageBoxProps {
 }
 
 const MessageFeed = ({ socket, messagesObject, setMessagesObject }: MessageBoxProps ) => {
-  // const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
   const listRef = useRef<HTMLUListElement | null>(null);
 
@@ -58,7 +57,7 @@ const MessageFeed = ({ socket, messagesObject, setMessagesObject }: MessageBoxPr
         socket.current.onmessage = null;
       }
     };
-  }, [socket]);
+  }, [socket.current]);
 
   return (
     <div className="messages-display">
