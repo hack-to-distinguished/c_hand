@@ -6,17 +6,14 @@ import "./messageFeed.css";
 interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
-}
-
-interface SavedMessages {
   send_time?: string;
   sender_id?: string;
   message?: string;
   [key: string]: any;
 }
 
-const MessageFeed = ({ socket }: MessageBoxProps) => {
-  const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
+const MessageFeed = ({ socket, messagesObject, setMessagesObject }: MessageBoxProps ) => {
+  // const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
   const listRef = useRef<HTMLUListElement | null>(null);
 

@@ -6,9 +6,13 @@ interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
   userName: string;
+  send_time?: string;
+  sender_id?: string;
+  message?: string;
+  [key: string]: any;
 }
 
-const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
   
@@ -22,15 +26,22 @@ const MessageBox = ({ socket, connectionStatus, userName }: MessageBoxProps) => 
       e.preventDefault();
       const trimmed = currentMessage.trim();
       if (!trimmed) return;
+    
+      const now = new Date();
+      const month = now.toLocaleString('en-UK', { month: 'short' });
+      const day = now.getDate().toString().padStart(2, '0');
+      const year = now.getFullYear();
+      const time = now.toTimeString().split(' ')[0];
+
+      const formattedNow = `${month} ${day} ${time} ${year}`;
 
       const messageObj = {
         sender_id: userName || "unknown",
-        send_time: new Date().toISOString(),
-        // include client-side timestamp (ISO) — server can overwrite/augment if needed
+        send_time: formattedNow,
         message: trimmed,
       };
 
-      await sendMessage({ socket, message: messageObj });
+      await sendMessage({ socket, message: messageObj, setMessages: setMessagesObject });
       setCurrentMessage("");
     } catch (err) {
       console.log(`Error in sendMessage function: ${err}`);
