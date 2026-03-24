@@ -248,28 +248,7 @@ void free_memory(flat_message_store* fms)
 }
 
 
-// int main()
-// {
-//     // INFO: Code below is for testing purposes
-//     flat_message_store fms[MSG_STORE_SIZE];
-//     printf("Message store initalized\n\n");
-//     int*   end_of_db_idx = &fms[0].ID;
-//     time_t now           = time(NULL);
-//
-//     ms_add_message("Christian", "Juan", "Christian test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//
-//     ms_add_message("chris", "nj", "chris test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//     ms_add_message("Alejandro", "Christian", "NJ test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//     // ms_view_all_entries(fms);
-//
-//     ms_stream_messages_desc(fms, &end_of_db_idx);
-//     ms_stream_user_messages_desc(fms, &end_of_db_idx, "Christian");
-//
-//     // end_of_db_idx = ms_point_to_last_entry(fms);
-//
-//     free_memory(fms);
-//     return (0);
-// }
+void ms_register_or_update_user() {
+    // INFO: Function to register a user if it's his first connection 
+    // or update the connection time if he's re-connecting
+}

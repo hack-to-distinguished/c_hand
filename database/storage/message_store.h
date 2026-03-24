@@ -23,6 +23,17 @@ typedef struct {
     char* messages_by_user;
 } msg_buffer;
 
+
+typedef struct
+{
+    int    ID; // Increment with each new item
+    char*  message;
+    time_t connected_at;
+    time_t disconnected_at;
+    time_t last_message_send_time;
+} chand_users;
+extern chand_users c_users[MSG_STORE_SIZE];
+
 extern int* end_of_db_idx;
 
 int ms_point_to_last_entry(flat_message_store* fms);
@@ -37,3 +48,6 @@ void ms_show_latest_msg();
 void free_memory(flat_message_store* fms);
 msg_buffer ms_get_all_messages(flat_message_store* fms);
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_idx);
+
+// users updates
+void ms_register_or_update_user();
