@@ -250,7 +250,7 @@ void free_memory(flat_message_store* fms)
 }
 
 
-void ms_register_user(int* client_fd, char* payload, chand_users* c_users) {
+void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     // INFO: 
     // - client_fds are not tied to a specific user, I move them around
     // as users change username, connect, reconnect etc
@@ -261,16 +261,16 @@ void ms_register_user(int* client_fd, char* payload, chand_users* c_users) {
 
     cJSON *json = cJSON_Parse(payload);
     char *string = cJSON_Print(json);
-    printf("cJSON string: %s\n", string);
-    free(string);
-
+    // printf("cJSON string: %s\n", string);
+    // free(string);
 
     cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
     if (!cJSON_IsString(jsonUsername)) {
         perror("Message isn't a string");
         return;
     }
-    char* cur_user = cJSON_Print(jsonUsername);
+    char* cur_user = jsonUsername->valuestring;
+
 
     while (c_users[index].username != NULL) {
         char* db_username = c_users[index].username;
@@ -282,29 +282,70 @@ void ms_register_user(int* client_fd, char* payload, chand_users* c_users) {
             // -> The user is currently conncted
             // - This is only possible once we disconnect users properly
             printf("User %s exists in the store, update their info", cur_user);
-            ms_update_user(index, USER_ACTION_CONNECT, c_users);
+            ms_update_user(client_fd, index, USER_ACTION_CONNECT, c_users);
             return;
         };
         index++;
     }
 
-    // User doesn't exist, we add it
-    // reaching this point means we're at the end of the list so index should be 1 beyond the last entry
     time_t now = time(NULL);
     c_users[index].ID = index;
     c_users[index].username = cur_user;
     c_users[index].client_fd = client_fd;
     c_users[index].connected_at = time(&now);
+    c_users[index].disconnected_at = (time_t)(-1); // NULL time
+    c_users[index].last_message_send_time = (time_t)(-1); // NULL time
 
     free(cur_user);
     return;
 }
 
+void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users) {
+
+    // INFO: Stupidely inefficient, I'm just looping through the entire db
+
+    int index = 0; 
+
+    cJSON *json = cJSON_Parse(payload);
+    char *string = cJSON_Print(json);
+    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+    if (!cJSON_IsString(jsonUsername)) {
+        perror("Message isn't a string");
+        return;
+    }
+    char* cur_user = jsonUsername->valuestring;
 
 
-void ms_update_user(int index, user_action action_field, chand_users* c_users) {
+    while (c_users[index].username != NULL) {
+        char* db_username = c_users[index].username;
+        if (strcmp(db_username, cur_user)) {
+            printf("disconnecting user %s", db_username);
+            time_t now = time(NULL);
+            c_users[client_fd].disconnected_at = time(&now);
+            break;
+        }
+    }
+    return;
+}
+
+void ms_change_username(int client_fd, char* payload, chand_users* c_users) {
+    // INFO:
+    // - client_fds are not tied to a specific user, I move them around
+    // as users change username, connect, reconnect etc
+    // A new user can pick a username that already exists (if the user isn't conncted)
+    // and at that point, all his information should be transferred to that user
+    // INFO:
+    // - If a user changes their username, might as well delete the old user
+}
+
+
+void ms_update_user(int client_fd, int index, user_action action_field, chand_users* c_users) {
+
+    // Client fd changes / is re-added because the user could've changed
+    // to an existing but unused username 
 
     time_t now = time(NULL);
+    c_users[index].client_fd = client_fd;
     switch(action_field) {
         case USER_ACTION_CONNECT:
         c_users[index].connected_at = time(&now);

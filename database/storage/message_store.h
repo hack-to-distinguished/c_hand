@@ -29,7 +29,7 @@ typedef struct
 {
     int    ID; // Increment with each new item
     char*  username;
-    int* client_fd;
+    int client_fd;
     time_t connected_at;
     time_t disconnected_at;
     time_t last_message_send_time;
@@ -59,6 +59,6 @@ typedef enum {
 } user_action;
 extern user_action user_action_t; 
 
-void ms_register_user(int* client_fd, char* payload, chand_users* c_users);
-void ms_update_user(int index, user_action action, chand_users* c_users);
-void ms_disconnect_user(int* client_fd, chand_users* c_users);
+void ms_register_user(int client_fd, char* payload, chand_users* c_users);
+void ms_update_user(int client_fd, int index, user_action action, chand_users* c_users);
+void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);
