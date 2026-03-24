@@ -250,20 +250,12 @@ void free_memory(flat_message_store* fms)
 }
 
 
-void ms_register_user(char* client_fd, char* payload, chand_users* c_users) {
+void ms_register_user(int* client_fd, char* payload, chand_users* c_users) {
     // INFO: 
     // - client_fds are not tied to a specific user, I move them around
     // as users change username, connect, reconnect etc
     // A new user can pick a username that already exists (if the user isn't conncted)
     // and at that point, all his information should be transferred to that user
-
-    // TODO:
-    // - Get user name 
-    // - Check if user name exists in db (should I keep db ordered?)
-    // - If username doesn't exists
-    // -> Add username to the db, add connected time etc 
-    // - If username doesn't exists
-    // -> Call ms_update_user(field);
 
     int index = 0;
 
@@ -286,8 +278,11 @@ void ms_register_user(char* client_fd, char* payload, chand_users* c_users) {
         if (strncmp(cur_user, db_username, cur_username_len)) {
             // We've found the user
             // TODO: Check that the user isn't already connected
+            // - If user connected_at < user disconnected_at:
+            // -> The user is currently conncted
+            // - This is only possible once we disconnect users properly
             printf("User %s exists in the store, update their info", cur_user);
-            ms_update_user(client_fd, cur_user, "connect", c_users);
+            ms_update_user(index, USER_ACTION_CONNECT, c_users);
             return;
         };
         index++;
@@ -305,13 +300,22 @@ void ms_register_user(char* client_fd, char* payload, chand_users* c_users) {
     return;
 }
 
-void ms_update_user(char* client_fd, char* user, char* action_field, chand_users* c_users) {
-    // INFO: action_field can be one of: 
-    // - connect, disconnect, sent_message
-    // INFO: The function should be able to:
-    // - Update when an existing user connects again
-    // - Update when an existing user disconnects 
-    // - Update when an existing user sends a message
 
-    free(user);
+
+void ms_update_user(int index, user_action action_field, chand_users* c_users) {
+
+    time_t now = time(NULL);
+    switch(action_field) {
+        case USER_ACTION_CONNECT:
+        c_users[index].connected_at = time(&now);
+        break;
+
+        case USER_ACTION_DISCONNECT:
+        c_users[index].disconnected_at = time(&now);
+        break;
+
+        case USER_ACTION_SEND_MESSAGE:
+        c_users[index].last_message_send_time = time(&now);
+        break;
+    }
 }
