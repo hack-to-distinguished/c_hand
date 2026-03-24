@@ -11,6 +11,8 @@
 
 // fms is extern so it will only be declared here
 flat_message_store fms[MSG_STORE_SIZE];
+chand_users c_users[CHAND_USERS_SIZE];
+
 
 void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx, int limit)
 {
@@ -248,7 +250,68 @@ void free_memory(flat_message_store* fms)
 }
 
 
-void ms_register_or_update_user() {
-    // INFO: Function to register a user if it's his first connection 
-    // or update the connection time if he's re-connecting
+void ms_register_user(char* client_fd, char* payload, chand_users* c_users) {
+    // INFO: 
+    // - client_fds are not tied to a specific user, I move them around
+    // as users change username, connect, reconnect etc
+    // A new user can pick a username that already exists (if the user isn't conncted)
+    // and at that point, all his information should be transferred to that user
+
+    // TODO:
+    // - Get user name 
+    // - Check if user name exists in db (should I keep db ordered?)
+    // - If username doesn't exists
+    // -> Add username to the db, add connected time etc 
+    // - If username doesn't exists
+    // -> Call ms_update_user(field);
+
+    int index = 0;
+
+    cJSON *json = cJSON_Parse(payload);
+    char *string = cJSON_Print(json);
+    printf("cJSON string: %s\n", string);
+    free(string);
+
+
+    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+    if (!cJSON_IsString(jsonUsername)) {
+        perror("Message isn't a string");
+        return;
+    }
+    char* cur_user = cJSON_Print(jsonUsername);
+
+    while (c_users[index].username != NULL) {
+        char* db_username = c_users[index].username;
+        int cur_username_len = strlen(db_username);
+        if (strncmp(cur_user, db_username, cur_username_len)) {
+            // We've found the user
+            // TODO: Check that the user isn't already connected
+            printf("User %s exists in the store, update their info", cur_user);
+            ms_update_user(client_fd, cur_user, "connect", c_users);
+            return;
+        };
+        index++;
+    }
+
+    // User doesn't exist, we add it
+    // reaching this point means we're at the end of the list so index should be 1 beyond the last entry
+    time_t now = time(NULL);
+    c_users[index].ID = index;
+    c_users[index].username = cur_user;
+    c_users[index].client_fd = client_fd;
+    c_users[index].connected_at = time(&now);
+
+    free(cur_user);
+    return;
+}
+
+void ms_update_user(char* client_fd, char* user, char* action_field, chand_users* c_users) {
+    // INFO: action_field can be one of: 
+    // - connect, disconnect, sent_message
+    // INFO: The function should be able to:
+    // - Update when an existing user connects again
+    // - Update when an existing user disconnects 
+    // - Update when an existing user sends a message
+
+    free(user);
 }
