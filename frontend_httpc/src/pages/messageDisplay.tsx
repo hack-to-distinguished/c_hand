@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { useWebSocket } from "../services/handleNetwork.tsx";
-import NetworkStatus from "../components/networkStatus.tsx";
+// Components
 import MessageBox from "../components/messageBox.tsx";
 import MessageFeed from "../components/messageFeed.tsx";
 import UserSelection from "../components/userSelection.tsx";
-import { generateId } from "../services/handleUser.tsx";
+// Services
+import { useWebSocket } from "../services/handleNetwork.tsx";
+import NetworkStatus from "../components/networkStatus.tsx";
 import { setInLocalStorage } from "../services/handleBrowser.tsx";
-import "./messageDisplay.css";
+import { generateId, registerUser } from "../services/handleUser.tsx";
 
+import "./messageDisplay.css";
 
 interface SavedMessages {
   send_time?: string;
@@ -22,6 +24,14 @@ function MessageDisplay() {
 
   const [userName, setUserName] = useState<string>("");
   const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
+  
+  const registerUserReq = async (username) => {
+    try {
+      await registerUser(username);
+    } catch (error) {
+      console.log("Registering user error", error);
+    }
+  }
 
   useEffect(() => {
     // initialize username from localStorage (or generate one)
@@ -33,7 +43,7 @@ function MessageDisplay() {
       setInLocalStorage("username", username);
     }
     // TODO: make initial register post request in this use effect
-
+    registerUserReq(username);
 
     setUserName(username || "");
   }, [userName]);

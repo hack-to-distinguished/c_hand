@@ -1,3 +1,5 @@
+import axios from "axios"; 
+
 export const generateId = (length) => {
   
   let result = '';
@@ -9,4 +11,19 @@ export const generateId = (length) => {
   }
   
   return result;
+}
+
+
+export const registerUser = async (username) => {
+  console.log("Registering user with username:", username);
+  
+  try {
+    const response = await axios.post("http://127.0.0.1:8081/register", {
+      username: username, 
+      headers: { 'Content-Type': 'application/json' }
+    });
+    console.log("Reponse:", response);
+  } catch (error) {
+    console.log("Service registering user error", error);
+  }
 }
