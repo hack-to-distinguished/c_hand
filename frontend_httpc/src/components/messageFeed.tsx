@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllMessages } from "../services/getMessages.tsx";
-import { handleMessage as handleIncomingMessage } from "../services/recv_send.tsx";
+import { getAllMessages } from "../services/handleMessages.tsx";
+import { handleMessage as handleIncomingMessage } from "../services/handleMessages.tsx";
 import "./messageFeed.css";
 
 interface MessageBoxProps {

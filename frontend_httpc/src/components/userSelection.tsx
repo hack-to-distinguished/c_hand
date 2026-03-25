@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { setInLocalStorage } from "../services/browserStorage";
+import { setInLocalStorage } from "../services/handleBrowser";
 import "./userSelection.css";
 
 interface UserSelectionProps {

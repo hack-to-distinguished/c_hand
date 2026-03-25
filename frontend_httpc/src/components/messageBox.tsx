@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { sendMessage } from "../services/recv_send.tsx";
+import { sendMessage } from "../services/handleMessages.tsx";
 import "./messageBox.css";
 
 interface MessageBoxProps {
