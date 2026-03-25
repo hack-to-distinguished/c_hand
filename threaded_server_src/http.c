@@ -499,7 +499,14 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         return;
 
     } else if (strcmp(ctx->ptr_method, "POST") == 0) {
+        printf("POST REQUEST REGISTERED");
         parse_body_of_POST(ctx);
+
+        if (strcmp(ctx->ptr_uri, "/register") == 0) {
+            printf("POST REQUEST REGISTERED WITH BODY: %s", ctx->ptr_body_content_type);
+            // void ms_register_user(int client_fd, char* payload, chand_users* c_users);
+        }
+
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
