@@ -251,6 +251,7 @@ void free_memory(flat_message_store* fms)
 
 
 void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
+    printf("MS REGISTER USER\n");
     // INFO: 
     // - client_fds are not tied to a specific user, I move them around
     // as users change username, connect, reconnect etc
@@ -260,19 +261,17 @@ void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     int index = 0;
 
     cJSON *json = cJSON_Parse(payload);
-    char *string = cJSON_Print(json);
-    // printf("cJSON string: %s\n", string);
-    // free(string);
-
     cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
     if (!cJSON_IsString(jsonUsername)) {
         perror("Message isn't a string");
         return;
     }
     char* cur_user = jsonUsername->valuestring;
+    printf("User to update: %s\n", cur_user);
 
 
     while (c_users[index].username != NULL) {
+        printf("Verifying user: %s\n", c_users[index].username);
         char* db_username = c_users[index].username;
         int cur_username_len = strlen(db_username);
         if (strncmp(cur_user, db_username, cur_username_len)) {
@@ -288,15 +287,17 @@ void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
         index++;
     }
 
+    printf("No existing user under that name, registering now\n");
     time_t now = time(NULL);
     c_users[index].ID = index;
-    c_users[index].username = cur_user;
+    strcpy(c_users[index].username, cur_user);
     c_users[index].client_fd = client_fd;
     c_users[index].connected_at = time(&now);
     c_users[index].disconnected_at = (time_t)(-1); // NULL time
     c_users[index].last_message_send_time = (time_t)(-1); // NULL time
 
-    free(cur_user);
+    cJSON_Delete(json);
+    printf("User %s added\n\n", cur_user);
     return;
 }
 

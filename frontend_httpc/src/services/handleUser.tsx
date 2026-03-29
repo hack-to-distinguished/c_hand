@@ -18,11 +18,13 @@ export const registerUser = async (username) => {
   console.log("Registering user with username:", username);
   
   try {
-    const response = await axios.post("http://127.0.0.1:8081/register", {
+    // because cors isn't set up in the C backend, we need to make the request to the same TLD as the frontend
+    const response = await axios.post("http://localhost:8081/register", {
       username: username, 
-      headers: { 'Content-Type': 'application/json' }
+      // headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'text/html' }
     });
-    console.log("Reponse:", response);
+    console.log("Registering user response:", response);
   } catch (error) {
     console.log("Service registering user error", error);
   }

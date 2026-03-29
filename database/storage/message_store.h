@@ -29,7 +29,7 @@ typedef struct
 {
     int    ID; // Increment with each new item
     char*  username;
-    int client_fd;
+    int    client_fd;
     time_t connected_at;
     time_t disconnected_at;
     time_t last_message_send_time;

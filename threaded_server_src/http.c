@@ -499,12 +499,16 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         return;
 
     } else if (strcmp(ctx->ptr_method, "POST") == 0) {
-        printf("POST REQUEST REGISTERED");
         parse_body_of_POST(ctx);
+        printf("\nPOST REQUEST REGISTERED ROUTE: %s\n", ctx->ptr_uri);
 
         if (strcmp(ctx->ptr_uri, "/register") == 0) {
-            printf("POST REQUEST REGISTERED WITH BODY: %s", ctx->ptr_body_content_type);
-            // void ms_register_user(int client_fd, char* payload, chand_users* c_users);
+            printf("/register route triggered, adding user\n");
+            ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            snprintf(ptr_packet_buffer, BUFFER_SIZE, " data");
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
         }
 
         free(uri_buffer);
