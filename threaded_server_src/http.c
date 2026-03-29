@@ -708,7 +708,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     char *crlf_ptr = strstr(buffer, http_version);
     if (crlf_ptr == NULL) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequest line state error, can't find HTTP version in %s\n", buffer);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -716,7 +716,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
     crlf_ptr += 8;
     if (result != 3) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequese line state error, cannot find method and/or uri and/or HTTP version in: %d \n", result);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -726,7 +726,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           strcmp(ctx->ptr_method, "POST") == 0 ||
           strcmp(ctx->ptr_method, "HEAD") == 0)) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequest line state error, unrecognized method: %s\n", ctx->ptr_method);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -734,7 +734,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (strcmp(http_version, "HTTP/1.1") != 0) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequest line state error, only HTTP/1.1 supported. Version selected: %s\n", http_version);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -742,7 +742,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (!(crlf_ptr[0] == '\r' && crlf_ptr[1] == '\n')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequest line state error, mal-terminated/started strings: %c and %c\n", crlf_ptr[0], crlf_ptr[1]);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
@@ -758,7 +758,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
           buffer[len_method + len_uri + 1] == ' ' &&
           buffer[len_method + len_uri + 2] != ' ')) {
         ERROR_STATE_400(ctx);
-        printf("\nerror at request line state\n");
+        printf("\nRequest line state error, mal-constructed buffer: %s\n", buffer);
         free(ctx->ptr_method);
         free(ctx->ptr_uri);
         return;
