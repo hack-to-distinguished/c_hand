@@ -261,71 +261,95 @@ void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     int index = 0;
 
     cJSON *json = cJSON_Parse(payload);
+    if (!json) {
+        fprintf(stderr, "ms_register user: invalid JSON payload\n");
+        return;
+    }
     cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
-    if (!cJSON_IsString(jsonUsername)) {
+    if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
         perror("Message isn't a string");
+        fprintf(stderr, "ms_register_user: missing or invalide username\n");
+        cJSON_Delete(json);
         return;
     }
     char* cur_user = jsonUsername->valuestring;
+    printf("Value at index %d -> %s\n", index, c_users[index].username);
     printf("User to update: %s\n", cur_user);
 
 
-    while (c_users[index].username != NULL) {
+    // while (index < CHAND_USERS_SIZE && c_users[index].username[0] != '\0') {
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
         printf("Verifying user: %s\n", c_users[index].username);
         char* db_username = c_users[index].username;
-        int cur_username_len = strlen(db_username);
-        if (strncmp(cur_user, db_username, cur_username_len)) {
+        // int cur_username_len = strlen(db_username);
+        if (strcmp(cur_user, db_username) == 0) {
             // We've found the user
             // TODO: Check that the user isn't already connected
             // - If user connected_at < user disconnected_at:
             // -> The user is currently conncted
             // - This is only possible once we disconnect users properly
-            printf("User %s exists in the store, update their info", cur_user);
+            printf("User %s exists in the store, update their info\n", db_username);
             ms_update_user(client_fd, index, USER_ACTION_CONNECT, c_users);
+            cJSON_Delete(json);
             return;
         };
         index++;
     }
+    
+    if (index >= CHAND_USERS_SIZE) {
+        fprintf(stderr, "ms_register_user: user store full, cannot register user %s\n", cur_user);
+    }
 
     printf("No existing user under that name, registering now\n");
     time_t now = time(NULL);
+    
     c_users[index].ID = index;
+    c_users[index].username = malloc(strlen(cur_user) + 1);
     strcpy(c_users[index].username, cur_user);
+    
     c_users[index].client_fd = client_fd;
-    c_users[index].connected_at = time(&now);
+    c_users[index].connected_at = now;
     c_users[index].disconnected_at = (time_t)(-1); // NULL time
     c_users[index].last_message_send_time = (time_t)(-1); // NULL time
 
+    printf("User %s added\n\n", c_users[index].username);
     cJSON_Delete(json);
-    printf("User %s added\n\n", cur_user);
+    
     return;
 }
 
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users) {
-
-    // INFO: Stupidely inefficient, I'm just looping through the entire db
-
-    int index = 0; 
+    int index = 0;
 
     cJSON *json = cJSON_Parse(payload);
-    char *string = cJSON_Print(json);
-    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
-    if (!cJSON_IsString(jsonUsername)) {
-        perror("Message isn't a string");
+    if (!json) {
+        fprintf(stderr, "ms_disconnect_user: invalid JSON payload\n");
         return;
     }
-    char* cur_user = jsonUsername->valuestring;
 
-
-    while (c_users[index].username != NULL) {
-        char* db_username = c_users[index].username;
-        if (strcmp(db_username, cur_user)) {
-            printf("disconnecting user %s", db_username);
-            time_t now = time(NULL);
-            c_users[client_fd].disconnected_at = time(&now);
-            break;
-        }
+    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+    if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
+        fprintf(stderr, "ms_disconnect_user: missing or invalid 'username'\n");
+        cJSON_Delete(json);
+        return;
     }
+
+    const char *cur_user = jsonUsername->valuestring;
+
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        if (strcmp(c_users[index].username, cur_user) == 0) {
+            printf("disconnecting user %s\n", c_users[index].username);
+            time_t now = time(NULL);
+            c_users[index].disconnected_at = now;
+            c_users[index].client_fd = -1;
+            cJSON_Delete(json);
+            return;
+        }
+        index++;
+    }
+
+    fprintf(stderr, "ms_disconnect_user: user '%s' not found in store\n", cur_user);
+    cJSON_Delete(json);
     return;
 }
 
@@ -341,6 +365,7 @@ void ms_change_username(int client_fd, char* payload, chand_users* c_users) {
 
 
 void ms_update_user(int client_fd, int index, user_action action_field, chand_users* c_users) {
+    printf("Updating information for %s\n", c_users[index].username);
 
     // Client fd changes / is re-added because the user could've changed
     // to an existing but unused username 
@@ -349,14 +374,17 @@ void ms_update_user(int client_fd, int index, user_action action_field, chand_us
     c_users[index].client_fd = client_fd;
     switch(action_field) {
         case USER_ACTION_CONNECT:
+        printf("%s connected\n", c_users[index].username);
         c_users[index].connected_at = time(&now);
         break;
 
         case USER_ACTION_DISCONNECT:
+        printf("%s disconnected\n", c_users[index].username);
         c_users[index].disconnected_at = time(&now);
         break;
 
         case USER_ACTION_SEND_MESSAGE:
+        printf("%s sent message\n", c_users[index].username);
         c_users[index].last_message_send_time = time(&now);
         break;
     }
