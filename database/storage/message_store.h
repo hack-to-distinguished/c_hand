@@ -25,16 +25,6 @@ typedef struct {
 } msg_buffer;
 
 
-typedef struct
-{
-    int    ID; // Increment with each new item
-    char*  username;
-    int    client_fd;
-    time_t connected_at;
-    time_t disconnected_at;
-    time_t last_message_send_time;
-} chand_users;
-extern chand_users c_users[CHAND_USERS_SIZE];
 
 extern int* end_of_db_idx;
 
@@ -51,7 +41,22 @@ void free_memory(flat_message_store* fms);
 msg_buffer ms_get_all_messages(flat_message_store* fms);
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_idx);
 
-// users updates
+// -- USERS -- //
+typedef struct
+{
+    int    ID; // Increment with each new item
+    char*  username;
+    int    client_fd;
+    time_t connected_at;
+    time_t disconnected_at;
+    time_t last_message_send_time;
+} chand_users;
+extern chand_users c_users[CHAND_USERS_SIZE];
+
+typedef struct {
+    int total_len;
+    char* users;
+} user_list_buffer;
 typedef enum {
     USER_ACTION_CONNECT,
     USER_ACTION_DISCONNECT,
@@ -62,3 +67,4 @@ extern user_action user_action_t;
 void ms_register_user(int client_fd, char* payload, chand_users* c_users);
 void ms_update_user(int client_fd, int index, user_action action, chand_users* c_users);
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);
+user_list_buffer ms_get_all_users(chand_users* c_users);

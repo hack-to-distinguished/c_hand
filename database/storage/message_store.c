@@ -389,3 +389,50 @@ void ms_update_user(int client_fd, int index, user_action action_field, chand_us
         break;
     }
 }
+
+
+user_list_buffer ms_get_all_users(chand_users* c_users) {
+
+    int index = 1;
+
+    char* user_list = malloc(START_SIZE);
+    user_list[0] = '\0';
+    strcat(user_list, "[");
+    size_t cur_len = strlen(user_list);
+    size_t cur_cap = START_SIZE; // cap size needs to be big enough to include the first snprintf
+    char* tmp_buffer = malloc(BUFFER_SIZE);
+
+    while (c_users[index].username != NULL)
+    {
+        snprintf(
+            tmp_buffer, BUFFER_SIZE,
+            "{'client_fd': '%d', 'username': '%s'}", c_users[index].client_fd, c_users[index].username
+        );
+
+        int tmp_buffer_len = strlen(tmp_buffer);
+        if (tmp_buffer_len + cur_len + 1 >= cur_cap) {
+            cur_cap = cur_cap * 2;
+            char *tmp_ptr = realloc(user_list, cur_cap);
+            if (!tmp_ptr) {
+                printf("Failed to reallocate memory for the messages\n");
+            }
+            user_list = tmp_ptr;
+        }
+        strcat(user_list, tmp_buffer);
+        cur_len += tmp_buffer_len;
+        index++;
+
+        if (c_users[index].username != NULL) {
+            // We only add the comma if there is more data to append
+            strcat(user_list, ", ");
+            cur_len += strlen(", ");
+        }
+
+    }
+    strcat(user_list, "]");
+    cur_len += strlen("]");
+    free(tmp_buffer);
+    user_list_buffer out = {cur_len, user_list};
+
+    return out; // msg_by_use needs to be freed after use
+}
