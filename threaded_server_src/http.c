@@ -555,6 +555,25 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(msg_res.messages_by_user);
+        
+        } else if (strcmp(ctx->ptr_uri, "/all-users") == 0) {
+            printf("GET ALL USERS");
+           
+            user_list_buffer users_info = ms_get_all_users(c_users);
+
+            size_t total_buffer = 200 + users_info.total_len;
+            char *ptr_packet_buffer = malloc(total_buffer);
+            snprintf(ptr_packet_buffer, total_buffer,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: %d\r\n"
+                "Connection: close\r\n"
+                "\r\n"
+                "%s",
+                users_info.total_len, users_info.users);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            free(users_info.users);
             
         } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
             // TODO: Turn the Get to post

@@ -434,5 +434,5 @@ user_list_buffer ms_get_all_users(chand_users* c_users) {
     free(tmp_buffer);
     user_list_buffer out = {cur_len, user_list};
 
-    return out; // msg_by_use needs to be freed after use
+    return out; // user_list needs to be freed after use
 }
