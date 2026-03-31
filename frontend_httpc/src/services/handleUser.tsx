@@ -29,3 +29,27 @@ export const registerUser = async (username) => {
     console.log("Service registering user error", error);
   }
 }
+
+export const getAllUsers = async () => {
+  try {
+    console.log("Getting list of all users")
+    const response = await axios.get("http://localhost:8081/users");
+    const userData = response.data;
+    console.log("users data", userData);
+
+    let userList = "";
+    for (let i = 0; i < userData.length; i++) {
+      const c = userData[i];
+      if (userData[i - 1] === " " || userData[i - 1] === ":" || userData[i - 1] === "{" || userData[i + 1] === "}" || userData[i + 1] === ":" || userData[i + 1] === ","){
+        userList += c === "'" ? '"' : c;
+      } else {
+        userList += c;
+      }
+    }
+    console.log("reconstructed string:", userList);
+    return JSON.parse(userList);
+
+  } catch (error) {
+    console.log("Error getting response:", error);
+  }
+};

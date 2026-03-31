@@ -2,14 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { setInLocalStorage } from "../services/handleBrowser";
 import "./userSelection.css";
 
+interface ConnectedUser {
+  username: string;
+  lastActiveTime: string;
+}
+
 interface UserSelectionProps {
   userName: string;
   setUserName: (name: string) => void;
+  userList: ConnectedUser[];
 }
 
-const UserSelection = ({ userName, setUserName }: UserSelectionProps) => {
+const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(userName);
+  const [showUsers, setShowUsers] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -84,6 +91,40 @@ const UserSelection = ({ userName, setUserName }: UserSelectionProps) => {
             {userName}
           </span>
         )}
+      </div>
+      
+      <div className="connected-users">
+        <button
+          type="button"
+          className="toggle-users"
+          onClick={() => setShowUsers((s) => !s)}
+          aria-expanded={showUsers}
+          aria-controls="connected-users-list"
+          title="Toggle connected users list"
+        >
+          {
+            showUsers ?
+            `Hide connected users (${userList?.length ?? 0})`
+            :
+            `Show connected users (${userList?.length ?? 0})`
+          }
+        </button>
+        
+        {showUsers && (
+          <ul id="connected-users-list" className="connected-users-list" aria-live="polite">
+            {userList && userList.length > 0 ? (
+              userList.map((u, idx) => (
+                <li key={`${u.username}-${idx}`} className="connected-user-item">
+                  <span className="connected-username">{u.username}</span> :{" "}
+                  <span className="connected-at">{u.lastActiveTime}</span>
+              </li>
+            ))
+            ) : (
+              <li className="connected-user-item">No connected users</li> 
+            )}
+          </ul>
+        )}
+        
       </div>
     </div>
   );
