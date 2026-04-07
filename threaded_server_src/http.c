@@ -557,7 +557,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             free(msg_res.messages_by_user);
         
         } else if (strcmp(ctx->ptr_uri, "/all-users") == 0) {
-            printf("GET ALL USERS");
+            printf("GET ALL USERS\n");
            
             user_list_buffer users_info = ms_get_all_users(c_users);
 
@@ -578,8 +578,6 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
             // TODO: Turn the Get to post
 
-            time_t now = time(NULL);
-            char *user = "1";
             int end_idx = ms_point_to_last_entry(fms);
             ms_add_message("all", "testmsg", fms, &end_idx);
             

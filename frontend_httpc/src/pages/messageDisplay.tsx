@@ -29,17 +29,17 @@ function MessageDisplay() {
 
   const [userName, setUserName] = useState<string>("");
   const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
-  
+
   const [connectedUsersList, setConnectedUsersList] = useState<ConnectedUsers[]>([]);
-  
-  const registerUserReq = async (username) => {
+
+  const registerUserReq = async (username: string) => {
     try {
       await registerUser(username);
     } catch (error) {
       console.log("Registering user error", error);
     }
   }
-  
+
   const getUserListReq = async () => {
     try {
       const userList = await getAllUsers();
@@ -63,10 +63,10 @@ function MessageDisplay() {
 
     setUserName(username || "");
   }, [userName]);
-  
+
   useEffect(() => {
     getUserListReq();
-    
+
   }, [])
 
 

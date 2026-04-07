@@ -14,7 +14,7 @@ export const generateId = (length) => {
 }
 
 
-export const registerUser = async (username) => {
+export const registerUser = async (username: string) => {
   console.log("Registering user with username:", username);
   
   try {
@@ -33,7 +33,7 @@ export const registerUser = async (username) => {
 export const getAllUsers = async () => {
   try {
     console.log("Getting list of all users")
-    const response = await axios.get("http://localhost:8081/users");
+    const response = await axios.get("http://localhost:8081/all-users");
     const userData = response.data;
     console.log("users data", userData);
 

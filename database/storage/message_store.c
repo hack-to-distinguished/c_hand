@@ -393,7 +393,8 @@ void ms_update_user(int client_fd, int index, user_action action_field, chand_us
 
 user_list_buffer ms_get_all_users(chand_users* c_users) {
 
-    int index = 1;
+    printf("Getting all users\n");
+    int index = 0;
 
     char* user_list = malloc(START_SIZE);
     user_list[0] = '\0';
@@ -433,6 +434,7 @@ user_list_buffer ms_get_all_users(chand_users* c_users) {
     cur_len += strlen("]");
     free(tmp_buffer);
     user_list_buffer out = {cur_len, user_list};
+    printf("Users found: %s\n", user_list);
 
     return out; // user_list needs to be freed after use
 }
