@@ -1,6 +1,6 @@
 import axios from "axios"; 
 
-export const generateId = (length) => {
+export const generateId = (length: number) => {
   
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -19,37 +19,52 @@ export const registerUser = async (username: string) => {
   
   try {
     // because cors isn't set up in the C backend, we need to make the request to the same TLD as the frontend
-    const response = await axios.post("http://localhost:8081/register", {
-      username: username, 
-      // headers: { 'Content-Type': 'application/json' }
-      headers: { 'Content-Type': 'text/html' }
-    });
+    const response = await axios.post(
+      "http://localhost:8081/register",
+      { username: username },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     console.log("Registering user response:", response);
   } catch (error) {
     console.log("Service registering user error", error);
   }
 }
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (username: string) => {
   try {
-    console.log("Getting list of all users")
-    const response = await axios.get("http://localhost:8081/all-users");
+    console.log(`Getting list of all users other than ${username}`)
+    const response = await axios.get("http://localhost:8081/users");
     const userData = response.data;
     console.log("users data", userData);
 
-    let userList = "";
-    for (let i = 0; i < userData.length; i++) {
-      const c = userData[i];
-      if (userData[i - 1] === " " || userData[i - 1] === ":" || userData[i - 1] === "{" || userData[i + 1] === "}" || userData[i + 1] === ":" || userData[i + 1] === ","){
-        userList += c === "'" ? '"' : c;
-      } else {
-        userList += c;
-      }
+    if (!userData || typeof userData !== "object") {
+      return [];
     }
-    console.log("reconstructed string:", userList);
-    return JSON.parse(userList);
-
+    delete userData[username];
+    
+    // Transform object into list
+    const usersArray = Object.entries(userData).map(([username, info]) => {
+      const anyInfo: any = info as any;
+      let epochSec = 0;
+      
+      if (anyInfo.last_message_send_time && anyInfo.last_message_send_time > 0) {
+        epochSec = anyInfo.last_message_send_time;
+      } else if (anyInfo.connected_at && anyInfo.connected_at > 0) {
+        epochSec = anyInfo.connected_at;
+      }
+      
+      const lastActiveTime = epochSec && epochSec > 0
+        ? new Date(epochSec * 1000).toLocaleString() : "";
+      
+      return {
+        username, lastActiveTime
+      };
+    });
+    
+    return usersArray;
+    
   } catch (error) {
-    console.log("Error getting response:", error);
+    console.log("Error getting list of users:", error);
+    return [];
   }
 };

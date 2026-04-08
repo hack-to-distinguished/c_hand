@@ -392,49 +392,37 @@ void ms_update_user(int client_fd, int index, user_action action_field, chand_us
 
 
 user_list_buffer ms_get_all_users(chand_users* c_users) {
-
-    printf("Getting all users\n");
-    int index = 0;
-
-    char* user_list = malloc(START_SIZE);
-    user_list[0] = '\0';
-    strcat(user_list, "[");
-    size_t cur_len = strlen(user_list);
-    size_t cur_cap = START_SIZE; // cap size needs to be big enough to include the first snprintf
-    char* tmp_buffer = malloc(BUFFER_SIZE);
-
-    while (c_users[index].username != NULL)
-    {
-        snprintf(
-            tmp_buffer, BUFFER_SIZE,
-            "{'client_fd': '%d', 'username': '%s'}", c_users[index].client_fd, c_users[index].username
-        );
-
-        int tmp_buffer_len = strlen(tmp_buffer);
-        if (tmp_buffer_len + cur_len + 1 >= cur_cap) {
-            cur_cap = cur_cap * 2;
-            char *tmp_ptr = realloc(user_list, cur_cap);
-            if (!tmp_ptr) {
-                printf("Failed to reallocate memory for the messages\n");
-            }
-            user_list = tmp_ptr;
-        }
-        strcat(user_list, tmp_buffer);
-        cur_len += tmp_buffer_len;
-        index++;
-
-        if (c_users[index].username != NULL) {
-            // We only add the comma if there is more data to append
-            strcat(user_list, ", ");
-            cur_len += strlen(", ");
-        }
-
+    cJSON *users_obj = cJSON_CreateObject();
+    if (!users_obj) {
+        user_list_buffer out = {0, NULL};
+        return out;
     }
-    strcat(user_list, "]");
-    cur_len += strlen("]");
-    free(tmp_buffer);
-    user_list_buffer out = {cur_len, user_list};
-    printf("Users found: %s\n", user_list);
-
-    return out; // user_list needs to be freed after use
+    
+    int index = 0;
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        cJSON *u = cJSON_CreateObject();
+        if (!u) {
+            cJSON_Delete(users_obj);
+            user_list_buffer out = {0, NULL};
+            return out;
+        }
+        
+        cJSON_AddNumberToObject(u, "client_fd", c_users[index].client_fd);
+        cJSON_AddNumberToObject(u, "connected_at", (double)c_users[index].connected_at);
+        cJSON_AddNumberToObject(u, "disconnected_at", (double)c_users[index].disconnected_at);
+        cJSON_AddNumberToObject(u, "last_message_send_time", (double)c_users[index].last_message_send_time);
+    
+        cJSON_AddItemToObject(users_obj, c_users[index].username, u);
+        index++;
+    }
+    
+    char *json_str = cJSON_PrintUnformatted(users_obj);
+    if (!json_str) {
+        json_str = strdup("{}");
+    }
+    
+    user_list_buffer out = {(int)strlen(json_str), json_str};
+    // json_str remains allocated and is deleted later (in http.c)
+    cJSON_Delete(users_obj);
+    return out;
 }

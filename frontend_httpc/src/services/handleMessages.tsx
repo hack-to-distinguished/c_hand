@@ -94,6 +94,6 @@ export const getAllMessages = async () => {
     return JSON.parse(msgString);
 
   } catch (error) {
-    console.log("Error getting response:", error);
+    console.log("Error getting all messages:", error);
   }
 };

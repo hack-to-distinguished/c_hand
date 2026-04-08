@@ -40,9 +40,9 @@ function MessageDisplay() {
     }
   }
 
-  const getUserListReq = async () => {
+  const getUserListReq = async (username: string) => {
     try {
-      const userList = await getAllUsers();
+      const userList = await getAllUsers(username);
       setConnectedUsersList(userList);
     } catch (error) {
       console.log("Getting list of users error", error);
@@ -65,9 +65,9 @@ function MessageDisplay() {
   }, [userName]);
 
   useEffect(() => {
-    getUserListReq();
+    getUserListReq(userName);
 
-  }, [])
+  }, [userName])
 
 
   return (

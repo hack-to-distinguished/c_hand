@@ -556,8 +556,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(msg_res.messages_by_user);
         
-        } else if (strcmp(ctx->ptr_uri, "/all-users") == 0) {
-            printf("GET ALL USERS\n");
+        } else if (strcmp(ctx->ptr_uri, "/users") == 0) {
            
             user_list_buffer users_info = ms_get_all_users(c_users);
 
