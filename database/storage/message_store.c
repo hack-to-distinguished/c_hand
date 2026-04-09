@@ -279,6 +279,7 @@ int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
 
 
     while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        printf("Searching %d\n", index);
         char* db_username = c_users[index].username;
         if (strcmp(cur_user, db_username) == 0) {
             // We've found the user
@@ -291,11 +292,16 @@ int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     }
     
     // we have the index of the current user now, we check that they're not just looking to change username
-    cJSON *jsonNewUsername = cJSON_GetObjectItem(json, "new_username");
-    if (cJSON_IsString(jsonNewUsername) || jsonNewUsername->valuestring) {
-        ms_update_user(client_fd, index, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
-        cJSON_Delete(json);
-        return 0;
+    cJSON_bool isNewUsername = cJSON_HasObjectItem(json, "new_username");
+    if (isNewUsername) {
+        cJSON *jsonNewUsername = cJSON_GetObjectItem(json, "new_username");
+        if (!cJSON_IsString(jsonNewUsername) || jsonNewUsername->valuestring == NULL) {
+            printf("New username field found as null. Assuming there is no desire to change username\n");
+        } else {
+            ms_update_user(client_fd, index, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
+            cJSON_Delete(json);
+            return 0;
+        }
     }
     
     if (index >= CHAND_USERS_SIZE) {

@@ -33,6 +33,7 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
   }, [isEditing]);
 
   const save = () => {
+    // TODO: Add the call to check here
     const trimmed = editValue.trim();
     if (trimmed && trimmed !== userName) {
       setUserName(trimmed);
