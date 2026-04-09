@@ -57,14 +57,16 @@ typedef struct {
     int total_len;
     char* users;
 } user_list_buffer;
+
 typedef enum {
     USER_ACTION_CONNECT,
     USER_ACTION_DISCONNECT,
-    USER_ACTION_SEND_MESSAGE
+    USER_ACTION_SEND_MESSAGE,
+    USER_ACTION_CHANGE_USERNAME
 } user_action;
 extern user_action user_action_t; 
 
-void ms_register_user(int client_fd, char* payload, chand_users* c_users);
-void ms_update_user(int client_fd, int index, user_action action, chand_users* c_users);
+int ms_register_user(int client_fd, char* payload, chand_users* c_users);
+int ms_update_user(int client_fd, int index, user_action action, chand_users* c_users, char* new_username);
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);
 user_list_buffer ms_get_all_users(chand_users* c_users);

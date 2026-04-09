@@ -250,7 +250,7 @@ void free_memory(flat_message_store* fms)
 }
 
 
-void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
+int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     printf("MS REGISTER USER\n");
     // INFO: 
     // - client_fds are not tied to a specific user, I move them around
@@ -258,42 +258,44 @@ void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     // A new user can pick a username that already exists (if the user isn't conncted)
     // and at that point, all his information should be transferred to that user
 
+    // TODO: call the ms_change_username (or however it's called) to
+    // check that the user doesn't already exists in the db
     int index = 0;
 
     cJSON *json = cJSON_Parse(payload);
     if (!json) {
         fprintf(stderr, "ms_register user: invalid JSON payload\n");
-        return;
+        return -1;
     }
     cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
     if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
         perror("Message isn't a string");
-        fprintf(stderr, "ms_register_user: missing or invalide username\n");
+        fprintf(stderr, "ms_register_user: missing or invalid username\n");
         cJSON_Delete(json);
-        return;
+        return -1;
     }
     char* cur_user = jsonUsername->valuestring;
-    printf("Value at index %d -> %s\n", index, c_users[index].username);
     printf("User to update: %s\n", cur_user);
 
 
-    // while (index < CHAND_USERS_SIZE && c_users[index].username[0] != '\0') {
     while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
-        printf("Verifying user: %s\n", c_users[index].username);
         char* db_username = c_users[index].username;
-        // int cur_username_len = strlen(db_username);
         if (strcmp(cur_user, db_username) == 0) {
             // We've found the user
-            // TODO: Check that the user isn't already connected
-            // - If user connected_at < user disconnected_at:
-            // -> The user is currently conncted
-            // - This is only possible once we disconnect users properly
             printf("User %s exists in the store, update their info\n", db_username);
-            ms_update_user(client_fd, index, USER_ACTION_CONNECT, c_users);
+            ms_update_user(client_fd, index, USER_ACTION_CONNECT, c_users, "");
             cJSON_Delete(json);
-            return;
+            return 0;
         };
         index++;
+    }
+    
+    // we have the index of the current user now, we check that they're not just looking to change username
+    cJSON *jsonNewUsername = cJSON_GetObjectItem(json, "new_username");
+    if (cJSON_IsString(jsonNewUsername) || jsonNewUsername->valuestring) {
+        ms_update_user(client_fd, index, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
+        cJSON_Delete(json);
+        return 0;
     }
     
     if (index >= CHAND_USERS_SIZE) {
@@ -315,7 +317,7 @@ void ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     printf("User %s added\n\n", c_users[index].username);
     cJSON_Delete(json);
     
-    return;
+    return 0;
 }
 
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users) {
@@ -353,41 +355,78 @@ void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users) {
     return;
 }
 
-void ms_change_username(int client_fd, char* payload, chand_users* c_users) {
-    // INFO:
-    // - client_fds are not tied to a specific user, I move them around
-    // as users change username, connect, reconnect etc
-    // A new user can pick a username that already exists (if the user isn't conncted)
-    // and at that point, all his information should be transferred to that user
-    // INFO:
-    // - If a user changes their username, might as well delete the old user
-}
 
 
-void ms_update_user(int client_fd, int index, user_action action_field, chand_users* c_users) {
-    printf("Updating information for %s\n", c_users[index].username);
+int ms_update_user(int client_fd, int index, user_action action_field, chand_users* c_users, char* new_username) {
+    if (index < 0 || index >= CHAND_USERS_SIZE) {
+        fprintf(stderr, "ms_update_user: index out of range\n");
+        return -1;
+    }
 
-    // Client fd changes / is re-added because the user could've changed
-    // to an existing but unused username 
+    printf("Updating information for %s\n", c_users[index].username ? c_users[index].username : "(unknown)");
 
     time_t now = time(NULL);
+    // Update client fd for the user record at index
     c_users[index].client_fd = client_fd;
+
     switch(action_field) {
         case USER_ACTION_CONNECT:
-        printf("%s connected\n", c_users[index].username);
-        c_users[index].connected_at = time(&now);
-        break;
+            printf("%s connected\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].connected_at = now;
+            break;
 
         case USER_ACTION_DISCONNECT:
-        printf("%s disconnected\n", c_users[index].username);
-        c_users[index].disconnected_at = time(&now);
-        break;
+            printf("%s disconnected\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].disconnected_at = now;
+            // Optionally mark client fd as not connected
+            c_users[index].client_fd = -1;
+            break;
 
         case USER_ACTION_SEND_MESSAGE:
-        printf("%s sent message\n", c_users[index].username);
-        c_users[index].last_message_send_time = time(&now);
-        break;
+            printf("%s sent message\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].last_message_send_time = now;
+            break;
+
+        case USER_ACTION_CHANGE_USERNAME: {
+            if (!new_username) {
+                fprintf(stderr, "ms_update_user: new_username is NULL\n");
+                return -1;
+            }
+
+            // Check that the new username doesn't already exist in the store
+            char *cur_user = new_username;
+            int i = 0;
+            for (i = 0; i < CHAND_USERS_SIZE && c_users[i].username != NULL; i++) {
+                if (strcmp(cur_user, c_users[i].username) == 0) {
+                    printf("User %s exists in the store you can't select this username\n", c_users[i].username);
+                    perror("Username selected already exists");
+                    fprintf(stderr, "ms_update_user: username already exists\n");
+                    return -1;
+                }
+            }
+
+            // Replace the username at the provided index
+            printf("Replacing user %s with: %s\n\n", c_users[index].username ? c_users[index].username : "(null)", cur_user);
+            free(c_users[index].username);
+            c_users[index].username = malloc(strlen(cur_user) + 1);
+            if (!c_users[index].username) {
+                fprintf(stderr, "ms_update_user: malloc failed\n");
+                return -1;
+            }
+            strcpy(c_users[index].username, cur_user);
+            c_users[index].client_fd = client_fd;
+            c_users[index].connected_at = now;
+
+            printf("User %s added\n\n", c_users[index].username);
+            break;
+        }
+
+        default:
+            fprintf(stderr, "ms_update_user: unknown action field\n");
+            return -1;
     }
+
+    return 0;
 }
 
 
