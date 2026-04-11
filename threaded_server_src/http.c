@@ -102,6 +102,16 @@ void send_http_response(int new_connection_fd, char *ptr_packet_buffer) {
     return;
 }
 
+void add_cors_headers(char *buffer, size_t buffer_size, const char* existing_headers) {
+    char temp[BUFFER_SIZE];
+    snprintf(temp, buffer_size, "%s%s", existing_headers,
+        "Access-Control-Allow-Origin: *\r\n"
+        "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+        "Access-Control-Allow-Headers: Content-Type\r\n"
+    );
+    strcpy(buffer, temp);
+}
+
 void ERROR_STATE_400(http_request_ctx *ctx) {
     char *ptr_packet_buffer = malloc(BUFFER_SIZE);
     char *ptr_body;
@@ -113,7 +123,11 @@ void ERROR_STATE_400(http_request_ctx *ctx) {
     snprintf(ptr_packet_buffer, BUFFER_SIZE,
              "HTTP/1.1 400 Bad Request\r\n"
              "Content-Length: %d\r\n"
-             "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+             "Content-Type: text/html;\r\n"
+             "Access-Control-Allow-Origin: *\r\n"
+             "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+             "Access-Control-Allow-Headers: Content-Type\r\n"
+             "Connection: close\r\n\r\n"
              "%s",
              body_len, ptr_body);
     send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
@@ -131,7 +145,11 @@ void ERROR_STATE_404(http_request_ctx *ctx) {
     snprintf(ptr_packet_buffer, BUFFER_SIZE,
              "HTTP/1.1 404 Not Found\r\n"
              "Content-Length: %ld\r\n"
-             "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
+             "Content-Type: text/html;\r\n"
+             "Access-Control-Allow-Origin: *\r\n"
+             "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+             "Access-Control-Allow-Headers: Content-Type\r\n"
+             "Connection: close\r\n\r\n"
              "%s",
              body_len, ptr_body);
     send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
@@ -461,6 +479,23 @@ void parse_body_of_POST(http_request_ctx *ctx) {
 void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
     char *processed_uri_ptr = ctx->ptr_uri;
+    
+    if (strcmp(ctx->ptr_method, "OPTIONS") == 0) {
+        printf("Options request detected\n");
+        char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+        snprintf(ptr_packet_buffer, BUFFER_SIZE, 
+            "HTTP/1.1 204 No Content\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+            "Access-Control-Allow-Headers: Content-Type\r\n"
+            "Connection: close\r\n"
+            "\r\n"
+        );
+        send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+        free(ctx->ptr_uri);
+        free(ctx->ptr_method);
+        return;
+    }
 
     if (!(strcmp(ctx->ptr_uri, "/") == 0)) {
         processed_uri_ptr += 1;
@@ -507,7 +542,13 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
             
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            snprintf(ptr_packet_buffer, BUFFER_SIZE, " data");
+            snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Connection: close\r\n"
+                "\r\n"
+            );
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
         }
 
@@ -744,6 +785,7 @@ void REQUEST_LINE_STATE(http_request_ctx *ctx) {
 
     if (!(strcmp(ctx->ptr_method, "GET") == 0 ||
           strcmp(ctx->ptr_method, "POST") == 0 ||
+          strcmp(ctx->ptr_method, "OPTIONS") == 0 ||
           strcmp(ctx->ptr_method, "HEAD") == 0)) {
         ERROR_STATE_400(ctx);
         printf("\nRequest line state error, unrecognized method: %s\n", ctx->ptr_method);
