@@ -24,7 +24,7 @@ interface ConnectedUsers {
 }
 
 function MessageDisplay() {
-  const serverUrl = "ws://127.0.0.1:8081";
+  const serverUrl = "ws://localhost:8081";
   const { socket, connectionStatus } = useWebSocket(serverUrl);
 
   const [userName, setUserName] = useState<string>("");

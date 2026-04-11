@@ -102,15 +102,6 @@ void send_http_response(int new_connection_fd, char *ptr_packet_buffer) {
     return;
 }
 
-void add_cors_headers(char *buffer, size_t buffer_size, const char* existing_headers) {
-    char temp[BUFFER_SIZE];
-    snprintf(temp, buffer_size, "%s%s", existing_headers,
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
-        "Access-Control-Allow-Headers: Content-Type\r\n"
-    );
-    strcpy(buffer, temp);
-}
 
 void ERROR_STATE_400(http_request_ctx *ctx) {
     char *ptr_packet_buffer = malloc(BUFFER_SIZE);

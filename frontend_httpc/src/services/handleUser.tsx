@@ -19,7 +19,7 @@ export const registerUser = async (username: string) => {
 
   try {
     const response = await axios.post(
-      "http://127.0.0.1:8081/register",
+      "http://localhost:8081/register",
       { username: username },
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -32,7 +32,7 @@ export const registerUser = async (username: string) => {
 export const getAllUsers = async (username: string) => {
   try {
     console.log(`Getting list of all users other than ${username}`)
-    const response = await axios.get("http://127.0.0.1:8081/users");
+    const response = await axios.get("http://localhost:8081/users");
     const userData = response.data;
     console.log("users data", userData);
 
