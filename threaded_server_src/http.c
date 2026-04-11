@@ -125,6 +125,16 @@ void ERROR_STATE_400(http_request_ctx *ctx) {
     return;
 }
 
+
+void add_cors_headers(char *buffer, size_t buffer_size, const char *existing_headers) {
+    char temp[BUFFER_SIZE];
+    snprintf(temp, buffer_size, "%s%s", existing_headers, 
+        "Access-Control-Allow-Origin: *\r\n"
+        "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+        "Access-Control-Allow-Headers: Content-Type\r\n");
+    strcpy(buffer, temp);
+}
+
 void ERROR_STATE_404(http_request_ctx *ctx) {
     char *ptr_packet_buffer = malloc(BUFFER_SIZE);
     char *ptr_body;
@@ -546,24 +556,14 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
             if (res) {
                 char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-                snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Access-Control-Allow-Origin: *\r\n"
-                    "Connection: close\r\n"
-                    "\r\n"
-                );
+                // snprintf(ptr_packet_buffer, BUFFER_SIZE, "200");
+                add_cors_headers(ptr_packet_buffer, BUFFER_SIZE, "500");
                 send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             } else {
                 // TODO: Change to negative response since user already exists
                 char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-                snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Access-Control-Allow-Origin: *\r\n"
-                    "Connection: close\r\n"
-                    "\r\n"
-                );
+                add_cors_headers(ptr_packet_buffer, BUFFER_SIZE, "500");
+                // snprintf(ptr_packet_buffer, BUFFER_SIZE, "500");
                 send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             }
 

@@ -30,9 +30,9 @@ export const registerUser = async (username: string) => {
 }
 
 export const changeUsername = async (username: string, newUsername: string) => {
-  console.log("Changing user %s to %s:", username, newUsername);
-
   try {
+    console.log("Changing user %s to %s:", username, newUsername);
+    
     const response = await axios.post(
       "http://localhost:8081/change-username",
       { username: username, new_username: newUsername },
