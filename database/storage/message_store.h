@@ -67,6 +67,7 @@ typedef enum {
 extern user_action user_action_t; 
 
 int ms_register_user(int client_fd, char* payload, chand_users* c_users);
-int ms_update_user(int client_fd, int index, user_action action, chand_users* c_users, char* new_username);
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);
 user_list_buffer ms_get_all_users(chand_users* c_users);
+int ms_change_username(int client_fd, char* payload, chand_users* c_users);
+int ms_update_user(int client_fd, char* username, int index, user_action action, chand_users* c_users, char* new_username);
