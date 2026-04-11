@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { setInLocalStorage } from "../services/handleBrowser";
 import "./userSelection.css";
+import { changeUsername } from "../services/handleUser";
 
 interface ConnectedUser {
   username: string;
@@ -31,11 +32,22 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
       inputRef.current?.setSelectionRange(len, len);
     }
   }, [isEditing]);
+  
+  
+  const changeUserReq = async (username: string, newUsername: string) => {
+    try {
+      console.log("Requesting username change from %s to %s", username, newUsername)
+      await changeUsername(username, newUsername);
+    } catch (error) {
+      console.log("Registering user error", error);
+    }
+  }
 
   const save = () => {
-    // TODO: Add the call to check here
     const trimmed = editValue.trim();
     if (trimmed && trimmed !== userName) {
+      // TODO: Add the call to check here
+      changeUserReq(userName, trimmed);
       setUserName(trimmed);
       setInLocalStorage("username", trimmed);
     }

@@ -29,6 +29,21 @@ export const registerUser = async (username: string) => {
   }
 }
 
+export const changeUsername = async (username: string, newUsername: string) => {
+  console.log("Changing user %s to %s:", username, newUsername);
+
+  try {
+    const response = await axios.post(
+      "http://localhost:8081/change-username",
+      { username: username, new_username: newUsername },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    console.log("Registering username change response:", response);
+  } catch (error) {
+    console.log("Service registering username change error", error);
+  }
+}
+
 export const getAllUsers = async (username: string) => {
   try {
     console.log(`Getting list of all users other than ${username}`)
