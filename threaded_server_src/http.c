@@ -470,11 +470,10 @@ void parse_body_of_POST(http_request_ctx *ctx) {
 void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
     char *processed_uri_ptr = ctx->ptr_uri;
-    
+
     if (strcmp(ctx->ptr_method, "OPTIONS") == 0) {
-        printf("Options request detected\n");
         char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-        snprintf(ptr_packet_buffer, BUFFER_SIZE, 
+        snprintf(ptr_packet_buffer, BUFFER_SIZE,
             "HTTP/1.1 204 No Content\r\n"
             "Access-Control-Allow-Origin: *\r\n"
             "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
@@ -529,9 +528,8 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         printf("\nPOST REQUEST REGISTERED ROUTE: %s\n", ctx->ptr_uri);
 
         if (strcmp(ctx->ptr_uri, "/register") == 0) {
-            printf("/register route triggered, adding user\n");
             ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
-            
+
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                 "HTTP/1.1 200 OK\r\n"
@@ -541,6 +539,34 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 "\r\n"
             );
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+
+        } else if (strcmp(ctx->ptr_uri, "/change-username") == 0) {
+            printf("\n/change-username route triggered, adding user\n");
+            int res = ms_change_username(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+
+            if (res) {
+                char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+                snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                );
+                send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            } else {
+                // TODO: Change to negative response since user already exists
+                char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+                snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                );
+                send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            }
+
         }
 
         free(uri_buffer);
@@ -587,9 +613,9 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 msg_res.total_len, msg_res.messages_by_user);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(msg_res.messages_by_user);
-        
+
         } else if (strcmp(ctx->ptr_uri, "/users") == 0) {
-           
+
             user_list_buffer users_info = ms_get_all_users(c_users);
 
             size_t total_buffer = 200 + users_info.total_len;
@@ -605,13 +631,13 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 users_info.total_len, users_info.users);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(users_info.users);
-            
+
         } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
             // TODO: Turn the Get to post
 
             int end_idx = ms_point_to_last_entry(fms);
             ms_add_message("all", "testmsg", fms, &end_idx);
-            
+
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             char *ptr_body;
             int body_len;
@@ -626,13 +652,13 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 "%s",
                 body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
-            
+
         }
         free(uri_buffer);
         free(ctx->ptr_uri);
         free(ctx->ptr_method);
         return;
-        
+
 
     } else {
         // printf("\nFile does not exist!");
