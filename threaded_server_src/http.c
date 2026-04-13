@@ -469,7 +469,7 @@ void parse_body_of_POST(http_request_ctx *ctx) {
                          "text/html\r\nConnection: close\r\n\r\n%s";
     char *ptr_packet_buffer = malloc(BUFFER_SIZE);
     snprintf(ptr_packet_buffer, BUFFER_SIZE, HTTP_format, ptr_body);
-    send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+    // send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
     free(ptr_body);
     free(ctx->ptr_body_content_type);
@@ -541,31 +541,61 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
+            const char *response_body = "{\"status\":\"ok\"}";
+            int body_len = strlen(response_body);
+            
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: application/json\r\n"
+                "Content-Length: %d\r\n"
                 "Access-Control-Allow-Origin: *\r\n"
+                "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+                "Access-Control-Allow-Headers: Content-Type\r\n"
                 "Connection: close\r\n"
                 "\r\n"
+                "%s",
+                body_len, response_body
             );
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         } else if (strcmp(ctx->ptr_uri, "/change-username") == 0) {
             printf("\n/change-username route triggered, adding user\n");
             int res = ms_change_username(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            
+            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
 
             if (res) {
-                char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-                // snprintf(ptr_packet_buffer, BUFFER_SIZE, "200");
-                add_cors_headers(ptr_packet_buffer, BUFFER_SIZE, "500");
-                send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+                const char *response_body = "{\"status\":\"ok\"}";
+                int body_len = strlen(response_body);
+                snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Content-Length: %d\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+                    "Access-Control-Allow-Headers: Content-Type\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                    "%s",
+                    body_len, response_body
+                );
             } else {
-                // TODO: Change to negative response since user already exists
-                char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-                add_cors_headers(ptr_packet_buffer, BUFFER_SIZE, "500");
-                // snprintf(ptr_packet_buffer, BUFFER_SIZE, "500");
-                send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+                const char *response_body = "{\"error\":\"Username change failed\"}";
+                int body_len = strlen(response_body);
+                snprintf(ptr_packet_buffer, BUFFER_SIZE,
+                    "HTTP/1.1 400 Bad Request\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Content-Length: %d\r\n"
+                    "Access-Control-Allow-Origin: *\r\n"
+                    "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
+                    "Access-Control-Allow-Headers: Content-Type\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                    "%s",
+                    body_len, response_body
+                );
             }
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         }
 
