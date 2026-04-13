@@ -29,7 +29,7 @@ export const registerUser = async (username: string) => {
   }
 }
 
-export const changeUsername = async (username: string, newUsername: string) => {
+export const changeUsername = async (username: string, newUsername: string, setUserName, setInLocalStorage) => {
   try {
     console.log("Changing user %s to %s:", username, newUsername);
     
@@ -39,8 +39,14 @@ export const changeUsername = async (username: string, newUsername: string) => {
       { headers: { 'Content-Type': 'application/json' } }
     );
     console.log("Registering username change response:", response);
+    if (response) {
+      setUserName(newUsername)
+      setInLocalStorage("username", newUsername)
+      return true;
+    }
   } catch (error) {
     console.log("Service registering username change error", error);
+    return false;
   }
 }
 

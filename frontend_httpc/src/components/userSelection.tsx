@@ -34,12 +34,14 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
   }, [isEditing]);
   
   
-  const changeUserReq = async (username: string, newUsername: string) => {
+  const changeUserReq = async (username: string, newUsername: string, setUserName, setInLocalStorage) => {
     try {
       console.log("Requesting username change from %s to %s", username, newUsername)
-      await changeUsername(username, newUsername);
+      const response = await changeUsername(username, newUsername, setUserName, setInLocalStorage);
+      return response;
     } catch (error) {
       console.log("Registering user error", error);
+      return false;
     }
   }
 
@@ -47,9 +49,9 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
     const trimmed = editValue.trim();
     if (trimmed && trimmed !== userName) {
       // TODO: Add the call to check here
-      changeUserReq(userName, trimmed);
-      setUserName(trimmed);
-      setInLocalStorage("username", trimmed);
+      changeUserReq(userName, trimmed, setUserName, setInLocalStorage);
+      // setUserName(trimmed);
+      // setInLocalStorage("username", trimmed);
     }
     setIsEditing(false);
   };
