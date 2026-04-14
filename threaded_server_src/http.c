@@ -128,7 +128,7 @@ void ERROR_STATE_400(http_request_ctx *ctx) {
 
 void add_cors_headers(char *buffer, size_t buffer_size, const char *existing_headers) {
     char temp[BUFFER_SIZE];
-    snprintf(temp, buffer_size, "%s%s", existing_headers, 
+    snprintf(temp, buffer_size, "%s%s", existing_headers,
         "Access-Control-Allow-Origin: *\r\n"
         "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
         "Access-Control-Allow-Headers: Content-Type\r\n");
@@ -465,23 +465,6 @@ void parse_body_of_POST(http_request_ctx *ctx) {
         free(ctx->ptr_boundary);
     }
 
-    const char *response_body = "{\"status\":\"ok\"}";
-    int body_len = strlen(response_body);
-    char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-    snprintf(ptr_packet_buffer, BUFFER_SIZE,
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Methods: GET, POST, OPTIONS, HEAD\r\n"
-        "Access-Control-Allow-Headers: Content-Type\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "%s",
-        body_len, response_body
-    );
-    send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
-
     free(ptr_body);
     free(ctx->ptr_body_content_type);
     free(ctx->ptr_body_content_length);
@@ -552,9 +535,9 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            const char *response_body = "{\"status\":\"ok\"}";
+            const char *response_body = "{\"status\":\"200\", \"action\":\"registered user\"}";
             int body_len = strlen(response_body);
-            
+
             snprintf(ptr_packet_buffer, BUFFER_SIZE,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: application/json\r\n"
@@ -572,11 +555,11 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         } else if (strcmp(ctx->ptr_uri, "/change-username") == 0) {
             printf("\n/change-username route triggered, adding user\n");
             int res = ms_change_username(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
-            
+
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
 
-            if (res) {
-                const char *response_body = "{\"status\":\"ok\"}";
+            if (res == 1) {
+                const char *response_body = "{\"status\":\"200\", \"action\":\"change username\"}";
                 int body_len = strlen(response_body);
                 snprintf(ptr_packet_buffer, BUFFER_SIZE,
                     "HTTP/1.1 200 OK\r\n"
@@ -591,7 +574,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     body_len, response_body
                 );
             } else {
-                const char *response_body = "{\"error\":\"Username change failed\"}";
+                const char *response_body = "{\"status\":\"400\", \"action\":\"failed to change usernamed\"}";
                 int body_len = strlen(response_body);
                 snprintf(ptr_packet_buffer, BUFFER_SIZE,
                     "HTTP/1.1 400 Bad Request\r\n"

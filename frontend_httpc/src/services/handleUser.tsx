@@ -38,7 +38,7 @@ export const changeUsername = async (username: string, newUsername: string, setU
       { username: username, new_username: newUsername },
       { headers: { 'Content-Type': 'application/json' } }
     );
-    console.log("Registering username change response:", response);
+    console.log("Username change response:", response);
     if (response) {
       setUserName(newUsername)
       setInLocalStorage("username", newUsername)

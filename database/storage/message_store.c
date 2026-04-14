@@ -286,7 +286,7 @@ int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
             printf("User %s exists in the store, update their info\n", db_username);
             ms_update_user(client_fd, cur_user, index, USER_ACTION_CONNECT, c_users, "");
             cJSON_Delete(json);
-            return 0;
+            return 1;
         };
         index++;
     }
@@ -310,7 +310,7 @@ int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
     printf("User %s added\n\n", c_users[index].username);
     cJSON_Delete(json);
 
-    return 0;
+    return 1;
 }
 
 
@@ -343,9 +343,9 @@ int ms_change_username(int client_fd, char* payload, chand_users* c_users) {
             char* cur_user = jsonUsername->valuestring;
             printf("Change user: %s to: %s\n", cur_user, jsonNewUsername->valuestring);
 
-            ms_update_user(client_fd, cur_user, 0, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
+            int res = ms_update_user(client_fd, cur_user, 0, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
             cJSON_Delete(json);
-            return 0;
+            return res;
         }
     } else {
         perror("new_username not provided");
@@ -427,7 +427,7 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
 
         case USER_ACTION_CHANGE_USERNAME: {
             printf("Case change username\n");
-            
+
             if (!new_username) {
                 fprintf(stderr, "ms_update_user: new_username is NULL\n");
                 return -1;
@@ -439,10 +439,10 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
             while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
                 if (strcmp(new_username, c_users[index].username) == 0) {
                     printf("User %s exists in the store you can't select this username\n", c_users[index].username);
-                    perror("Username selected already exists");
+                    perror("Username selected already exists - returning\n");
                     fprintf(stderr, "ms_update_user: username already exists\n");
                     return -1;
-                    
+
                 } else if (strcmp(username, c_users[index].username) == 0) { // Check also search for the current user
                     printf("Found current user: %d - %s\n", index, c_users[index].username);
                     index_cur_user = index;
@@ -460,7 +460,7 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
             free(c_users[index_cur_user].username);
             c_users[index_cur_user].username = malloc(strlen(new_username) + 1);
             strcpy(c_users[index_cur_user].username, new_username);
-            
+
             c_users[index_cur_user].client_fd = client_fd;
             c_users[index_cur_user].connected_at = now;
 
@@ -473,7 +473,7 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
             return -1;
     }
 
-    return 0;
+    return 1;
 }
 
 
