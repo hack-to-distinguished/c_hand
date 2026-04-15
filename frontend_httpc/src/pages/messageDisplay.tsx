@@ -71,12 +71,20 @@ function MessageDisplay() {
 
 
   return (
-    <>
-      <UserSelection userName={userName} setUserName={setUserName} userList={connectedUsersList} />
-      <NetworkStatus connectionStatus={connectionStatus} />
-      <MessageFeed socket={socket} connectionStatus={connectionStatus} messagesObject={messagesObject} setMessagesObject={setMessagesObject} />
-      <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName} setMessagesObject={setMessagesObject} />
-    </>
+    <section className="hud-layout">
+      <aside className="hud-sidebar">
+        <UserSelection userName={userName} setUserName={setUserName} userList={connectedUsersList} />
+        <NetworkStatus connectionStatus={connectionStatus} />
+      </aside>
+
+      <div className="hud-main-panel">
+        <MessageFeed socket={socket} connectionStatus={connectionStatus} messagesObject={messagesObject} setMessagesObject={setMessagesObject} />
+      </div>
+
+      <footer className="hud-footer">
+        <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName} setMessagesObject={setMessagesObject} />
+      </footer>
+    </section>
   );
 }
 

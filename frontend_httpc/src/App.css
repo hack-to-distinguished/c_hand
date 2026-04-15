@@ -1,22 +1,54 @@
 #root {
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+    min-height: 100vh;
+}
+
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
 }
 
 .head_title {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #003366;
-    font-family: "Verdana", "Arial", sans-serif;
-    font-weight: bold;
-    background-color: #d4d0c8;
-    padding: 5px 20px;
-    border-top: 2px solid #ffffff;
-    border-left: 2px solid #ffffff;
-    border-right: 2px solid #808080;
-    border-bottom: 2px solid #808080;
+    position: relative;
+    border: 1px solid #3a4a32;
+    background: linear-gradient(180deg, rgba(11, 15, 16, 0.95), rgba(14, 21, 23, 0.95));
+    box-shadow: 0 0 0 1px rgba(202, 146, 46, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: left;
+    padding: 0.75rem 1rem;
+}
+
+.head_title::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+            90deg,
+            rgba(180, 145, 72, 0.07) 0,
+            rgba(180, 145, 72, 0.07) 1px,
+            transparent 1px,
+            transparent 48px
+    );
+}
+
+.head_title-label {
+    display: block;
+    color: #b38335;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    margin-bottom: 0.3rem;
+}
+
+.head_title h1 {
+    margin: 0;
+    color: #d9cf9f;
+    letter-spacing: 0.08em;
+    font-size: clamp(1rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+}
+
+.main-app-container {
+    flex: 1;
 }
