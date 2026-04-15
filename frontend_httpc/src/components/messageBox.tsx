@@ -91,14 +91,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
         >
           Send Message
         </button>
-        <div
-          style={{
-            textAlign: "left",
-            marginTop: "10px",
-            fontSize: "10px",
-            color: "#666",
-          }}
-        >
+        <div className="quote-warning">
           {showQuoteWarning ? 'Double-quote (") characters are not allowed.' : ""}
         </div>
       </form>

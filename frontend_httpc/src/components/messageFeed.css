@@ -1,62 +1,55 @@
-ul {
-    list-style-type: none;
-    padding-left: 10px;
-    margin: 0;
-}
-
 .messages-display {
-    position: fixed;
-    top: 20%;
-    left: 15%;
-    width: 70%;
-    background-color: #ffffff;
-    border-top: 1px solid #ffffff;
-    border-left: 1px solid #ffffff;
-    border-right: 2px solid #808080;
-    border-bottom: 2px solid #808080;
-    padding: 3px;
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
-}
-
-.messages-list {
-    text-align: left;
-    max-height: 400px;
-    overflow-y: auto;
-    background-color: #ffffff;
-    border: 1px inset #999999;
-    padding: 5px;
-    font-family: "Tahoma", "Arial", sans-serif;
-    font-size: 12px;
-}
-
-.messages-list li {
-    margin-bottom: 5px;
-    padding: 5px;
-    border-bottom: 1px solid #ececec;
-    color: #000000;
-}
-
-.messages-list li:nth-child(odd) {
-    background-color: #f0f0f0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #33453a;
+    background: linear-gradient(180deg, #0a1113 0%, #0d1618 100%);
+    box-shadow: inset 0 0 0 1px rgba(197, 149, 68, 0.2), 0 10px 18px rgba(0, 0, 0, 0.35);
 }
 
 .message-header {
-    background: linear-gradient(to right, #003366, #0065b0);
     text-align: left;
-    padding: 4px 8px;
-    font-weight: bold;
-    border-bottom: 1px solid #808080;
-    margin-bottom: 5px;
-    color: #ffffff;
-    font-family: "Verdana", "Arial", sans-serif;
-    font-size: 12px;
+    padding: 0.55rem 0.8rem;
+    font-weight: 600;
+    border-bottom: 1px solid #33453a;
+    color: #ddc16e;
+    letter-spacing: 0.1em;
+    font-size: 0.78rem;
+    background: linear-gradient(90deg, rgba(111, 88, 37, 0.18), rgba(16, 28, 28, 0.3));
+}
+
+.messages-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0.35rem;
+    text-align: left;
+    flex: 1;
+    overflow-y: auto;
+    font-size: 0.83rem;
+    color: #bdc8be;
+}
+
+.messages-list li {
+    margin-bottom: 0.35rem;
+    padding: 0.5rem;
+    border: 1px solid #25362f;
+    background: rgba(9, 17, 18, 0.85);
+}
+
+.messages-list li:nth-child(odd) {
+    background: rgba(11, 22, 24, 0.88);
+}
+
+.message-metadata {
+    color: #9ec4b7;
+    font-weight: 600;
 }
 
 .empty-message {
     text-align: center;
-    color: #666666;
+    color: #7f8b7f;
     font-style: italic;
-    padding: 20px;
-    border: 1px solid #d4d0c8;
-    background: #f5f5f5;
+    padding: 2rem 1rem;
+    border: 1px dashed #394339;
+    background: rgba(8, 12, 13, 0.8);
 }

@@ -1,10 +1,9 @@
 :root {
-    font-family: "Tahoma", "Arial", sans-serif;
+    font-family: "IBM Plex Mono", "Consolas", "Menlo", monospace;
     line-height: 1.5;
     font-weight: 400;
-
-    color: #333333;
-    background-color: #d4d0c8;
+    color: #bfc7b5;
+    background-color: #090f10;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -14,62 +13,89 @@
 
 a {
     font-weight: 500;
-    color: #0046d5;
-    text-decoration: underline;
+    color: #a2d2c3;
+    text-decoration: none;
 }
 
 a:hover {
-    color: #1664ff;
+    color: #d8eac8;
 }
 
 body {
     margin: 0;
-    display: flex;
-    place-items: center;
+    height: 100vh;
     min-width: 320px;
-    min-height: 100vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background:
+            radial-gradient(circle at 15% 5%, rgba(39, 71, 72, 0.26), transparent 35%),
+            radial-gradient(circle at 90% 95%, rgba(104, 92, 45, 0.24), transparent 30%),
+            linear-gradient(180deg, #070b0d 0%, #0a1415 100%);
 }
 
-h1 {
-    font-size: 2.5em;
-    line-height: 1.1;
-    color: #003366;
-    font-family: "Verdana", "Arial", sans-serif;
+/* Global scrollbar theme for dark HUD look */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #8b6a34 #0d1718;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #0a1213, #101a1c);
+    border: 1px solid #2b3d35;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #6f5a33, #4f3e24);
+    border: 1px solid #a98645;
+    box-shadow: inset 0 0 0 1px rgba(225, 195, 121, 0.25);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #8a7042, #68522f);
+}
+
+*::-webkit-scrollbar-corner {
+    background: #0d1718;
 }
 
 button {
+    border: 1px solid #4c5d3b;
     border-radius: 0;
-    border-top: 2px solid #ffffff;
-    border-left: 2px solid #ffffff;
-    border-right: 2px solid #808080;
-    border-bottom: 2px solid #808080;
-    padding: 0.4em 1em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: "Tahoma", "Arial", sans-serif;
-    background-color: #d4d0c8;
+    padding: 0.45em 1em;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: inherit;
+    background: linear-gradient(180deg, #15211f, #0e1513);
+    color: #cad7be;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    background-color: #ece9d8;
+    border-color: #a57e42;
+    color: #f0e9c4;
+    box-shadow: 0 0 12px rgba(165, 126, 66, 0.2);
 }
 
 button:active {
-    border-top: 2px solid #808080;
-    border-left: 2px solid #808080;
-    border-right: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
+    transform: translateY(1px);
 }
 
 button:focus,
 button:focus-visible {
-    outline: 2px solid #0046d5;
+    outline: 1px solid #b38335;
+    outline-offset: 2px;
 }
 
 button:disabled {
-    color: #808080;
-    border-color: #a0a0a0;
-    background-color: #c0c0c0;
+    color: #6f796e;
+    border-color: #3a4239;
+    background: #111716;
     cursor: not-allowed;
 }

@@ -1,68 +1,98 @@
 .user-selection {
-    position: fixed;
-    top: 2vh;
-    left: 1vw;
-    padding: 6px 10px;
-    border-top: 1px solid #ffffff;
-    border-left: 1px solid #ffffff;
-    border-right: 2px solid #808080;
-    border-bottom: 2px solid #808080;
-    background-color: #d4d0c8;
-    color: #000000;
-    font-family: "Tahoma", "Arial", sans-serif;
-    font-size: 11px;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    padding: 0.7rem;
+    border: 1px solid #33453a;
+    background: linear-gradient(180deg, rgba(9, 14, 15, 0.95), rgba(11, 17, 18, 0.95));
+    color: #b8c4b6;
+    font-size: 0.78rem;
+    box-shadow: inset 0 0 0 1px rgba(197, 149, 68, 0.17);
     display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 1000;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
 }
 
 .user-selection-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0.45rem;
 }
 
 .user-selection strong {
-    color: #003366;
+    color: #d9c574;
     margin-right: 2px;
 }
 
-/* Clickable name styling */
 .user-name {
-    font-weight: bold;
-    color: #003366;
+    font-weight: 600;
+    color: #9fd0bf;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
     outline: none;
-    padding: 2px 4px;
+    padding: 0.2rem 0.32rem;
     border-radius: 2px;
+    border: 1px solid transparent;
 }
 
 .user-name:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    border-color: #365347;
+    background-color: rgba(16, 29, 30, 0.7);
 }
 
 .user-name:focus {
-    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+    box-shadow: 0 0 0 1px rgba(179, 131, 53, 0.45);
 }
 
-/* Input for inline editing */
 .user-name-input {
-    font-weight: bold;
-    color: #003366;
-    font-family: "Tahoma", "Arial", sans-serif;
-    font-size: 11px;
-    padding: 2px 6px;
-    border: 1px solid #808080;
+    font-weight: 600;
+    color: #cfe0cf;
+    font-family: inherit;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #365347;
     border-radius: 2px;
-    background: #ffffff;
+    background: rgba(8, 12, 13, 0.9);
     outline: none;
     min-width: 80px;
     box-sizing: border-box;
 }
 
 .user-name-input:focus {
-    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+    box-shadow: 0 0 0 1px rgba(179, 131, 53, 0.45);
+}
+
+.connected-users {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.toggle-users {
+    align-self: flex-start;
+}
+
+.connected-users-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.45rem;
+    border: 1px solid #293b34;
+    background: rgba(9, 17, 18, 0.85);
+    max-height: 260px;
+    overflow: auto;
+}
+
+.connected-user-item {
+    padding: 0.35rem 0.25rem;
+    border-bottom: 1px solid #20322c;
+}
+
+.connected-user-item:last-child {
+    border-bottom: 0;
+}
+
+.connected-username {
+    color: #b8e1cb;
+}
+
+.connected-at {
+    color: #8a9889;
 }

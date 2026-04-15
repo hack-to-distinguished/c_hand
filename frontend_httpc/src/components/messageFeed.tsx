@@ -68,7 +68,7 @@ const MessageFeed = ({ socket, messagesObject, setMessagesObject }: MessageBoxPr
         ) : (
           messagesObject.map((message, i) => (
             <li key={i}>
-              <span style= {{ color: "#003366", fontWeight: "bold" }}>
+              <span className="message-metadata">
                 {message.send_time} - From { message.sender_id }: 
               </span>{" "}
               {message.message}
