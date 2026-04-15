@@ -450,7 +450,7 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
                 index++;
             }
 
-            if (!index_cur_user) {
+            if (index_cur_user < 0) {
                 printf("Couldn't find user to change\n");
                 return -1;
             }
