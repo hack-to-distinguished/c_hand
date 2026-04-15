@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { sendMessage } from "../services/recv_send.tsx";
+import { sendMessage } from "../services/handleMessages.tsx";
 import "./messageBox.css";
 
 interface MessageBoxProps {
@@ -41,7 +41,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
         message: trimmed,
       };
 
-      await sendMessage({ socket, message: messageObj, setMessages: setMessagesObject });
+      await sendMessage({ socket, message: messageObj });
       setCurrentMessage("");
     } catch (err) {
       console.log(`Error in sendMessage function: ${err}`);

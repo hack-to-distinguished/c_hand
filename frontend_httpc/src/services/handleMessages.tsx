@@ -1,3 +1,6 @@
+import axios from "axios"; 
+
+
 type SocketRef = React.RefObject<WebSocket | null>;
 type MessageObject = {
   sender_id?: string;
@@ -48,11 +51,9 @@ export const handleMessage = ({
 export const sendMessage = async ({
   socket,
   message,
-  setMessages
 }: {
   socket: SocketRef;
   message: MessageObject;
-  setMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
 }) => {
   if (!socket?.current) {
     console.log("Cannot send message. No socket available.");
@@ -66,11 +67,33 @@ export const sendMessage = async ({
       socket.current.send(payload);
       console.log("Sent JSON message:", payload);
 
-      setMessages((prevMessages) => [...prevMessages, message]);
     } catch (err) {
       console.log("Error stringifying/sending message:", err);
     }
   } else {
     console.log("Cannot send message. WebSocket is not open.");
+  }
+};
+
+export const getAllMessages = async () => {
+  try {
+    const response = await axios.get("http://localhost:8081/messages");
+    const msgData = response.data;
+    console.log("message data", msgData);
+
+    let msgString = "";
+    for (let i = 0; i < msgData.length; i++) {
+      const c = msgData[i];
+      if (msgData[i - 1] === " " || msgData[i - 1] === ":" || msgData[i - 1] === "{" || msgData[i + 1] === "}" || msgData[i + 1] === ":" || msgData[i + 1] === ","){
+        msgString += c === "'" ? '"' : c;
+      } else {
+        msgString += c;
+      }
+    }
+    console.log("reconstructed string:", msgString);
+    return JSON.parse(msgString);
+
+  } catch (error) {
+    console.log("Error getting all messages:", error);
   }
 };

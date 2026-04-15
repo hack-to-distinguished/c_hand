@@ -11,6 +11,8 @@
 
 // fms is extern so it will only be declared here
 flat_message_store fms[MSG_STORE_SIZE];
+chand_users c_users[CHAND_USERS_SIZE];
+
 
 void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx, int limit)
 {
@@ -248,28 +250,265 @@ void free_memory(flat_message_store* fms)
 }
 
 
-// int main()
-// {
-//     // INFO: Code below is for testing purposes
-//     flat_message_store fms[MSG_STORE_SIZE];
-//     printf("Message store initalized\n\n");
-//     int*   end_of_db_idx = &fms[0].ID;
-//     time_t now           = time(NULL);
-//
-//     ms_add_message("Christian", "Juan", "Christian test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//
-//     ms_add_message("chris", "nj", "chris test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//     ms_add_message("Alejandro", "Christian", "NJ test msg", &now, &now, fms,
-//                    &end_of_db_idx);
-//     // ms_view_all_entries(fms);
-//
-//     ms_stream_messages_desc(fms, &end_of_db_idx);
-//     ms_stream_user_messages_desc(fms, &end_of_db_idx, "Christian");
-//
-//     // end_of_db_idx = ms_point_to_last_entry(fms);
-//
-//     free_memory(fms);
-//     return (0);
-// }
+int ms_register_user(int client_fd, char* payload, chand_users* c_users) {
+    printf("MS REGISTER USER\n");
+    // INFO:
+    // - client_fds are not tied to a specific user, I move them around
+    // as users change username, connect, reconnect etc
+    // A new user can pick a username that already exists (if the user isn't conncted)
+    // and at that point, all his information should be transferred to that user
+
+    // TODO: call the ms_change_username (or however it's called) to
+    // check that the user doesn't already exists in the db
+    int index = 0;
+
+    cJSON *json = cJSON_Parse(payload);
+    if (!json) {
+        fprintf(stderr, "ms_register user: invalid JSON payload\n");
+        return -1;
+    }
+    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+    if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
+        perror("Message isn't a string");
+        fprintf(stderr, "ms_register_user: missing or invalid username\n");
+        cJSON_Delete(json);
+        return -1;
+    }
+    char* cur_user = jsonUsername->valuestring;
+    printf("User to update: %s\n", cur_user);
+
+
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        printf("Searching %d\n", index);
+        char* db_username = c_users[index].username;
+        if (strcmp(cur_user, db_username) == 0) {
+            // We've found the user
+            printf("User %s exists in the store, update their info\n", db_username);
+            ms_update_user(client_fd, cur_user, index, USER_ACTION_CONNECT, c_users, "");
+            cJSON_Delete(json);
+            return 1;
+        };
+        index++;
+    }
+
+    if (index >= CHAND_USERS_SIZE) {
+        fprintf(stderr, "ms_register_user: user store full, cannot register user %s\n", cur_user);
+    }
+
+    printf("No existing user under that name, registering now\n");
+    time_t now = time(NULL);
+
+    c_users[index].ID = index;
+    c_users[index].username = malloc(strlen(cur_user) + 1);
+    strcpy(c_users[index].username, cur_user);
+
+    c_users[index].client_fd = client_fd;
+    c_users[index].connected_at = now;
+    c_users[index].disconnected_at = (time_t)(-1); // NULL time
+    c_users[index].last_message_send_time = (time_t)(-1); // NULL time
+
+    printf("User %s added\n\n", c_users[index].username);
+    cJSON_Delete(json);
+
+    return 1;
+}
+
+
+int ms_change_username(int client_fd, char* payload, chand_users* c_users) {
+    printf("MS CHANGE USERNAME\n");
+
+    cJSON *json = cJSON_Parse(payload);
+    if (!json) {
+        fprintf(stderr, "ms_change_username user: invalid JSON payload\n");
+        return -1;
+    }
+
+    // we have the index of the current user now, we check that they're not just looking to change username
+    // cJSON_bool isNewUsername = cJSON_HasObjectItem(json, "new_username");
+    if (cJSON_HasObjectItem(json, "new_username") && cJSON_GetObjectItem(json, "new_username")) {
+        cJSON *jsonNewUsername = cJSON_GetObjectItem(json, "new_username");
+        if (!cJSON_IsString(jsonNewUsername) || jsonNewUsername->valuestring == NULL) {
+            perror("New username field found but no value was provided");
+            fprintf(stderr, "ms_change_username: missing or invalid new_username\n");
+            return -1;
+        } else {
+            cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+            if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
+                perror("Message isn't a string");
+                fprintf(stderr, "ms_change_username: missing or invalid username\n");
+                cJSON_Delete(json);
+                return -1;
+            }
+
+            char* cur_user = jsonUsername->valuestring;
+            printf("Change user: %s to: %s\n", cur_user, jsonNewUsername->valuestring);
+
+            int res = ms_update_user(client_fd, cur_user, 0, USER_ACTION_CHANGE_USERNAME, c_users, jsonNewUsername->valuestring);
+            cJSON_Delete(json);
+            return res;
+        }
+    } else {
+        perror("new_username not provided");
+        fprintf(stderr, "ms_change_username: missing the new_username field\n");
+        cJSON_Delete(json);
+        return -1;
+    }
+}
+
+void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users) {
+    int index = 0;
+
+    cJSON *json = cJSON_Parse(payload);
+    if (!json) {
+        fprintf(stderr, "ms_disconnect_user: invalid JSON payload\n");
+        return;
+    }
+
+    cJSON *jsonUsername = cJSON_GetObjectItem(json, "username");
+    if (!cJSON_IsString(jsonUsername) || jsonUsername->valuestring == NULL) {
+        fprintf(stderr, "ms_disconnect_user: missing or invalid 'username'\n");
+        cJSON_Delete(json);
+        return;
+    }
+
+    const char *cur_user = jsonUsername->valuestring;
+
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        if (strcmp(c_users[index].username, cur_user) == 0) {
+            printf("disconnecting user %s\n", c_users[index].username);
+            time_t now = time(NULL);
+            c_users[index].disconnected_at = now;
+            c_users[index].client_fd = -1;
+            cJSON_Delete(json);
+            return;
+        }
+        index++;
+    }
+
+    fprintf(stderr, "ms_disconnect_user: user '%s' not found in store\n", cur_user);
+    cJSON_Delete(json);
+    return;
+}
+
+
+
+int ms_update_user(int client_fd, char* username, int index, user_action action_field, chand_users* c_users, char* new_username) {
+    if (index < 0 || index >= CHAND_USERS_SIZE) {
+        fprintf(stderr, "ms_update_user: index out of range\n");
+        return -1;
+    }
+
+    printf("Updating information for %s\n", c_users[index].username ? c_users[index].username : "(unknown)");
+
+    time_t now = time(NULL);
+    // Update client fd for the user record at index
+    c_users[index].client_fd = client_fd;
+
+    switch(action_field) {
+        case USER_ACTION_CONNECT:
+            printf("Case user connect\n");
+            printf("%s connected\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].connected_at = now;
+            break;
+
+        case USER_ACTION_DISCONNECT:
+            printf("Case user disconnect\n");
+            printf("%s disconnected\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].disconnected_at = now;
+            // Optionally mark client fd as not connected
+            c_users[index].client_fd = -1;
+            break;
+
+        case USER_ACTION_SEND_MESSAGE:
+            printf("Case user send message\n\n");
+            printf("%s sent message\n", c_users[index].username ? c_users[index].username : "(unknown)");
+            c_users[index].last_message_send_time = now;
+            break;
+
+        case USER_ACTION_CHANGE_USERNAME: {
+            printf("Case change username\n");
+
+            if (!new_username) {
+                fprintf(stderr, "ms_update_user: new_username is NULL\n");
+                return -1;
+            }
+
+            // Check that the new username doesn't already exist in the store
+            int index_cur_user = -1;
+            int index = 0;
+            while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+                if (strcmp(new_username, c_users[index].username) == 0) {
+                    printf("User %s exists in the store you can't select this username\n", c_users[index].username);
+                    perror("Username selected already exists - returning\n");
+                    fprintf(stderr, "ms_update_user: username already exists\n");
+                    return -1;
+
+                } else if (strcmp(username, c_users[index].username) == 0) { // Check also search for the current user
+                    printf("Found current user: %d - %s\n", index, c_users[index].username);
+                    index_cur_user = index;
+                }
+                index++;
+            }
+
+            if (!index_cur_user) {
+                printf("Couldn't find user to change\n");
+                return -1;
+            }
+
+            // Replace the username at the index
+            printf("Replacing user %s with: %s\n\n", c_users[index_cur_user].username ? c_users[index_cur_user].username : "(null)", new_username);
+            free(c_users[index_cur_user].username);
+            c_users[index_cur_user].username = malloc(strlen(new_username) + 1);
+            strcpy(c_users[index_cur_user].username, new_username);
+
+            c_users[index_cur_user].client_fd = client_fd;
+            c_users[index_cur_user].connected_at = now;
+
+            printf("User %s added\n\n", c_users[index_cur_user].username);
+            break;
+        }
+
+        default:
+            fprintf(stderr, "ms_update_user: unknown action field\n");
+            return -1;
+    }
+
+    return 1;
+}
+
+
+user_list_buffer ms_get_all_users(chand_users* c_users) {
+    cJSON *users_obj = cJSON_CreateObject();
+    if (!users_obj) {
+        user_list_buffer out = {0, NULL};
+        return out;
+    }
+
+    int index = 0;
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        cJSON *u = cJSON_CreateObject();
+        if (!u) {
+            cJSON_Delete(users_obj);
+            user_list_buffer out = {0, NULL};
+            return out;
+        }
+
+        cJSON_AddNumberToObject(u, "client_fd", c_users[index].client_fd);
+        cJSON_AddNumberToObject(u, "connected_at", (double)c_users[index].connected_at);
+        cJSON_AddNumberToObject(u, "disconnected_at", (double)c_users[index].disconnected_at);
+        cJSON_AddNumberToObject(u, "last_message_send_time", (double)c_users[index].last_message_send_time);
+
+        cJSON_AddItemToObject(users_obj, c_users[index].username, u);
+        index++;
+    }
+
+    char *json_str = cJSON_PrintUnformatted(users_obj);
+    if (!json_str) {
+        json_str = strdup("{}");
+    }
+
+    user_list_buffer out = {(int)strlen(json_str), json_str};
+    // json_str remains allocated and is deleted later (in http.c)
+    cJSON_Delete(users_obj);
+    return out;
+}
