@@ -1,6 +1,7 @@
 #root {
     height: 100vh;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .app-shell {
@@ -10,7 +11,8 @@
     padding: 1rem;
     gap: 1rem;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-x: visible;
+    overflow-y: hidden;
 }
 
 .head_title {
@@ -54,5 +56,6 @@
 
 .main-app-container {
     min-height: 0;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
