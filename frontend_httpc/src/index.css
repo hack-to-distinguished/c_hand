@@ -31,6 +31,36 @@ body {
             linear-gradient(180deg, #070b0d 0%, #0a1415 100%);
 }
 
+/* Global scrollbar theme for dark HUD look */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #8b6a34 #0d1718;
+}
+
+*::-webkit-scrollbar {
+    width: 1px;
+    height: 1px;
+}
+
+*::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #0a1213, #101a1c);
+    border: 1px solid #2b3d35;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #6f5a33, #4f3e24);
+    border: 1px solid #a98645;
+    box-shadow: inset 0 0 0 1px rgba(225, 195, 121, 0.25);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #8a7042, #68522f);
+}
+
+*::-webkit-scrollbar-corner {
+    background: #0d1718;
+}
+
 button {
     border: 1px solid #4c5d3b;
     border-radius: 0;

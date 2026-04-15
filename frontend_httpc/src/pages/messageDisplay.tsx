@@ -73,8 +73,8 @@ function MessageDisplay() {
   return (
     <section className="hud-layout">
       <aside className="hud-sidebar">
-        <UserSelection userName={userName} setUserName={setUserName} userList={connectedUsersList} />
         <NetworkStatus connectionStatus={connectionStatus} />
+        <UserSelection userName={userName} setUserName={setUserName} userList={connectedUsersList} />
       </aside>
 
       <div className="hud-main-panel">
