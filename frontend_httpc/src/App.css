@@ -1,13 +1,16 @@
 #root {
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .app-shell {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
     padding: 1rem;
     gap: 1rem;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .head_title {
@@ -50,5 +53,6 @@
 }
 
 .main-app-container {
-    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 }
