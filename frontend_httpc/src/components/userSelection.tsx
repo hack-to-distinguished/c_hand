@@ -129,10 +129,12 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
           <ul id="connected-users-list" className="connected-users-list" aria-live="polite">
             {userList && userList.length > 0 ? (
               userList.map((u, idx) => (
-                <li key={`${u.username}-${idx}`} className="connected-user-item">
-                  <span className="connected-username">{u.username}</span> :{" "}
-                  <span className="connected-at">{u.lastActiveTime}</span>
-              </li>
+                <button className="connected-users-list-btn">
+                  <li key={`${u.username}-${idx}`} className="connected-user-item">
+                    <span className="connected-username">{u.username}</span>{" "}
+                    <span className="connected-at">{u.lastActiveTime}</span>
+                  </li>
+                </button>
             ))
             ) : (
               <li className="connected-user-item">No connected users</li> 

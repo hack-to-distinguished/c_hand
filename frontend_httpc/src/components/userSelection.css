@@ -80,9 +80,16 @@
     overflow: auto;
 }
 
+.connected-users-list-btn {
+    width: 100%;
+}
+
 .connected-user-item {
-    padding: 0.35rem 0.25rem;
+    padding: 0.2rem 0.1rem;
     border-bottom: 1px solid #20322c;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .connected-user-item:last-child {
