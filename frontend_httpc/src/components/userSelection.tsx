@@ -50,8 +50,6 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
     if (trimmed && trimmed !== userName) {
       // TODO: Add the call to check here
       changeUserReq(userName, trimmed, setUserName, setInLocalStorage);
-      // setUserName(trimmed);
-      // setInLocalStorage("username", trimmed);
     }
     setIsEditing(false);
   };
@@ -76,6 +74,10 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
       e.preventDefault();
       setIsEditing(true);
     }
+  };
+
+  const handleUserSelect = (username: string) => {
+    console.log("Selected user", username);
   };
 
   return (
@@ -129,8 +131,14 @@ const UserSelection = ({ userName, setUserName, userList }: UserSelectionProps) 
           <ul id="connected-users-list" className="connected-users-list" aria-live="polite">
             {userList && userList.length > 0 ? (
               userList.map((u, idx) => (
-                <button className="connected-users-list-btn">
-                  <li key={`${u.username}-${idx}`} className="connected-user-item">
+                <button 
+                  key={`${u.username}-${idx}`}
+                  type="button"
+                  className="connected-users-list-btn"
+                  onClick={() => handleUserSelect(u.username)}
+                  title="Select user"
+                >
+                  <li className="connected-user-item">
                     <span className="connected-username">{u.username}</span>{" "}
                     <span className="connected-at">{u.lastActiveTime}</span>
                   </li>
