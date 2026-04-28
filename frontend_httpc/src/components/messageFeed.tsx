@@ -128,27 +128,27 @@ const MessageFeed = ({
           ))}
         
         {/* Message list */}
-        <div className="messages-tabs-content">
-          {isLoadingTab ? (
-            <p className="empty-message">Loading messages...</p>
-          ) : (
-            <ul className="messages-list" ref={listRef}>
-              {tabMessages.length === 0 ? (
-                <li className="empty-message">No messages yet</li>
-              ) : (
-                tabMessages.map((message: MessageObject, i: number) => (
-                  <li key={i}>
-                    <span className="message-metadata">
-                      {message.send_time} - From { message.sender_id }: 
-                    </span>{" "}
-                    {message.message}
-                  </li>
-                ))
-              )}
-            </ul>
-          )}
-        </div>
 
+      </div>
+      <div className="messages-tabs-content">
+        {isLoadingTab ? (
+          <p className="empty-message">Loading messages...</p>
+        ) : (
+          <ul className="messages-list" ref={listRef}>
+            {tabMessages.length === 0 ? (
+              <li className="empty-message">No messages yet</li>
+            ) : (
+              tabMessages.map((message: MessageObject, i: number) => (
+                <li key={i}>
+                  <span className="message-metadata">
+                    {message.send_time} - From { message.sender_id }: 
+                  </span>{" "}
+                  {message.message}
+                </li>
+              ))
+            )}
+          </ul>
+        )}
       </div>
 
 
