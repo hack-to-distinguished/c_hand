@@ -75,6 +75,8 @@ const MessageFeed = ({
     const onMessage = (event: MessageEvent) => {
       // Reuse the shared handler shape: parse and append
       handleIncomingMessage({ socket, setMessages: setMessagesObject, event });
+      // TODO: change the handleIncomingMessage to only display/get the messages directed
+      // to all users
     };
 
     socket.current.onmessage = onMessage;
@@ -98,6 +100,12 @@ const MessageFeed = ({
     try {
       const result = await getMessagesBySenderId(senderId);
       setTabMessages(result ?? []);
+
+      // TODO: Add the same handleIncomingMessage from the socket
+      // here (or elsewhere (most likely elsewhere)) to handle messages
+      // specific to the user.
+
+      
     } catch (error) {
       console.log("Error fetching tab messages:", error);
       setTabMessages([]);

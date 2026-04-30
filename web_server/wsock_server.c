@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
                 printf("Non-WebSocket request from %s, sending HTTP response\n", client_ip);
                 close(client_fd);
                 continue;
-            } 
+            }
         }
 
         // Check existing connections for data
@@ -218,11 +218,13 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
 
-                // printf("Received from %s (%d): %s\n", clients[client_idx].ip, client_sock, buffer);
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
                 ms_add_message("all", buffer, fms, &latest_entry_ptr);
+
+                // TODO: Check the client_fd recived in the buffer
+                // if the client_fd is specified or != -1, only send the message to that client
 
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd != -1 && clients[j].is_websocket) {
