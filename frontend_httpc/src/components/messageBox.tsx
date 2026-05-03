@@ -38,6 +38,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
       const messageObj = {
         sender_id: userName || "unknown",
         send_time: formattedNow,
+        recipient_id: "all",
         message: trimmed,
       };
 

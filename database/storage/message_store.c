@@ -244,7 +244,7 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
     return out; /* msg_by_user needs to be freed after use */
 }
 
-void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, int *end_of_db_idx)
+int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)
 {
     int idx = *end_of_db_idx;
     idx++;
@@ -260,10 +260,12 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
     cJSON *jsonUserMessage = cJSON_GetObjectItem(json, "message");
     if (!cJSON_IsString(jsonUserMessage)) {
         perror("Message isn't a string");
-        return;
+        return 0;
     }
 
     cJSON *jsonSenderID = cJSON_GetObjectItem(json, "sender_id");
+    cJSON *jsonRecipientID = cJSON_GetObjectItem(json, "recipient_id");
+    char* recipient_id = jsonRecipientID->valuestring;
     cJSON *jsonSendTime = cJSON_GetObjectItem(json, "send_time");
 
 
@@ -282,8 +284,14 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
 
     *end_of_db_idx = idx;
     printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
-    ms_view_all_entries(fms, end_of_db_idx,        2);
-    return;
+    // ms_view_all_entries(fms, end_of_db_idx,        2);
+    char* all_users = "all";
+    if (strcmp(recipient_id, "all") != 0) {
+        ms_get_fd_by_username(recipient_id, c_users);
+    }
+    
+    return 0;
+
 
     // IMPROVEMENT:
     // - Find out how to not rely on having a list end flag
@@ -571,3 +579,19 @@ user_list_buffer ms_get_all_users(chand_users* c_users) {
     cJSON_Delete(users_obj);
     return out;
 }
+
+int ms_get_fd_by_username(char* username, chand_users* c_users){
+    // Uses the username to get the client fd
+
+    int fd = -1;
+
+    int index = 0;
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        if (strcmp(c_users[index].username, username) == 0) {
+            fd = c_users[index].client_fd;
+            return fd;
+        }
+        index += 1;
+    }
+    return 0;
+};

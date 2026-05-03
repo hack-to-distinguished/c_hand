@@ -221,16 +221,27 @@ int main(int argc, char *argv[]) {
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
-                ms_add_message("all", buffer, fms, &latest_entry_ptr);
-
                 // TODO: Check the client_fd recived in the buffer
                 // if the client_fd is specified or != -1, only send the message to that client
 
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clients[j].fd != -1 && clients[j].is_websocket) {
-                        ws_send_frame(clients[j].fd, buffer);
+                int reciever_fd = ms_add_message(buffer, fms, &latest_entry_ptr);
+                if (reciever_fd) {
+                    // TODO: now we only send to that specific user - This needs work
+                    for (int j = 0; j < MAX_CLIENTS; j++) {
+                        if (clients[j].fd != -1 && clients[j].is_websocket && clients[j].fd == reciever_fd) {
+                            ws_send_frame(clients[j].fd, buffer);
+                        }
+                    }
+
+                } else {
+                    for (int j = 0; j < MAX_CLIENTS; j++) {
+                        if (clients[j].fd != -1 && clients[j].is_websocket) {
+                            ws_send_frame(clients[j].fd, buffer);
+                        }
                     }
                 }
+
+
             }
 
             // Check for errors or disconnects

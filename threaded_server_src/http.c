@@ -681,7 +681,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             // TODO: Turn the Get to post
 
             int end_idx = ms_point_to_last_entry(fms);
-            ms_add_message("all", "testmsg", fms, &end_idx);
+            ms_add_message("testmsg", fms, &end_idx);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             char *ptr_body;

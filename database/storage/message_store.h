@@ -8,7 +8,7 @@ typedef struct
 {
     int    ID; // Increment with each new item
     char   sender_id[USER_ID_SIZE];
-    char   recipient_id[USER_ID_SIZE];
+    char   recipient_id[USER_ID_SIZE]; // == username
     char*  message;
     size_t msg_len;
     time_t send_time;
@@ -31,7 +31,7 @@ extern int* end_of_db_idx;
 int ms_point_to_last_entry(flat_message_store* fms);
 void ms_view_all_entries(flat_message_store* fms, int* end_of_db_idx, int limit);
 void ms_resize_store();
-void ms_add_message(char* recipient_id, char* user_message,
+int ms_add_message(char* user_message,
                     flat_message_store* fms, int *end_of_db_idx);
 void ms_stream_messages_desc(flat_message_store* fms, int* end_of_db_idx);
 void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
@@ -46,7 +46,7 @@ msg_buffer ms_get_messages_by_sender(flat_message_store *fms, char* sender_id);
 typedef struct
 {
     int    ID; // Increment with each new item
-    char*  username;
+    char*  username; // == recipient_id
     int    client_fd;
     time_t connected_at;
     time_t disconnected_at;
@@ -72,3 +72,4 @@ void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);
 user_list_buffer ms_get_all_users(chand_users* c_users);
 int ms_change_username(int client_fd, char* payload, chand_users* c_users);
 int ms_update_user(int client_fd, char* username, int index, user_action action, chand_users* c_users, char* new_username);
+int ms_get_fd_by_username(char* username, chand_users* c_users);
