@@ -619,6 +619,27 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     "%s",
                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+        
+        } else if (strncmp(ctx->ptr_uri, "/messages/", 10) == 0) {
+            // Gets messages specific to a user
+            char *sender_id = ctx->ptr_uri + 10;
+            printf("Getting messages from %s\n", sender_id);
+
+            msg_buffer msg_res = ms_get_messages_by_sender(fms, sender_id);
+
+            size_t total_buffer = 200 + msg_res.total_len;
+            char *ptr_packet_buffer = malloc(total_buffer);
+            snprintf(ptr_packet_buffer, total_buffer,
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: %d\r\n"
+                "Connection: close\r\n"
+                "\r\n"
+                "%s",
+                msg_res.total_len, msg_res.messages_by_user);
+            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
+            free(msg_res.messages_by_user);
 
         } else if (strcmp(ctx->ptr_uri, "/messages") == 0) {
 

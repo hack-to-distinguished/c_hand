@@ -78,7 +78,11 @@ function MessageDisplay() {
       </aside>
 
       <div className="hud-main-panel">
-        <MessageFeed socket={socket} connectionStatus={connectionStatus} messagesObject={messagesObject} setMessagesObject={setMessagesObject} />
+        <MessageFeed 
+          socket={socket} connectionStatus={connectionStatus}
+          messagesObject={messagesObject} setMessagesObject={setMessagesObject}
+          connectedUsersList={connectedUsersList}
+        />
       </div>
 
       <footer className="hud-footer">

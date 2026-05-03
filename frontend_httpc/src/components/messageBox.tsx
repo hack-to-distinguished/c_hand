@@ -15,7 +15,7 @@ interface MessageBoxProps {
 const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
-  
+
   const flashQuoteWarning = () => {
     setShowQuoteWarning(true);
     window.setTimeout(() => setShowQuoteWarning(false), 2000);
@@ -26,7 +26,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
       e.preventDefault();
       const trimmed = currentMessage.trim();
       if (!trimmed) return;
-    
+
       const now = new Date();
       const month = now.toLocaleString('en-UK', { month: 'short' });
       const day = now.getDate().toString().padStart(2, '0');
@@ -41,13 +41,19 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
         message: trimmed,
       };
 
+      // TODO: Add the destination client_fd and their recipient_id to the payload
+      // the client fd will be used to decided who to send the message to in wsock_server.c
+      // and the recipient_id will be used by the initial get request when switching tabs
+      // if no client_fd specified or client_fd = -1, the message is directed at everyone
+      // if no recipient_id is specified or recipient_id = Null, the message is directed at everyone
+
       await sendMessage({ socket, message: messageObj });
       setCurrentMessage("");
     } catch (err) {
       console.log(`Error in sendMessage function: ${err}`);
     }
   };
-  
+
   // Blocking chars
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
      if (e.key === '"') {

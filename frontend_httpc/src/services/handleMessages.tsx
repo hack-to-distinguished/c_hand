@@ -1,4 +1,4 @@
-import axios from "axios"; 
+import axios from "axios";
 
 
 type SocketRef = React.RefObject<WebSocket | null>;
@@ -38,9 +38,9 @@ export const handleMessage = ({
   const formattedNow = `${month} ${day} ${time} ${year}`;
 
   const messageObj: MessageObject = {
-    sender_id: parsed.sender_id ?? "unknown",
-    send_time: parsed.send_time ?? formattedNow,
-    message: parsed.message ?? "",
+    sender_id: parsed?.sender_id ?? "unknown",
+    send_time: parsed?.send_time ?? formattedNow,
+    message: parsed?.message ?? "",
     ...parsed,
   };
   console.log("New messages to set:", messageObj);
@@ -97,3 +97,29 @@ export const getAllMessages = async () => {
     console.log("Error getting all messages:", error);
   }
 };
+
+export const getMessagesBySenderId = async (senderId: string) => {
+  try {
+    // use this url or pass some extra information in the get request to specify the sender id
+    const response = await axios.get(`http://localhost:8081/messages/${senderId}`);
+    // const response = await axios.get("http://localhost:8081/messages");
+    const msgData = response.data;
+    console.log("message data", msgData);
+
+    let msgString = "";
+    for (let i = 0; i < msgData.length; i++) {
+      const c = msgData[i];
+      if (msgData[i - 1] === " " || msgData[i - 1] === ":" || msgData[i - 1] === "{" || msgData[i + 1] === "}" || msgData[i + 1] === ":" || msgData[i + 1] === ","){
+        msgString += c === "'" ? '"' : c;
+      } else {
+        msgString += c;
+      }
+    }
+    console.log("reconstructed string:", msgString);
+    return JSON.parse(msgString);
+
+  } catch (error) {
+    console.log(`Error ${error} getting messages for sender: ${senderId}`);
+    return [];
+  }
+}

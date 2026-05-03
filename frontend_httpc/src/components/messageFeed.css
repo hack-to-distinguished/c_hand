@@ -53,3 +53,46 @@
     border: 1px dashed #394339;
     background: rgba(8, 12, 13, 0.8);
 }
+
+/* ── sender-based tab bar ──────────────────────────────────────────────── */
+.messages-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid #33453a;
+    background: linear-gradient(90deg, rgba(10, 20, 22, 0.9), rgba(14, 26, 28, 0.85));
+}
+
+.messages-tabs button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid #33453a;
+    background: rgba(9, 17, 18, 0.75);
+    color: #9ec4b7;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.messages-tabs button:hover {
+    background: rgba(25, 45, 40, 0.85);
+    border-color: #4d6b5a;
+    color: #c8dfd6;
+}
+
+.messages-tabs button.active {
+    background: rgba(111, 88, 37, 0.22);
+    border-color: #ddc16e;
+    color: #ddc16e;
+    font-weight: 600;
+}
+
+/* content area below the tabs */
+.messages-tabs-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}

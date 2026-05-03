@@ -185,6 +185,65 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
     return out;
 }
 
+
+msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
+
+    int index = 1;
+
+    char* msg_by_user = malloc(START_SIZE);
+    msg_by_user[0] = '\0';
+    strcat(msg_by_user, "[");
+    size_t mbu_len = strlen(msg_by_user);
+    size_t mbu_cap = START_SIZE;
+    char* msg_construction_buffer = malloc(BUFFER_SIZE);
+
+    while (fms[index].message != NULL)
+    {
+        if (strcmp(fms[index].sender_id, sender_id) != 0) {
+            index++;
+            continue;
+        }
+
+        char send_date_time[64];
+        strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
+        snprintf(
+            msg_construction_buffer, BUFFER_SIZE,
+            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}",
+            fms[index].sender_id, send_date_time, fms[index].message
+        );
+
+        int msg_c_b_len = strlen(msg_construction_buffer);
+        if (msg_c_b_len + mbu_len + 1 >= mbu_cap) {
+            mbu_cap = mbu_cap * 2;
+            char *tmp_ptr = realloc(msg_by_user, mbu_cap);
+            if (!tmp_ptr) {
+                printf("Failed to reallocate memory for the messages\n");
+            }
+            msg_by_user = tmp_ptr;
+        }
+        strcat(msg_by_user, msg_construction_buffer);
+        mbu_len += msg_c_b_len;
+        index++;
+
+        /* Peek ahead: only add comma if there is another matching entry */
+        int peek = index;
+        while (fms[peek].message != NULL && strcmp(fms[peek].sender_id, sender_id) != 0) {
+            peek++;
+        }
+        if (fms[peek].message != NULL) {
+            strcat(msg_by_user, ", ");
+            mbu_len += 2;
+        }
+    }
+
+    strcat(msg_by_user, "]");
+    mbu_len += strlen("]");
+    free(msg_construction_buffer);
+    msg_buffer out = {mbu_len, msg_by_user};
+
+    return out; /* msg_by_user needs to be freed after use */
+}
+
 void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, int *end_of_db_idx)
 {
     int idx = *end_of_db_idx;
@@ -450,7 +509,7 @@ int ms_update_user(int client_fd, char* username, int index, user_action action_
                 index++;
             }
 
-            if (!index_cur_user) {
+            if (index_cur_user < 0) {
                 printf("Couldn't find user to change\n");
                 return -1;
             }
