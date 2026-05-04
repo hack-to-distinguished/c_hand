@@ -92,6 +92,7 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
 
 
 msg_buffer ms_get_all_messages(flat_message_store* fms) {
+    // Gets all the messages destined for everyone
 
     int index = 1;
 
@@ -104,6 +105,11 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
 
     while (fms[index].message != NULL)
     {
+        if (strcmp(fms[index].recipient_id, "all") != 0) {
+            printf("Message not for you: %s\n", fms[index].recipient_id);
+            index ++;
+            continue;
+        }
         char send_date_time[64];
         strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
@@ -124,10 +130,14 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         mbu_len += msg_c_b_len;
         index++;
 
-        if (fms[index].message != NULL) {
-            // We only add the comma if there is more data to append
+        /* Peek ahead: only add comma if there is another matching entry */
+        int peek = index;
+        while (fms[peek].message != NULL && strcmp(fms[peek].recipient_id, "all") != 0) {
+            peek++;
+        }
+        if (fms[peek].message != NULL) {
             strcat(msg_by_user, ", ");
-            mbu_len += strlen(", ");
+            mbu_len += 2;
         }
 
     }
@@ -187,6 +197,8 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
 
 msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
+    // Gets message by sender and destined for the user making the request
+    // TODO: Also get the recipient_id and check that the messages returned are for that user
 
     int index = 1;
 
@@ -265,7 +277,13 @@ int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)
 
     cJSON *jsonSenderID = cJSON_GetObjectItem(json, "sender_id");
     cJSON *jsonRecipientID = cJSON_GetObjectItem(json, "recipient_id");
-    char* recipient_id = jsonRecipientID->valuestring;
+    char* recipient_id;
+    if (!cJSON_IsString(jsonRecipientID)) {
+        printf("Message recipient id not found, setting it to all\n");
+        recipient_id = "all";
+    } else {
+        recipient_id = jsonRecipientID->valuestring;
+    };
     cJSON *jsonSendTime = cJSON_GetObjectItem(json, "send_time");
 
 

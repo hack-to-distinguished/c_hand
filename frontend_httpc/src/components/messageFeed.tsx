@@ -40,7 +40,7 @@ const MessageFeed = ({
 
   const initialGetMessagesReq = async () => {
     try {
-      console.log("Attempting to get all messages");
+      console.log("Attempting to get all messages on tab:", activeTab);
       const messages = await getAllMessages();
       if (messages) {
         console.log("All messages:", messages);

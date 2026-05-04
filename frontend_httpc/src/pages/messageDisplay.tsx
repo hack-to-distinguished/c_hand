@@ -62,7 +62,6 @@ function MessageDisplay() {
       username = generateId(5);
       setInLocalStorage("username", username);
     }
-    // TODO: make initial register post request in this use effect
     registerUserReq(username);
 
     setUserName(username || "");

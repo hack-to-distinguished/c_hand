@@ -223,7 +223,6 @@ int main(int argc, char *argv[]) {
                 sprintf(fd_string, "%d", clients[client_idx].fd);
                 int reciever_fd = ms_add_message(buffer, fms, &latest_entry_ptr);
                 if (reciever_fd) {
-                    // TODO: now we only send to that specific user - This needs work
                     for (int j = 0; j < MAX_CLIENTS; j++) {
                         if (clients[j].fd != -1 && clients[j].is_websocket && clients[j].fd == reciever_fd) {
                             ws_send_frame(clients[j].fd, buffer);

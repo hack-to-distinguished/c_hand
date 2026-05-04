@@ -2,14 +2,22 @@ import React, { useState } from "react";
 import { sendMessage } from "../services/handleMessages.tsx";
 import "./messageBox.css";
 
+interface MessageObject {
+  send_time?: string;
+  sender_id?: string;
+  message?: string;
+  [key: string]: any;
+}
+
 interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
   userName: string;
+  setMessagesObject: React.Dispatch<React.SetStateAction<MessageObject[]>>;
   activeTab: string | null;
 }
 
-const MessageBox = ({ socket, connectionStatus, userName, activeTab }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName, setMessageObject, activeTab }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
 
@@ -32,7 +40,6 @@ const MessageBox = ({ socket, connectionStatus, userName, activeTab }: MessageBo
 
       const formattedNow = `${month} ${day} ${time} ${year}`;
 
-      // TODO: Message object needs to change based on tab
       const messageObj = {
         sender_id: userName || "unknown",
         send_time: formattedNow,
@@ -40,11 +47,6 @@ const MessageBox = ({ socket, connectionStatus, userName, activeTab }: MessageBo
         message: trimmed,
       };
 
-      // TODO: Add the destination client_fd and their recipient_id to the payload
-      // the client fd will be used to decided who to send the message to in wsock_server.c
-      // and the recipient_id will be used by the initial get request when switching tabs
-      // if no client_fd specified or client_fd = -1, the message is directed at everyone
-      // if no recipient_id is specified or recipient_id = Null, the message is directed at everyone
 
       await sendMessage({ socket, message: messageObj });
       setCurrentMessage("");
