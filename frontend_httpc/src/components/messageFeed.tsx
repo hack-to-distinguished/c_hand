@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllMessages, getMessagesBySenderId } from "../services/handleMessages.tsx";
+import { getAllMessages, getMessagesFromSenderId } from "../services/handleMessages.tsx";
 import { handleMessage as handleIncomingMessage } from "../services/handleMessages.tsx";
 import "./messageFeed.css";
 
@@ -70,6 +70,7 @@ const MessageFeed = ({
   // Scroll to the bottom whenever the list changes
   useEffect(() => {
     listRef.current?.lastElementChild?.scrollIntoView();
+    // TODO: Fix the scroll to view
   }, [messagesObject]);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ const MessageFeed = ({
 
     const onMessage = (event: MessageEvent) => {
       // Reuse the shared handler shape: parse and append
-      handleIncomingMessage({ socket, setMessages: setMessagesObject, event });
+      handleIncomingMessage({ socket, setMessages: setMessagesObject, event, activeTab });
       // TODO: change the handleIncomingMessage to only display/get the messages directed
       // to all users
     };
@@ -101,7 +102,7 @@ const MessageFeed = ({
 
     setIsLoadingTab(true);
     try {
-      const result = await getMessagesBySenderId(senderId);
+      const result = await getMessagesFromSenderId(senderId);
       setTabMessages(result ?? []);
 
       // TODO: Add the same handleIncomingMessage from the socket

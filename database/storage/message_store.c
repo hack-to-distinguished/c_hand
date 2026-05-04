@@ -198,7 +198,6 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
 msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
     // Gets message by sender and destined for the user making the request
-    // TODO: Also get the recipient_id and check that the messages returned are for that user
 
     int index = 1;
 
