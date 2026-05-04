@@ -35,6 +35,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
 
       const formattedNow = `${month} ${day} ${time} ${year}`;
 
+      // TODO: Message object needs to change based on tab
       const messageObj = {
         sender_id: userName || "unknown",
         send_time: formattedNow,

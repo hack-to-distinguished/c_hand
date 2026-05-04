@@ -21,18 +21,21 @@ interface MessageFeedProps {
   messagesObject: MessageObject[];
   setMessagesObject: React.Dispatch<React.SetStateAction<MessageObject[]>>;
   connectedUsersList: ConnectedUser[];
+  activeTab: string|null;
+  setActiveTab: React.Dispatch<React.SetStateAction<string|null>>;
+  tabMessages: MessageObject;
+  setTabMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
 }
 
 const MessageFeed = ({
-  socket, messagesObject, setMessagesObject, connectedUsersList
+  socket, messagesObject, setMessagesObject, connectedUsersList,
+  activeTab, setActiveTab, tabMessages, setTabMessages
 }: MessageFeedProps) => {
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
-  
+
   // null -> "All" tab is active - string -> sender_id of the active tab
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [tabMessages, setTabMessages] = useState<MessageObject[]>([]);
   const [isLoadingTab, setIsLoadingTab] = useState<boolean>(false);
-  
+
   const listRef = useRef<HTMLUListElement | null>(null);
 
   const initialGetMessagesReq = async () => {
@@ -63,7 +66,7 @@ const MessageFeed = ({
       setTabMessages(messagesObject);
     }
   }, [messagesObject]);
-  
+
   // Scroll to the bottom whenever the list changes
   useEffect(() => {
     listRef.current?.lastElementChild?.scrollIntoView();
@@ -87,15 +90,15 @@ const MessageFeed = ({
       }
     };
   }, [socket.current]);
-  
+
   const handleTabClick = async (senderId: string | null) => {
     setActiveTab(senderId);
-  
+
     if (senderId === null) {
       setTabMessages(messagesObject);
       return;
     }
-  
+
     setIsLoadingTab(true);
     try {
       const result = await getMessagesBySenderId(senderId);
@@ -105,7 +108,7 @@ const MessageFeed = ({
       // here (or elsewhere (most likely elsewhere)) to handle messages
       // specific to the user.
 
-      
+
     } catch (error) {
       console.log("Error fetching tab messages:", error);
       setTabMessages([]);
@@ -116,7 +119,7 @@ const MessageFeed = ({
 
   return (
     <div className="messages-display">
-      
+
       <div className="messages-tabs">
           <button
             onClick={() => handleTabClick(null)}
@@ -134,7 +137,7 @@ const MessageFeed = ({
             {user.username}
           </button>
           ))}
-        
+
         {/* Message list */}
 
       </div>
@@ -149,7 +152,7 @@ const MessageFeed = ({
               tabMessages.map((message: MessageObject, i: number) => (
                 <li key={i}>
                   <span className="message-metadata">
-                    {message.send_time} - From { message.sender_id }: 
+                    {message.send_time} - From { message.sender_id }:
                   </span>{" "}
                   {message.message}
                 </li>

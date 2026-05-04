@@ -221,9 +221,6 @@ int main(int argc, char *argv[]) {
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
-                // TODO: Check the client_fd recived in the buffer
-                // if the client_fd is specified or != -1, only send the message to that client
-
                 int reciever_fd = ms_add_message(buffer, fms, &latest_entry_ptr);
                 if (reciever_fd) {
                     // TODO: now we only send to that specific user - This needs work

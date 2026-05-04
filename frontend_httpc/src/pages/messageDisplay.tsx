@@ -11,7 +11,7 @@ import { generateId, getAllUsers, registerUser } from "../services/handleUser.ts
 
 import "./messageDisplay.css";
 
-interface SavedMessages {
+interface messageObject {
   send_time?: string;
   sender_id?: string;
   message?: string;
@@ -28,9 +28,13 @@ function MessageDisplay() {
   const { socket, connectionStatus } = useWebSocket(serverUrl);
 
   const [userName, setUserName] = useState<string>("");
-  const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
+  const [messagesObject, setMessagesObject] = useState<messageObject[]>([]);
 
   const [connectedUsersList, setConnectedUsersList] = useState<ConnectedUsers[]>([]);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [tabMessages, setTabMessages] = useState<messageObject[]>([]);
 
   const registerUserReq = async (username: string) => {
     try {
@@ -81,7 +85,8 @@ function MessageDisplay() {
         <MessageFeed 
           socket={socket} connectionStatus={connectionStatus}
           messagesObject={messagesObject} setMessagesObject={setMessagesObject}
-          connectedUsersList={connectedUsersList}
+          connectedUsersList={connectedUsersList} activeTab={activeTab} setActiveTab={setActiveTab}
+          tabMessages={tabMessages} setTabMessages={setTabMessages}
         />
       </div>
 
