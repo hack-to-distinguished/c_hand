@@ -211,7 +211,8 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
 
     while (fms[index].message != NULL)
     {
-        if (strcmp(fms[index].sender_id, sender_id) != 0) {
+        if (strcmp(fms[index].sender_id, sender_id) != 0 ||
+            strcmp(fms[index].recipient_id, "all") == 0) {
             index++;
             continue;
         }
