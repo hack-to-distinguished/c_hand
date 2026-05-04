@@ -6,13 +6,10 @@ interface MessageBoxProps {
   socket: React.RefObject<WebSocket | null>;
   connectionStatus: string;
   userName: string;
-  send_time?: string;
-  sender_id?: string;
-  message?: string;
-  [key: string]: any;
+  activeTab: string | null;
 }
 
-const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName, activeTab }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
 
@@ -39,7 +36,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject }: M
       const messageObj = {
         sender_id: userName || "unknown",
         send_time: formattedNow,
-        recipient_id: "all",
+        recipient_id: activeTab,
         message: trimmed,
       };
 

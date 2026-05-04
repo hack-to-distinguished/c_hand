@@ -286,7 +286,7 @@ int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)
     printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
     // ms_view_all_entries(fms, end_of_db_idx,        2);
     char* all_users = "all";
-    printf("Preparing to send message to %s", fms[idx].recipient_id);
+    printf("Preparing to send message to %s\n", fms[idx].recipient_id);
 
     if (strcmp(fms[idx].recipient_id, "all") != 0) {
         return ms_get_fd_by_username(fms[idx].recipient_id, c_users);

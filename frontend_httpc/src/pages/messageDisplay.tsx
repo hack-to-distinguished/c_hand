@@ -91,7 +91,8 @@ function MessageDisplay() {
       </div>
 
       <footer className="hud-footer">
-        <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName} setMessagesObject={setMessagesObject} />
+        <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName}
+        setMessagesObject={setMessagesObject} activeTab={activeTab}/>
       </footer>
     </section>
   );
