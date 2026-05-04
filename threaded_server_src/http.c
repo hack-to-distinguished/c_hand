@@ -677,27 +677,6 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(users_info.users);
 
-        } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
-            // TODO: Turn the Get to post
-
-            int end_idx = ms_point_to_last_entry(fms);
-            ms_add_message("testmsg", fms, &end_idx);
-
-            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            char *ptr_body;
-            int body_len;
-            ptr_body = "<body>\r\n"
-                       "Success\r\n"
-                       "</body>\r\n";
-            body_len = strlen(ptr_body);
-            snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Length: %d\r\n"
-                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                "%s",
-                body_len, ptr_body);
-            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
-
         }
         free(uri_buffer);
         free(ctx->ptr_uri);
