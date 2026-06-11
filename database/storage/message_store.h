@@ -41,6 +41,7 @@ void free_memory(flat_message_store* fms);
 msg_buffer ms_get_all_messages(flat_message_store* fms);
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* end_of_db_idx);
 msg_buffer ms_get_messages_by_sender(flat_message_store *fms, char* sender_id);
+msg_buffer ms_get_conversation_messages(flat_message_store* fms, char* current_user, char* other_user);
 
 // -- USERS -- //
 typedef struct
@@ -65,7 +66,7 @@ typedef enum {
     USER_ACTION_SEND_MESSAGE,
     USER_ACTION_CHANGE_USERNAME
 } user_action;
-extern user_action user_action_t; 
+extern user_action user_action_t;
 
 int ms_register_user(int client_fd, char* payload, chand_users* c_users);
 void ms_disconnect_user(int client_fd, char* payload, chand_users* c_users);

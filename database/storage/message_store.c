@@ -114,7 +114,7 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, send_date_time, fms[index].message
+            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, send_date_time, fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -254,6 +254,86 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
     msg_buffer out = {mbu_len, msg_by_user};
 
     return out; /* msg_by_user needs to be freed after use */
+}
+
+msg_buffer ms_get_conversation_messages(
+    flat_message_store* fms, char* current_user, char* other_user
+) {
+    int index = 1;
+
+    char* msg_by_user = malloc(START_SIZE);
+        msg_by_user[0] = '\0';
+        strcat(msg_by_user, "[");
+
+        size_t mbu_len = strlen(msg_by_user);
+        size_t mbu_cap = START_SIZE;
+        char* msg_construction_buffer = malloc(BUFFER_SIZE);
+
+        int first = 1;
+
+        while (fms[index].message != NULL) {
+            int current_to_other =
+                strcmp(fms[index].sender_id, current_user) == 0 &&
+                strcmp(fms[index].recipient_id, other_user) == 0;
+
+            int other_to_current =
+                strcmp(fms[index].sender_id, other_user) == 0 &&
+                strcmp(fms[index].recipient_id, current_user) == 0;
+
+            if (!current_to_other && !other_to_current) {
+                index++;
+                continue;
+            }
+
+            if (!first) {
+                strcat(msg_by_user, ", ");
+                mbu_len += 2;
+            }
+
+            first = 0;
+
+            char send_date_time[64];
+            strftime(
+                send_date_time,
+                sizeof(send_date_time),
+                "%b %d %T %Y",
+                localtime(&fms[index].send_time)
+            );
+
+            snprintf(
+                msg_construction_buffer, BUFFER_SIZE,
+                "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}",
+                fms[index].sender_id, fms[index].recipient_id,
+                send_date_time, fms[index].message
+            );
+
+            int msg_c_b_len = strlen(msg_construction_buffer);
+
+            if (msg_c_b_len + mbu_len + 2 >= mbu_cap) {
+                mbu_cap = mbu_cap * 2;
+                char *tmp_ptr = realloc(msg_by_user, mbu_cap);
+                if (!tmp_ptr) {
+                    printf("Failed to reallocate memory for the messages\n");
+                    free(msg_construction_buffer);
+                    msg_buffer out = {0, msg_by_user};
+                    return out;
+                }
+                msg_by_user = tmp_ptr;
+            }
+
+            strcat(msg_by_user, msg_construction_buffer);
+            mbu_len += msg_c_b_len;
+
+            index++;
+        }
+
+        strcat(msg_by_user, "]");
+        mbu_len += 1;
+
+        free(msg_construction_buffer);
+
+        msg_buffer out = {mbu_len, msg_by_user};
+        return out;
 }
 
 int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)

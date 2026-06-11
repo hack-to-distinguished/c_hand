@@ -619,13 +619,16 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     "%s",
                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
-        
+
         } else if (strncmp(ctx->ptr_uri, "/messages/", 10) == 0) {
             // Gets messages specific to a user
             char *sender_id = ctx->ptr_uri + 10;
             printf("Getting messages from %s\n", sender_id);
 
             msg_buffer msg_res = ms_get_messages_by_sender(fms, sender_id);
+
+            // TODO: Complete the function and remove the above
+            // msg_buffer msg_res = ms_get_conversation_messages(fms, sender_id, );
 
             size_t total_buffer = 200 + msg_res.total_len;
             char *ptr_packet_buffer = malloc(total_buffer);

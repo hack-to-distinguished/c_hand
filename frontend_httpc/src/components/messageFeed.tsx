@@ -42,7 +42,7 @@ const MessageFeed = ({
 
   const getMessagesForTab = (
     messages: MessageObject[], activeTab: string | null,
-    userName: string
+    me: string
   ) => {
     if (activeTab === null) {
       return messages.filter((msg) => (msg.recipient_id ?? "all") === "all");
@@ -50,8 +50,8 @@ const MessageFeed = ({
 
     return messages.filter((msg) => {
       return (
-        (msg.sender_id === userName && msg.recipient_id === activeTab) ||
-        (msg.send_id === activeTab && msg.recipient_id === userName)
+        (msg.sender_id === me && msg.recipient_id === activeTab) ||
+        (msg.send_id === activeTab && msg.recipient_id === me)
       );
     });
   };
@@ -117,23 +117,33 @@ const MessageFeed = ({
     setActiveTab(senderId);
 
     if (senderId === null) {
-      setTabMessages(messagesObject);
+      setTabMessages(getMessagesForTab(messagesObject, null, userName));
       return;
     }
 
     setIsLoadingTab(true);
     try {
-      const result = await getConversationMessages(senderId);
-      setTabMessages(result ?? []);
+      const result = await getConversationMessages(userName, senderId);
 
-      // TODO: Add the same handleIncomingMessage from the socket
-      // here (or elsewhere (most likely elsewhere)) to handle messages
-      // specific to the user.
+      setMessagesObject((prev) => {
+        const existing = new Set(
+          prev.map((m) =>
+            `${m.sender_id}|${m.recipient_id}|${m.send_time}|${m.message}`
+          )
+        );
 
+        const newMessages = result.filter(
+          (m: MessageObject) =>
+            !existing.has(
+              `${m.sender_id}|${m.recipient_id}|${m.send_time}|${m.message}`
+            )
+        );
+
+        return [...prev, ...newMessages];
+      })
 
     } catch (error) {
       console.log("Error fetching tab messages:", error);
-      setTabMessages([]);
     } finally {
       setIsLoadingTab(false);
     }
