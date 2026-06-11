@@ -17,7 +17,7 @@ interface MessageBoxProps {
   activeTab: string | null;
 }
 
-const MessageBox = ({ socket, connectionStatus, userName, setMessageObject, activeTab }: MessageBoxProps) => {
+const MessageBox = ({ socket, connectionStatus, userName, setMessagesObject, activeTab }: MessageBoxProps) => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [showQuoteWarning, setShowQuoteWarning] = useState<boolean>(false);
 
@@ -42,7 +42,7 @@ const MessageBox = ({ socket, connectionStatus, userName, setMessageObject, acti
 
       const messageObj = {
         sender_id: userName || "unknown",
-        recipient_id: activeTab,
+        recipient_id: activeTab || "all",
         send_time: formattedNow,
         message: trimmed,
       };

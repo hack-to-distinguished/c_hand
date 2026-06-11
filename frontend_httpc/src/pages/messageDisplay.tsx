@@ -15,7 +15,7 @@ interface messageObject {
   send_time?: string;
   sender_id?: string;
   message?: string;
-  [key: string]: any;
+  [key: string]: list;
 }
 
 interface ConnectedUsers {
@@ -81,11 +81,11 @@ function MessageDisplay() {
       </aside>
 
       <div className="hud-main-panel">
-        <MessageFeed 
+        <MessageFeed
           socket={socket} connectionStatus={connectionStatus}
           messagesObject={messagesObject} setMessagesObject={setMessagesObject}
           connectedUsersList={connectedUsersList} activeTab={activeTab} setActiveTab={setActiveTab}
-          tabMessages={tabMessages} setTabMessages={setTabMessages}
+          tabMessages={tabMessages} setTabMessages={setTabMessages} userName={userName}
         />
       </div>
 

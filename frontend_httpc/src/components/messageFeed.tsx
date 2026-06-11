@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllMessages, getMessagesFromSenderId } from "../services/handleMessages.tsx";
+import { getAllMessages, getConversationMessages } from "../services/handleMessages.tsx";
 import { handleMessage as handleIncomingMessage } from "../services/handleMessages.tsx";
 import "./messageFeed.css";
 
@@ -7,7 +7,7 @@ interface MessageObject {
   send_time?: string;
   sender_id?: string;
   message?: string;
-  [key: string]: any;
+  [key: string]: list;
 }
 
 interface ConnectedUser {
@@ -23,13 +23,15 @@ interface MessageFeedProps {
   connectedUsersList: ConnectedUser[];
   activeTab: string|null;
   setActiveTab: React.Dispatch<React.SetStateAction<string|null>>;
-  tabMessages: MessageObject;
+  tabMessages: MessageObject[];
   setTabMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
+  userName: string;
 }
+
 
 const MessageFeed = ({
   socket, messagesObject, setMessagesObject, connectedUsersList,
-  activeTab, setActiveTab, tabMessages, setTabMessages
+  activeTab, setActiveTab, tabMessages, setTabMessages, userName
 }: MessageFeedProps) => {
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
 
@@ -37,6 +39,22 @@ const MessageFeed = ({
   const [isLoadingTab, setIsLoadingTab] = useState<boolean>(false);
 
   const listRef = useRef<HTMLUListElement | null>(null);
+
+  const getMessagesForTab = (
+    messages: MessageObject[], activeTab: string | null,
+    userName: string
+  ) => {
+    if (activeTab === null) {
+      return messages.filter((msg) => (msg.recipient_id ?? "all") === "all");
+    }
+
+    return messages.filter((msg) => {
+      return (
+        (msg.sender_id === userName && msg.recipient_id === activeTab) ||
+        (msg.send_id === activeTab && msg.recipient_id === userName)
+      );
+    });
+  };
 
   const initialGetMessagesReq = async () => {
     try {
@@ -61,17 +79,20 @@ const MessageFeed = ({
   }, [completedInitialRequest]);
 
   // Keep the "all" tab in sync with live WebSocket messages
+  // useEffect(() => {
+  //   if (activeTab === null) {
+  //     setTabMessages(messagesObject);
+  //   }
+  // }, [messagesObject]);
   useEffect(() => {
-    if (activeTab === null) {
-      setTabMessages(messagesObject);
-    }
-  }, [messagesObject]);
+    setTabMessages(getMessagesForTab(messagesObject, activeTab, userName));
+  }, [messagesObject, activeTab, userName])
 
   // Scroll to the bottom whenever the list changes
   useEffect(() => {
     listRef.current?.lastElementChild?.scrollIntoView();
     // TODO: Fix the scroll to view
-  }, [messagesObject]);
+  }, [tabMessages]);
 
   useEffect(() => {
     if (!socket.current) return;
@@ -102,7 +123,7 @@ const MessageFeed = ({
 
     setIsLoadingTab(true);
     try {
-      const result = await getMessagesFromSenderId(senderId);
+      const result = await getConversationMessages(senderId);
       setTabMessages(result ?? []);
 
       // TODO: Add the same handleIncomingMessage from the socket

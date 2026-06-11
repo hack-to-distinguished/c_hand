@@ -41,18 +41,21 @@ export const handleMessage = ({
   const formattedNow = `${month} ${day} ${time} ${year}`;
 
   const messageObj: MessageObject = {
+    ...parsed,
     sender_id: parsed?.sender_id ?? "unknown",
-    recipient_id: parsed?.recipient_id ?? "all",
+    recipient_id:
+      typeof parsed?.recipient_id === "string" && parsed.recipient_id
+        ? parsed.recipient_id
+        : "all",
     send_time: parsed?.send_time ?? formattedNow,
     message: parsed?.message ?? "",
-    ...parsed,
   };
   console.log("Adding message object to tab: ", messageObj, activeTab);
   // TODO: if the active tab is also the tab where the message is destined
   // add it to the message object, if not skip
-  if (messageObj.recipient_id && messageObj.recipient_id != activeTab) {
-    return;
-  }
+  // if (messageObj.recipient_id && messageObj.recipient_id != activeTab) {
+  //   return;
+  // }
   setMessages((prevMessages) => [...prevMessages, messageObj]);
   return;
 };
@@ -107,7 +110,7 @@ export const getAllMessages = async () => {
   }
 };
 
-export const getMessagesFromSenderId = async (senderId: string) => {
+export const getConversationMessages = async (senderId: string) => {
   try {
     // use this url or pass some extra information in the get request to specify the sender id
     const response = await axios.get(`http://localhost:8081/messages/${senderId}`);
