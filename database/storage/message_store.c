@@ -114,7 +114,8 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, send_date_time, fms[index].message
+            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}", 
+            fms[index].sender_id, fms[index].recipient_id, send_date_time, fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -144,9 +145,10 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
     strcat(msg_by_user, "]");
     mbu_len += strlen("]");
     free(msg_construction_buffer);
+    printf("Message buffer: %s\n", msg_by_user);
     msg_buffer out = {mbu_len, msg_by_user};
 
-    return out; // msg_by_use needs to be freed after use
+    return out; // msg_by_user needs to be freed after use
 }
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {

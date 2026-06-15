@@ -621,14 +621,15 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         } else if (strncmp(ctx->ptr_uri, "/messages/", 10) == 0) {
+            printf("IDENTIFIED PRIV MSG\n");
             // Gets messages specific to a user
-            char *sender_id = ctx->ptr_uri + 10;
-            printf("Getting messages from %s\n", sender_id);
+            char *pII = ctx->ptr_uri + 10;
 
-            msg_buffer msg_res = ms_get_messages_by_sender(fms, sender_id);
+            char *sender_id = strtok(pII, "/");
+            char *receiver_id = strtok(NULL, "/");
+            printf("%s sending message to %s\n", sender_id, receiver_id);
 
-            // TODO: Complete the function and remove the above
-            // msg_buffer msg_res = ms_get_conversation_messages(fms, sender_id, );
+            msg_buffer msg_res = ms_get_conversation_messages(fms, sender_id, receiver_id);
 
             size_t total_buffer = 200 + msg_res.total_len;
             char *ptr_packet_buffer = malloc(total_buffer);
