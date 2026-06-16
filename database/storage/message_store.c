@@ -260,8 +260,6 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
 msg_buffer ms_get_conversation_messages(
     flat_message_store* fms, char* current_user, char* other_user
 ) {
-
-    printf("Getting conversation messsage\n");
     int index = 1;
 
     char* msg_by_user = malloc(START_SIZE);
@@ -335,7 +333,6 @@ msg_buffer ms_get_conversation_messages(
 
         free(msg_construction_buffer);
 
-        printf("Message buffer: %s\n", msg_by_user);
         msg_buffer out = {mbu_len, msg_by_user};
         return out;
 }
@@ -692,6 +689,7 @@ int ms_get_fd_by_username(char* username, chand_users* c_users){
     int index = 0;
     while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
         if (strcmp(c_users[index].username, username) == 0) {
+            printf("User: %s file descriptor is: %d\n", c_users[index].username, c_users[index].client_fd);
             fd = c_users[index].client_fd;
             return fd;
         }

@@ -222,26 +222,14 @@ int main(int argc, char *argv[]) {
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
                 int reciever_fd = ms_add_message(buffer, fms, &latest_entry_ptr);
-                // if (reciever_fd) {
-                //     for (int j = 0; j < MAX_CLIENTS; j++) {
-                //         if (clients[j].fd == reciever_fd) {
-                //             ws_send_frame(clients[j].fd, buffer);
-                //         }
-                //     }
-
-                // } else {
-                //     for (int j = 0; j < MAX_CLIENTS; j++) {
-                //         if (clients[j].fd != -1 && clients[j].is_websocket) {
-                //             ws_send_frame(clients[j].fd, buffer);
-                //         }
-                //     }
-                // }
-                if (reciever_fd != 0) {
+                if (reciever_fd) {
                     ws_send_frame(client_sock, buffer);
 
                     if (reciever_fd > 0 && reciever_fd != client_sock) {
+                        printf("Sending message from fd: %d to fd %d\n", client_sock, reciever_fd);
                         ws_send_frame(reciever_fd, buffer);
                     }
+
                 } else {
                     for (int j = 0; j < MAX_CLIENTS; j++) {
                         if (clients[j].fd != -1 && clients[j].is_websocket) {
@@ -249,7 +237,6 @@ int main(int argc, char *argv[]) {
                         }
                     }
                 }
-
 
             }
 
