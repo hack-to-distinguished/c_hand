@@ -190,7 +190,6 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
     }
     strcat(msg_by_user, "]");
-    printf("Message buffer: %s\n", msg_by_user);
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
 
@@ -261,6 +260,8 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
 msg_buffer ms_get_conversation_messages(
     flat_message_store* fms, char* current_user, char* other_user
 ) {
+
+    printf("Getting conversation messsage\n");
     int index = 1;
 
     char* msg_by_user = malloc(START_SIZE);
@@ -334,6 +335,7 @@ msg_buffer ms_get_conversation_messages(
 
         free(msg_construction_buffer);
 
+        printf("Message buffer: %s\n", msg_by_user);
         msg_buffer out = {mbu_len, msg_by_user};
         return out;
 }

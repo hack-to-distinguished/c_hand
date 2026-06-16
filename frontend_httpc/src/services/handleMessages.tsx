@@ -114,26 +114,21 @@ export const getConversationMessages = async (
   currentUser: string, otherUser: string
 ) => {
   try {
-    // use this url or pass some extra information in the get request to specify the sender id
     const response = await axios.get(
       `http://localhost:8081/messages/${encodeURIComponent(currentUser)}/${encodeURIComponent(otherUser)}`
     );
-    // const response = await axios.get("http://localhost:8081/messages");
-    // const msgData = response.data;
-    // console.log("message data", msgData);
+    const msgData = response.data;
 
-    // let msgString = "";
-    // for (let i = 0; i < msgData.length; i++) {
-    //   const c = msgData[i];
-    //   if (msgData[i - 1] === " " || msgData[i - 1] === ":" || msgData[i - 1] === "{" || msgData[i + 1] === "}" || msgData[i + 1] === ":" || msgData[i + 1] === ","){
-    //     msgString += c === "'" ? '"' : c;
-    //   } else {
-    //     msgString += c;
-    //   }
-    // }
-    // console.log("reconstructed string:", msgString);
-    // return JSON.parse(msgString);
-    return JSON.parse(response.data);
+    let msgString = "";
+    for (let i = 0; i < msgData.length; i++) {
+      const c = msgData[i];
+      if (msgData[i - 1] === " " || msgData[i - 1] === ":" || msgData[i - 1] === "{" || msgData[i + 1] === "}" || msgData[i + 1] === ":" || msgData[i + 1] === ","){
+        msgString += c === "'" ? '"' : c;
+      } else {
+        msgString += c;
+      }
+    }
+    return JSON.parse(msgString);
 
   } catch (error) {
     console.log(`Error ${error} getting messages for sender: ${senderId}`);

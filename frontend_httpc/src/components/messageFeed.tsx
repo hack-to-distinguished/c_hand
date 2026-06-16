@@ -51,7 +51,7 @@ const MessageFeed = ({
     return messages.filter((msg) => {
       return (
         (msg.sender_id === me && msg.recipient_id === activeTab) ||
-        (msg.send_id === activeTab && msg.recipient_id === me)
+        (msg.sender_id === activeTab && msg.recipient_id === me)
       );
     });
   };
