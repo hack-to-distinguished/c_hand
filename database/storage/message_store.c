@@ -114,7 +114,7 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}", 
+            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}",
             fms[index].sender_id, fms[index].recipient_id, send_date_time, fms[index].message
         );
 
@@ -391,7 +391,7 @@ int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)
         return ms_get_fd_by_username(fms[idx].recipient_id, c_users);
     }
 
-    return 0;
+    return -1;
 
 
     // IMPROVEMENT:
@@ -695,5 +695,5 @@ int ms_get_fd_by_username(char* username, chand_users* c_users){
         }
         index += 1;
     }
-    return 0;
+    return -1;
 };

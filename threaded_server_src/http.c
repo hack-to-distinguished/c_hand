@@ -532,7 +532,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         printf("\nPOST REQUEST REGISTERED ROUTE: %s\n", ctx->ptr_uri);
 
         if (strcmp(ctx->ptr_uri, "/register") == 0) {
-            ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            ms_register_user(-1, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             const char *response_body = "{\"status\":\"200\", \"action\":\"registered user\"}";
@@ -554,7 +554,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/change-username") == 0) {
             printf("\n/change-username route triggered, adding user\n");
-            int res = ms_change_username(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            int res = ms_change_username(-1, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
 
