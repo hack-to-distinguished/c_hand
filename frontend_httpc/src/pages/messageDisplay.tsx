@@ -11,11 +11,11 @@ import { generateId, getAllUsers, registerUser } from "../services/handleUser.ts
 
 import "./messageDisplay.css";
 
-interface SavedMessages {
+interface messageObject {
   send_time?: string;
   sender_id?: string;
   message?: string;
-  [key: string]: any;
+  [key: string]: list;
 }
 
 interface ConnectedUsers {
@@ -28,9 +28,13 @@ function MessageDisplay() {
   const { socket, connectionStatus } = useWebSocket(serverUrl);
 
   const [userName, setUserName] = useState<string>("");
-  const [messagesObject, setMessagesObject] = useState<SavedMessages[]>([]);
+  const [messagesObject, setMessagesObject] = useState<messageObject[]>([]);
 
   const [connectedUsersList, setConnectedUsersList] = useState<ConnectedUsers[]>([]);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [tabMessages, setTabMessages] = useState<messageObject[]>([]);
 
   const registerUserReq = async (username: string) => {
     try {
@@ -58,7 +62,6 @@ function MessageDisplay() {
       username = generateId(5);
       setInLocalStorage("username", username);
     }
-    // TODO: make initial register post request in this use effect
     registerUserReq(username);
 
     setUserName(username || "");
@@ -78,15 +81,17 @@ function MessageDisplay() {
       </aside>
 
       <div className="hud-main-panel">
-        <MessageFeed 
+        <MessageFeed
           socket={socket} connectionStatus={connectionStatus}
           messagesObject={messagesObject} setMessagesObject={setMessagesObject}
-          connectedUsersList={connectedUsersList}
+          connectedUsersList={connectedUsersList} activeTab={activeTab} setActiveTab={setActiveTab}
+          tabMessages={tabMessages} setTabMessages={setTabMessages} userName={userName}
         />
       </div>
 
       <footer className="hud-footer">
-        <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName} setMessagesObject={setMessagesObject} />
+        <MessageBox socket={socket} connectionStatus={connectionStatus} userName={userName}
+        setMessagesObject={setMessagesObject} activeTab={activeTab}/>
       </footer>
     </section>
   );

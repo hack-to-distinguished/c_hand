@@ -133,7 +133,7 @@ void ws_send_frame(int sock, const char *msg) {
     if (send(sock, msg, len, 0) < (ssize_t)len) {
         perror("Failed to send WebSocket payload");
     }
-    printf("Sending: '%s' from client %d\n", msg, sock);
+    printf("Sending: '%s' to client %d\n", msg, sock);
 
 }
 

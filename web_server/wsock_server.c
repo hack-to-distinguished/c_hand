@@ -189,6 +189,13 @@ int main(int argc, char *argv[]) {
                 // FIX: The handling of invalid/Closed sockets is wrong
                 if (client_idx == -1 || !clients[client_idx].is_websocket) {
                     printf("Invalid client socket %d, closing\n", client_sock);
+                    for (int k = 0; k < CHAND_USERS_SIZE; k++) {
+                        if (c_users[k].username != NULL && c_users[k].client_fd == client_sock) {
+                            printf("Clearing stale user entry for %s (fd=%d)\n", c_users[k].username, client_sock);
+                            c_users[k].client_fd = -1;
+                            c_users[k].disconnected_at = time(NULL);
+                        }
+                    }
                     close(client_sock);
                     pfds[i] = pfds[fd_count - 1];
                     fd_count--;
@@ -202,6 +209,13 @@ int main(int argc, char *argv[]) {
                 // FIX: The handling of invalid/Closed sockets is wrong
                 if (bytes_recv < 0) {
                     printf("Client %s on socket %d disconnected\n", clients[client_idx].ip, client_sock);
+                    for (int k = 0; k < CHAND_USERS_SIZE; k++) {
+                        if (c_users[k].username != NULL && c_users[k].client_fd == client_sock) {
+                            printf("Marking user %s as disconnected (fd=%d)\n", c_users[k].username, client_sock);
+                            c_users[k].client_fd = -1;
+                            c_users[k].disconnected_at = time(NULL);
+                        }
+                    }
                     close(client_sock);
 
                     clients[client_idx].fd = -1;
@@ -221,16 +235,20 @@ int main(int argc, char *argv[]) {
                 time_t now = time(NULL);
                 char fd_string[16]; // This might get too small at some point
                 sprintf(fd_string, "%d", clients[client_idx].fd);
-                ms_add_message("all", buffer, fms, &latest_entry_ptr);
-
-                // TODO: Check the client_fd recived in the buffer
-                // if the client_fd is specified or != -1, only send the message to that client
-
-                for (int j = 0; j < MAX_CLIENTS; j++) {
-                    if (clients[j].fd != -1 && clients[j].is_websocket) {
-                        ws_send_frame(clients[j].fd, buffer);
+                int reciever_fd = ms_add_message(buffer, fms, &latest_entry_ptr);
+                if (reciever_fd >= 0) {
+                    ws_send_frame(client_sock, buffer);
+                    if (reciever_fd != client_sock) {
+                        ws_send_frame(reciever_fd, buffer);
+                    }
+                } else { // Sends to all users (broadcast)
+                    for (int j = 0; j < MAX_CLIENTS; j++) {
+                        if (clients[j].fd != -1 && clients[j].is_websocket) {
+                            ws_send_frame(clients[j].fd, buffer);
+                        }
                     }
                 }
+
             }
 
             // Check for errors or disconnects
@@ -240,6 +258,13 @@ int main(int argc, char *argv[]) {
                 for (int j = 0; j < MAX_CLIENTS; j++) {
                     if (clients[j].fd == client_sock) {
                         printf("Client %s on socket %d has error or disconnected\n", clients[j].ip, client_sock);
+                        for (int k = 0; k < CHAND_USERS_SIZE; k++) {
+                            if (c_users[k].username != NULL && c_users[k].client_fd == client_sock) {
+                                printf("Marking user %s as disconnected (fd=%d) due to poll error\n", c_users[k].username, client_sock);
+                                c_users[k].client_fd = -1;
+                                c_users[k].disconnected_at = time(NULL);
+                            }
+                        }
                         close(client_sock);
                         clients[j].fd = -1;
                         clients[j].is_websocket = false;

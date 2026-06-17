@@ -532,7 +532,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
         printf("\nPOST REQUEST REGISTERED ROUTE: %s\n", ctx->ptr_uri);
 
         if (strcmp(ctx->ptr_uri, "/register") == 0) {
-            ms_register_user(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            ms_register_user(-1, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
             const char *response_body = "{\"status\":\"200\", \"action\":\"registered user\"}";
@@ -554,7 +554,7 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
 
         } else if (strcmp(ctx->ptr_uri, "/change-username") == 0) {
             printf("\n/change-username route triggered, adding user\n");
-            int res = ms_change_username(ctx->new_connection_fd, *ctx->ptr_ptr_http_client_buffer, c_users);
+            int res = ms_change_username(-1, *ctx->ptr_ptr_http_client_buffer, c_users);
 
             char *ptr_packet_buffer = malloc(BUFFER_SIZE);
 
@@ -619,13 +619,17 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                     "%s",
                     body_len, ptr_body);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
-        
-        } else if (strncmp(ctx->ptr_uri, "/messages/", 10) == 0) {
-            // Gets messages specific to a user
-            char *sender_id = ctx->ptr_uri + 10;
-            printf("Getting messages from %s\n", sender_id);
 
-            msg_buffer msg_res = ms_get_messages_by_sender(fms, sender_id);
+        } else if (strncmp(ctx->ptr_uri, "/messages/", 10) == 0) {
+            printf("IDENTIFIED PRIV MSG\n");
+            // Gets messages specific to a user
+            char *pII = ctx->ptr_uri + 10;
+
+            char *sender_id = strtok(pII, "/");
+            char *receiver_id = strtok(NULL, "/");
+            printf("%s sending message to %s\n", sender_id, receiver_id);
+
+            msg_buffer msg_res = ms_get_conversation_messages(fms, sender_id, receiver_id);
 
             size_t total_buffer = 200 + msg_res.total_len;
             char *ptr_packet_buffer = malloc(total_buffer);
@@ -676,27 +680,6 @@ void END_OF_HEADERS_STATE(http_request_ctx *ctx) {
                 users_info.total_len, users_info.users);
             send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
             free(users_info.users);
-
-        } else if (strcmp(ctx->ptr_uri, "/add") == 0) {
-            // TODO: Turn the Get to post
-
-            int end_idx = ms_point_to_last_entry(fms);
-            ms_add_message("all", "testmsg", fms, &end_idx);
-
-            char *ptr_packet_buffer = malloc(BUFFER_SIZE);
-            char *ptr_body;
-            int body_len;
-            ptr_body = "<body>\r\n"
-                       "Success\r\n"
-                       "</body>\r\n";
-            body_len = strlen(ptr_body);
-            snprintf(ptr_packet_buffer, BUFFER_SIZE,
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Length: %d\r\n"
-                "Content-Type: text/html;\r\nConnection: close\r\n\r\n"
-                "%s",
-                body_len, ptr_body);
-            send_http_response(ctx->new_connection_fd, ptr_packet_buffer);
 
         }
         free(uri_buffer);

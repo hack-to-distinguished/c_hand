@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllMessages, getMessagesBySenderId } from "../services/handleMessages.tsx";
+import { getAllMessages, getConversationMessages } from "../services/handleMessages.tsx";
 import { handleMessage as handleIncomingMessage } from "../services/handleMessages.tsx";
 import "./messageFeed.css";
 
@@ -7,7 +7,7 @@ interface MessageObject {
   send_time?: string;
   sender_id?: string;
   message?: string;
-  [key: string]: any;
+  [key: string]: list;
 }
 
 interface ConnectedUser {
@@ -21,23 +21,44 @@ interface MessageFeedProps {
   messagesObject: MessageObject[];
   setMessagesObject: React.Dispatch<React.SetStateAction<MessageObject[]>>;
   connectedUsersList: ConnectedUser[];
+  activeTab: string|null;
+  setActiveTab: React.Dispatch<React.SetStateAction<string|null>>;
+  tabMessages: MessageObject[];
+  setTabMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
+  userName: string;
 }
 
+
 const MessageFeed = ({
-  socket, messagesObject, setMessagesObject, connectedUsersList
+  socket, messagesObject, setMessagesObject, connectedUsersList,
+  activeTab, setActiveTab, tabMessages, setTabMessages, userName
 }: MessageFeedProps) => {
   const [completedInitialRequest, setCompletedInitialRequest] = useState<boolean>(false);
-  
+
   // null -> "All" tab is active - string -> sender_id of the active tab
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [tabMessages, setTabMessages] = useState<MessageObject[]>([]);
   const [isLoadingTab, setIsLoadingTab] = useState<boolean>(false);
-  
+
   const listRef = useRef<HTMLUListElement | null>(null);
+
+  const getMessagesForTab = (
+    messages: MessageObject[], activeTab: string | null,
+    me: string
+  ) => {
+    if (activeTab === null) {
+      return messages.filter((msg) => (msg.recipient_id ?? "all") === "all");
+    }
+
+    return messages.filter((msg) => {
+      return (
+        (msg.sender_id === me && msg.recipient_id === activeTab) ||
+        (msg.sender_id === activeTab && msg.recipient_id === me)
+      );
+    });
+  };
 
   const initialGetMessagesReq = async () => {
     try {
-      console.log("Attempting to get all messages");
+      console.log("Attempting to get all messages on tab:", activeTab);
       const messages = await getAllMessages();
       if (messages) {
         console.log("All messages:", messages);
@@ -58,23 +79,27 @@ const MessageFeed = ({
   }, [completedInitialRequest]);
 
   // Keep the "all" tab in sync with live WebSocket messages
+  // useEffect(() => {
+  //   if (activeTab === null) {
+  //     setTabMessages(messagesObject);
+  //   }
+  // }, [messagesObject]);
   useEffect(() => {
-    if (activeTab === null) {
-      setTabMessages(messagesObject);
-    }
-  }, [messagesObject]);
-  
+    setTabMessages(getMessagesForTab(messagesObject, activeTab, userName));
+  }, [messagesObject, activeTab, userName])
+
   // Scroll to the bottom whenever the list changes
   useEffect(() => {
     listRef.current?.lastElementChild?.scrollIntoView();
-  }, [messagesObject]);
+    // TODO: Fix the scroll to view
+  }, [tabMessages]);
 
   useEffect(() => {
     if (!socket.current) return;
 
     const onMessage = (event: MessageEvent) => {
       // Reuse the shared handler shape: parse and append
-      handleIncomingMessage({ socket, setMessages: setMessagesObject, event });
+      handleIncomingMessage({ socket, setMessages: setMessagesObject, event, activeTab });
       // TODO: change the handleIncomingMessage to only display/get the messages directed
       // to all users
     };
@@ -87,28 +112,38 @@ const MessageFeed = ({
       }
     };
   }, [socket.current]);
-  
+
   const handleTabClick = async (senderId: string | null) => {
     setActiveTab(senderId);
-  
+
     if (senderId === null) {
-      setTabMessages(messagesObject);
+      setTabMessages(getMessagesForTab(messagesObject, null, userName));
       return;
     }
-  
+
     setIsLoadingTab(true);
     try {
-      const result = await getMessagesBySenderId(senderId);
-      setTabMessages(result ?? []);
+      const result = await getConversationMessages(userName, senderId);
 
-      // TODO: Add the same handleIncomingMessage from the socket
-      // here (or elsewhere (most likely elsewhere)) to handle messages
-      // specific to the user.
+      setMessagesObject((prev) => {
+        const existing = new Set(
+          prev.map((m) =>
+            `${m.sender_id}|${m.recipient_id}|${m.send_time}|${m.message}`
+          )
+        );
 
-      
+        const newMessages = result.filter(
+          (m: MessageObject) =>
+            !existing.has(
+              `${m.sender_id}|${m.recipient_id}|${m.send_time}|${m.message}`
+            )
+        );
+
+        return [...prev, ...newMessages];
+      })
+
     } catch (error) {
       console.log("Error fetching tab messages:", error);
-      setTabMessages([]);
     } finally {
       setIsLoadingTab(false);
     }
@@ -116,7 +151,7 @@ const MessageFeed = ({
 
   return (
     <div className="messages-display">
-      
+
       <div className="messages-tabs">
           <button
             onClick={() => handleTabClick(null)}
@@ -134,7 +169,7 @@ const MessageFeed = ({
             {user.username}
           </button>
           ))}
-        
+
         {/* Message list */}
 
       </div>
@@ -149,7 +184,7 @@ const MessageFeed = ({
               tabMessages.map((message: MessageObject, i: number) => (
                 <li key={i}>
                   <span className="message-metadata">
-                    {message.send_time} - From { message.sender_id }: 
+                    {message.send_time} - From { message.sender_id }:
                   </span>{" "}
                   {message.message}
                 </li>

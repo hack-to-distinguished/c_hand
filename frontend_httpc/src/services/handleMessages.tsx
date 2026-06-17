@@ -4,6 +4,7 @@ import axios from "axios";
 type SocketRef = React.RefObject<WebSocket | null>;
 type MessageObject = {
   sender_id?: string;
+  recipient_id?: string;
   send_time?: string; // ISO string preferred
   message?: string;
   [key: string]: any;
@@ -13,10 +14,12 @@ export const handleMessage = ({
   socket,
   setMessages,
   event,
+  activeTab
 }: {
   socket: SocketRef;
   setMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
   event: MessageEvent;
+  activeTab: string | null;
 }) => {
   if (!socket?.current) return;
 
@@ -38,14 +41,23 @@ export const handleMessage = ({
   const formattedNow = `${month} ${day} ${time} ${year}`;
 
   const messageObj: MessageObject = {
+    ...parsed,
     sender_id: parsed?.sender_id ?? "unknown",
+    recipient_id:
+      typeof parsed?.recipient_id === "string" && parsed.recipient_id
+        ? parsed.recipient_id
+        : "all",
     send_time: parsed?.send_time ?? formattedNow,
     message: parsed?.message ?? "",
-    ...parsed,
   };
-  console.log("New messages to set:", messageObj);
-
+  console.log("Adding message object to tab: ", messageObj, activeTab);
+  // TODO: if the active tab is also the tab where the message is destined
+  // add it to the message object, if not skip
+  // if (messageObj.recipient_id && messageObj.recipient_id != activeTab) {
+  //   return;
+  // }
   setMessages((prevMessages) => [...prevMessages, messageObj]);
+  return;
 };
 
 export const sendMessage = async ({
@@ -98,13 +110,14 @@ export const getAllMessages = async () => {
   }
 };
 
-export const getMessagesBySenderId = async (senderId: string) => {
+export const getConversationMessages = async (
+  currentUser: string, otherUser: string
+) => {
   try {
-    // use this url or pass some extra information in the get request to specify the sender id
-    const response = await axios.get(`http://localhost:8081/messages/${senderId}`);
-    // const response = await axios.get("http://localhost:8081/messages");
+    const response = await axios.get(
+      `http://localhost:8081/messages/${encodeURIComponent(currentUser)}/${encodeURIComponent(otherUser)}`
+    );
     const msgData = response.data;
-    console.log("message data", msgData);
 
     let msgString = "";
     for (let i = 0; i < msgData.length; i++) {
@@ -115,7 +128,6 @@ export const getMessagesBySenderId = async (senderId: string) => {
         msgString += c;
       }
     }
-    console.log("reconstructed string:", msgString);
     return JSON.parse(msgString);
 
   } catch (error) {

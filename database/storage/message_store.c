@@ -92,6 +92,7 @@ void ms_stream_user_messages_desc(flat_message_store* fms, int* end_of_db_idx,
 
 
 msg_buffer ms_get_all_messages(flat_message_store* fms) {
+    // Gets all the messages destined for everyone
 
     int index = 1;
 
@@ -104,11 +105,17 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
 
     while (fms[index].message != NULL)
     {
+        if (strcmp(fms[index].recipient_id, "all") != 0) {
+            printf("Message not for you: %s\n", fms[index].recipient_id);
+            index ++;
+            continue;
+        }
         char send_date_time[64];
         strftime(send_date_time, sizeof(send_date_time), "%b %d %T %Y", localtime(&fms[index].send_time));
         snprintf(
             msg_construction_buffer, BUFFER_SIZE,
-            "{'sender_id': '%s', 'send_time': '%s', 'message': '%s'}", fms[index].sender_id, send_date_time, fms[index].message
+            "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}",
+            fms[index].sender_id, fms[index].recipient_id, send_date_time, fms[index].message
         );
 
         int msg_c_b_len = strlen(msg_construction_buffer);
@@ -124,19 +131,24 @@ msg_buffer ms_get_all_messages(flat_message_store* fms) {
         mbu_len += msg_c_b_len;
         index++;
 
-        if (fms[index].message != NULL) {
-            // We only add the comma if there is more data to append
+        /* Peek ahead: only add comma if there is another matching entry */
+        int peek = index;
+        while (fms[peek].message != NULL && strcmp(fms[peek].recipient_id, "all") != 0) {
+            peek++;
+        }
+        if (fms[peek].message != NULL) {
             strcat(msg_by_user, ", ");
-            mbu_len += strlen(", ");
+            mbu_len += 2;
         }
 
     }
     strcat(msg_by_user, "]");
     mbu_len += strlen("]");
     free(msg_construction_buffer);
+    printf("Message buffer: %s\n", msg_by_user);
     msg_buffer out = {mbu_len, msg_by_user};
 
-    return out; // msg_by_use needs to be freed after use
+    return out; // msg_by_user needs to be freed after use
 }
 
 msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_ptr) {
@@ -178,7 +190,6 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
     }
     strcat(msg_by_user, "]");
-    printf("Message buffer: %s\n", msg_by_user);
     free(msg_construction_buffer);
     msg_buffer out = {mbu_len, msg_by_user};
 
@@ -187,6 +198,7 @@ msg_buffer ms_get_all_messages_desc(flat_message_store* fms, int* latest_entry_p
 
 
 msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
+    // Gets message by sender and destined for the user making the request
 
     int index = 1;
 
@@ -199,7 +211,8 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
 
     while (fms[index].message != NULL)
     {
-        if (strcmp(fms[index].sender_id, sender_id) != 0) {
+        if (strcmp(fms[index].sender_id, sender_id) != 0 ||
+            strcmp(fms[index].recipient_id, "all") == 0) {
             index++;
             continue;
         }
@@ -244,7 +257,87 @@ msg_buffer ms_get_messages_by_sender(flat_message_store* fms, char* sender_id) {
     return out; /* msg_by_user needs to be freed after use */
 }
 
-void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, int *end_of_db_idx)
+msg_buffer ms_get_conversation_messages(
+    flat_message_store* fms, char* current_user, char* other_user
+) {
+    int index = 1;
+
+    char* msg_by_user = malloc(START_SIZE);
+        msg_by_user[0] = '\0';
+        strcat(msg_by_user, "[");
+
+        size_t mbu_len = strlen(msg_by_user);
+        size_t mbu_cap = START_SIZE;
+        char* msg_construction_buffer = malloc(BUFFER_SIZE);
+
+        int first = 1;
+
+        while (fms[index].message != NULL) {
+            int current_to_other =
+                strcmp(fms[index].sender_id, current_user) == 0 &&
+                strcmp(fms[index].recipient_id, other_user) == 0;
+
+            int other_to_current =
+                strcmp(fms[index].sender_id, other_user) == 0 &&
+                strcmp(fms[index].recipient_id, current_user) == 0;
+
+            if (!current_to_other && !other_to_current) {
+                index++;
+                continue;
+            }
+
+            if (!first) {
+                strcat(msg_by_user, ", ");
+                mbu_len += 2;
+            }
+
+            first = 0;
+
+            char send_date_time[64];
+            strftime(
+                send_date_time,
+                sizeof(send_date_time),
+                "%b %d %T %Y",
+                localtime(&fms[index].send_time)
+            );
+
+            snprintf(
+                msg_construction_buffer, BUFFER_SIZE,
+                "{'sender_id': '%s', 'recipient_id': '%s', 'send_time': '%s', 'message': '%s'}",
+                fms[index].sender_id, fms[index].recipient_id,
+                send_date_time, fms[index].message
+            );
+
+            int msg_c_b_len = strlen(msg_construction_buffer);
+
+            if (msg_c_b_len + mbu_len + 2 >= mbu_cap) {
+                mbu_cap = mbu_cap * 2;
+                char *tmp_ptr = realloc(msg_by_user, mbu_cap);
+                if (!tmp_ptr) {
+                    printf("Failed to reallocate memory for the messages\n");
+                    free(msg_construction_buffer);
+                    msg_buffer out = {0, msg_by_user};
+                    return out;
+                }
+                msg_by_user = tmp_ptr;
+            }
+
+            strcat(msg_by_user, msg_construction_buffer);
+            mbu_len += msg_c_b_len;
+
+            index++;
+        }
+
+        strcat(msg_by_user, "]");
+        mbu_len += 1;
+
+        free(msg_construction_buffer);
+
+        msg_buffer out = {mbu_len, msg_by_user};
+        return out;
+}
+
+int ms_add_message(char* message, flat_message_store* fms, int *end_of_db_idx)
 {
     int idx = *end_of_db_idx;
     idx++;
@@ -260,10 +353,18 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
     cJSON *jsonUserMessage = cJSON_GetObjectItem(json, "message");
     if (!cJSON_IsString(jsonUserMessage)) {
         perror("Message isn't a string");
-        return;
+        return 0;
     }
 
     cJSON *jsonSenderID = cJSON_GetObjectItem(json, "sender_id");
+    cJSON *jsonRecipientID = cJSON_GetObjectItem(json, "recipient_id");
+    char* recipient_id;
+    if (!cJSON_IsString(jsonRecipientID)) {
+        printf("Message recipient id not found, setting it to all\n");
+        recipient_id = "all";
+    } else {
+        recipient_id = jsonRecipientID->valuestring;
+    };
     cJSON *jsonSendTime = cJSON_GetObjectItem(json, "send_time");
 
 
@@ -282,8 +383,16 @@ void ms_add_message(char* recipient_id, char* message, flat_message_store* fms, 
 
     *end_of_db_idx = idx;
     printf("Successfully added %s to index %d - ID: %d\n\n", message, idx, fms[idx].ID);
-    ms_view_all_entries(fms, end_of_db_idx,        2);
-    return;
+    // ms_view_all_entries(fms, end_of_db_idx,        2);
+    char* all_users = "all";
+    printf("Preparing to send message to %s\n", fms[idx].recipient_id);
+
+    if (strcmp(fms[idx].recipient_id, "all") != 0) {
+        return ms_get_fd_by_username(fms[idx].recipient_id, c_users);
+    }
+
+    return -1;
+
 
     // IMPROVEMENT:
     // - Find out how to not rely on having a list end flag
@@ -571,3 +680,20 @@ user_list_buffer ms_get_all_users(chand_users* c_users) {
     cJSON_Delete(users_obj);
     return out;
 }
+
+int ms_get_fd_by_username(char* username, chand_users* c_users){
+    // Uses the username to get the client fd
+
+    int fd = -1;
+
+    int index = 0;
+    while (index < CHAND_USERS_SIZE && c_users[index].username != NULL) {
+        if (strcmp(c_users[index].username, username) == 0) {
+            printf("User: %s file descriptor is: %d\n", c_users[index].username, c_users[index].client_fd);
+            fd = c_users[index].client_fd;
+            return fd;
+        }
+        index += 1;
+    }
+    return -1;
+};
