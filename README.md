@@ -87,7 +87,8 @@ A real-time messaging platform leveraging the **WebSocket protocol** for persist
 - Supports group messaging through the server.
 
 **Messaging Page (browser view):**
-<img width="2739" height="1540" alt="image" src="https://github.com/user-attachments/assets/d0f72822-17a8-4aeb-a669-d9ff1a166866" />
+<img width="1907" height="958" alt="image" src="https://github.com/user-attachments/assets/83b9e8fc-ad3b-4a8d-b776-531a1c53cb28" />
+
 
 ---
 
