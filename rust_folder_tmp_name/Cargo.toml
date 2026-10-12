@@ -1,0 +1,17 @@
+[package]
+name = "p2pSFIS"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+    libp2p = { version = "0.57.0", features = [
+        "noise",
+        "ping",
+        "tcp",
+        "tokio",
+        "yamux",
+    ] }
+    tokio = { version = "1", features = ["full"] }
+    futures = "0.3.34"
+    tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+
