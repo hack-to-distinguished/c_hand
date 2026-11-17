@@ -1,5 +1,5 @@
 [package]
-name = "p2pSFIS"
+name = "p2p_sfis"
 version = "0.1.0"
 edition = "2024"
 
@@ -15,3 +15,9 @@ edition = "2024"
     futures = "0.3.34"
     tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 
+[lib]
+name = "p2p_sfis"
+crate-type = ["cdylib", "staticlib"]
+
+[build-dependencies]
+cbindgen = "0.29.4"
