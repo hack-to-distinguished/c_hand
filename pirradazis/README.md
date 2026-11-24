@@ -89,10 +89,14 @@ This is the foundation for direct sync, app-to-app messaging, distributed job di
 - Failure policy? Eventual consistency, explicit retries, durable outbound queue?
 
 
-
-
-
-
 ## Tech
 - libp2p
 - WebRTC
+
+
+# Combining RUST with C
+
+- `build.rs` has the config for creating the binding. It will add extern functions to the select file
+- Compile the rust code with `cargo build` to invoke cbindgen and make the libs/functions available (don't forget to include new files in `lib.rs` using `mod <file>;`)
+- Compile the c code and using the compiled rust code to make the desired target file: `pirradazis/target/debug/libpirradazis.so main.c -o <target>`
+- Run the code: `./target`
