@@ -13,6 +13,7 @@ skeleton
 *.o
 sdbms
 msg*
+rust-in-c-dynamic
 
 # Random
 .DS_Store
